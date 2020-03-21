@@ -68,9 +68,6 @@ function(_nuget_core_install
     POST_INSTALL_HOOK
 )
     # Inputs
-    if(NUGET_PRERELEASE_ALLOWED)
-        set(PRERELEASE_OPTION "-Prerelease")
-    endif()
     if("${POST_INSTALL_HOOK}" STREQUAL "")
         set(POST_INSTALL_HOOK "${NUGET_DEFAULT_POST_INSTALL_HOOK}") # Default
     endif()
@@ -85,7 +82,6 @@ function(_nuget_core_install
         COMMAND "${NUGET_COMMAND}" install ${PACKAGE_ID}
             -Version ${PACKAGE_VERSION}
             -OutputDirectory "${NUGET_PACKAGES_DIR}"
-            ${PRERELEASE_OPTION}
             -NonInteractive
         ERROR_VARIABLE
             NUGET_INSTALL_ERROR_VAR
