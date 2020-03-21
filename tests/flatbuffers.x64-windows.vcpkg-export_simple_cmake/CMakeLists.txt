@@ -33,3 +33,4 @@ add_dependencies(GeneratedFiles GeneratedFilesInternal)
 # From https://github.com/google/flatbuffers/blob/42c08cbca601688af921eaa9384844a632e2cde8/samples/sample_binary.cpp
 add_library(FlatbuffersSimple sample_binary.cpp)
 target_link_libraries(FlatbuffersSimple PRIVATE GeneratedFiles)
+target_include_directories(FlatbuffersSimple PRIVATE "${FLATBUFFERS_INTERFACE_INCLUDE_DIRECTORIES}") # Only need flatbuffers/flatbuffers.h

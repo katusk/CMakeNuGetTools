@@ -184,23 +184,32 @@ function(_nuget_core_import_cmake_exports
     endif()
     set(IMPORT_FROM "${NUGET_PACKAGE_DIR_${PACKAGE_ID}}/${IMPORT_FROM}")
 
-    # Modify prefix or module path
-    # See https://cmake.org/cmake/help/latest/command/find_package.html#search-procedure
+    # Save settings
     if(AS_MODULE)
-        if(NO_OVERRIDE)
-            set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${IMPORT_FROM}")
-            # list(APPEND CMAKE_MODULE_PATH "${IMPORT_FROM}")
-        else()
-            set(CMAKE_MODULE_PATH "${IMPORT_FROM}" ${CMAKE_MODULE_PATH})
-            # list(INSERT CMAKE_MODULE_PATH 0 "${IMPORT_FROM}")
-        endif()
+        set("NUGET_PACKAGE_MODULE_PATH_${PACKAGE_ID}" "${IMPORT_FROM}" CACHE INTERNAL "")
+        set("NUGET_PACKAGE_MODULE_PATH_NO_OVERRIDE_${PACKAGE_ID}" "${NO_OVERRIDE}" CACHE INTERNAL "")
     else()
-        if(NO_OVERRIDE)
-            set(CMAKE_PREFIX_PATH ${CMAKE_MODULE_PATH} "${IMPORT_FROM}")
-            # list(APPEND CMAKE_PREFIX_PATH "${IMPORT_FROM}")
-        else()
-            set(CMAKE_PREFIX_PATH "${IMPORT_FROM}" ${CMAKE_MODULE_PATH})
-            # list(INSERT CMAKE_PREFIX_PATH 0 "${IMPORT_FROM}")
-        endif()
+        set("NUGET_PACKAGE_PREFIX_PATH_${PACKAGE_ID}" "${IMPORT_FROM}" CACHE INTERNAL "")
+        set("NUGET_PACKAGE_PREFIX_PATH_NO_OVERRIDE_${PACKAGE_ID}" "${NO_OVERRIDE}" CACHE INTERNAL "")
     endif()
 endfunction()
+
+## Internal. Needs to be macro for properly setting CMAKE_MODULE_PATH or CMAKE_PREFIX_PATH.
+macro(_nuget_core_import_cmake_exports_set_cmake_paths PACKAGE_ID)
+    # Modify prefix or module path
+    # See https://cmake.org/cmake/help/latest/command/find_package.html#search-procedure
+    if(NOT "${NUGET_PACKAGE_MODULE_PATH_${PACKAGE_ID}}" STREQUAL "")
+        if("${NUGET_PACKAGE_MODULE_PATH_NO_OVERRIDE_${PACKAGE_ID}}")
+            list(APPEND CMAKE_MODULE_PATH "${NUGET_PACKAGE_MODULE_PATH_${PACKAGE_ID}}")
+        else()
+            list(INSERT CMAKE_MODULE_PATH 0 "${NUGET_PACKAGE_MODULE_PATH_${PACKAGE_ID}}")
+        endif()
+    endif()
+    if(NOT "${NUGET_PACKAGE_PREFIX_PATH_${PACKAGE_ID}}" STREQUAL "")
+        if("${NUGET_PACKAGE_PREFIX_PATH_NO_OVERRIDE_${PACKAGE_ID}}")
+            list(APPEND CMAKE_PREFIX_PATH "${NUGET_PACKAGE_PREFIX_PATH_${PACKAGE_ID}}")
+        else()
+            list(INSERT CMAKE_PREFIX_PATH 0 "${NUGET_PACKAGE_PREFIX_PATH_${PACKAGE_ID}}")
+        endif()
+    endif()
+endmacro()
