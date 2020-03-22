@@ -46,7 +46,28 @@ function(test__nuget_helper_cut_arg_list_3)
     assert("" STREQUAL "${TAIL}")
 endfunction()
 
+function(test__nuget_helper_list_transform_prepend_1)
+    set(LIST "")
+    _nuget_helper_list_transform_prepend("${LIST}" "joe" LIST)
+    assert("" STREQUAL "${LIST}")
+endfunction()
+
+function(test__nuget_helper_list_transform_prepend_2)
+    set(LIST "/postfix")
+    _nuget_helper_list_transform_prepend("${LIST}" "joe" LIST)
+    assert("joe/postfix" STREQUAL "${LIST}")
+endfunction()
+
+function(test__nuget_helper_list_transform_prepend_3)
+    set(LIST "/postfix1" "/postfix2")
+    _nuget_helper_list_transform_prepend("${LIST}" "joe" LIST)
+    assert("joe/postfix1;joe/postfix2" STREQUAL "${LIST}")
+endfunction()
+
 ## Invoke test cases
 test__nuget_helper_cut_arg_list_1()
 test__nuget_helper_cut_arg_list_2()
 test__nuget_helper_cut_arg_list_3()
+test__nuget_helper_list_transform_prepend_1()
+test__nuget_helper_list_transform_prepend_2()
+test__nuget_helper_list_transform_prepend_3()
