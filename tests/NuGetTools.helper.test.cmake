@@ -2,7 +2,7 @@
 ## $ cmake -P tests/NuGetTools.helper.test.cmake
 cmake_minimum_required(VERSION 3.8.2 FATAL_ERROR)
 set(PROJECT_ROOT "${CMAKE_CURRENT_LIST_DIR}/..")
-include("${PROJECT_ROOT}/cmake/NuGetTools.helper.cmake")
+include("${PROJECT_ROOT}/cmake/internal/NuGetTools.helper.cmake")
 include("${CMAKE_CURRENT_LIST_DIR}/Helper.cmake")
 
 ## Test input

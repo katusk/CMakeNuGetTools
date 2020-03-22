@@ -12,5 +12,5 @@ set(NUGET_DEFAULT_POST_INSTALL_HOOK "" CACHE FILEPATH
 )
 
 ## Includes
-include("${CMAKE_CURRENT_LIST_DIR}/NuGetTools.helper.cmake")
-include("${CMAKE_CURRENT_LIST_DIR}/NuGetImport.cmake")
+include("${CMAKE_CURRENT_LIST_DIR}/internal/NuGetTools.helper.cmake")
+include("${CMAKE_CURRENT_LIST_DIR}/internal/NuGetImport.cmake")
