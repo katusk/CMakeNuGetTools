@@ -14,7 +14,7 @@ set(CMAKE_C_COMPILER "")
 nuget_dependencies(
     PACKAGE flatbuffers.x64-windows.vcpkg-export
     VERSION 1.11.0-1
-    IMPORT_FROM installed/x64-windows
+    PREFIX_PATHS installed/x64-windows
 )
 
 ## Find external dependencies

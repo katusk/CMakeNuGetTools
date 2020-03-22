@@ -62,7 +62,7 @@ endfunction()
 
 ## Internal. Assembles the package directory based off of the given args and the 
 ## NUGET_PACKAGES_DIR cache variable.
-function(_nuget_helper_get_package_dir PACKAGE_ID PACKAGE_VERSION OUT_PACKAGE_DIR)
+function(_nuget_helper_get_packages_dir PACKAGE_ID PACKAGE_VERSION OUT_PACKAGE_DIR)
     set(${OUT_PACKAGE_DIR}
         "${NUGET_PACKAGES_DIR}/${PACKAGE_ID}.${PACKAGE_VERSION}"
         PARENT_SCOPE

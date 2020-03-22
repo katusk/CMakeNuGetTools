@@ -20,8 +20,8 @@ endfunction()
 function(_nuget_single_import_dot_targets)
     # Inputs
     set(options PUBLIC PRIVATE IMPORT_DOT_TARGETS)
-    set(oneValueArgs PACKAGE VERSION IMPORT_DOT_TARGETS_AS INCLUDE_DIRS)
-    set(multiValueArgs "")
+    set(oneValueArgs PACKAGE VERSION IMPORT_DOT_TARGETS_AS)
+    set(multiValueArgs INCLUDE_DIRS)
     cmake_parse_arguments(_arg
         "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGV}
     )
@@ -58,7 +58,7 @@ endfunction()
 # raise a CMake Error. Default usage requirement is PRIVATE.
 function(_nuget_single_import_cmake_exports)
     # Inputs
-    set(options APPEND_PATHS PUBLIC PRIVATE IMPORT_CMAKE_EXPORTS)
+    set(options PUBLIC PRIVATE IMPORT_CMAKE_EXPORTS APPEND_PATHS)
     set(oneValueArgs PACKAGE VERSION)
     set(multiValueArgs PREFIX_PATHS MODULE_PATHS)
     cmake_parse_arguments(_arg

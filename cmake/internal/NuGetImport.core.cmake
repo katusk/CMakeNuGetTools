@@ -70,7 +70,10 @@ function(_nuget_core_install
     PACKAGE_VERSION
 )
     # Inputs
-    _nuget_helper_error_if_empty("${NUGET_COMMAND}" "No NuGet executable was provided.")
+    _nuget_helper_error_if_empty("${NUGET_COMMAND}"
+        "No NuGet executable was provided; this means NuGetTools should have been disabled, and "
+        "we should not ever reach a call to _nuget_core_install()."
+    )
     # Execute install
     #
     # NOTE. Output is not parsed for additionally installed dependencies. It does not worth
@@ -98,7 +101,7 @@ function(_nuget_core_install
     set("NUGET_DEPENDENCY_INSTALLED_${PACKAGE_ID}" TRUE CACHE INTERNAL
         "True if the package \"${PACKAGE_ID}\" is successfully installed."
     )
-    _nuget_helper_get_package_dir(${PACKAGE_ID} ${PACKAGE_VERSION} PACKAGE_DIR)
+    _nuget_helper_get_packages_dir(${PACKAGE_ID} ${PACKAGE_VERSION} PACKAGE_DIR)
     set("NUGET_DEPENDENCY_DIR_${PACKAGE_ID}" "${PACKAGE_DIR}" CACHE INTERNAL
         "Absolute path to the directory of the installed package \"${PACKAGE_ID}\"."
     )
@@ -106,9 +109,8 @@ endfunction()
 
 ## Internal. Only Visual Studio generators are compatible. Creates a CMake build target
 ## named IMPORT_AS (if non-empty, otherwise: PACKAGE_ID) from the PACKAGE_ID package with
-## PACKAGE_VERSION version using the "${NUGET_DOT_TARGETS_DIR}/${PACKAGE_ID}.targets"
-## file within the package. INCLUDE_DIRS is required for better Visual Studio editing
-## experience.
+## PACKAGE_VERSION version using the "build/native/${PACKAGE_ID}.targets" within the package.
+## INCLUDE_DIRS is required for better Visual Studio editing experience.
 function(_nuget_core_import_dot_targets
     PACKAGE_ID
     PACKAGE_VERSION
@@ -150,16 +152,15 @@ function(_nuget_core_import_dot_targets
     set_property(TARGET ${IMPORT_AS} PROPERTY INTERFACE_LINK_LIBRARIES "${DOT_TARGETS_FILE}")
     if(NOT "${INCLUDE_DIRS}" STREQUAL "")
         # Experience shows that the Visual Studio editor does not recognize anything included
-        # unless you set this property. Building your target would work regardless of setting
-        # this property if the imported .targets file is written properly.
+        # unless you set this property. Building your target should work regardless of setting
+        # this property if the imported .targets file is working properly.
         set_property(TARGET ${IMPORT_AS} PROPERTY INTERFACE_INCLUDE_DIRECTORIES ${INCLUDE_DIRS})
     endif()
 endfunction()
 
-## Internal. Preparations for prepending the PREFIX_PATHS relative-to-package-directory path to the
-## CMAKE_PREFIX_PATH if MODULE_PATHS is FALSE and APPEND_PATHS is FALSE. If MODULE_PATHS is TRUE then the
-## CMAKE_MODULE_PATH is modified later on. If APPEND_PATHS is TRUE, the operation becomes an append
-## instead of a prepend later on.
+## Internal. Preparations for prepending the PREFIX_PATHS and MODULE_PATHS relative-to-package-directory
+## paths to the CMAKE_PREFIX_PATH and CMAKE_MODULE_PATHS if APPEND_PATHS is FALSE. If APPEND_PATHS is TRUE,
+## the operation becomes an append instead of a prepend later on.
 function(_nuget_core_import_cmake_exports
     PACKAGE_ID
     PACKAGE_VERSION
@@ -180,10 +181,10 @@ function(_nuget_core_import_cmake_exports
 
     # Save settings: we do not actually set CMAKE_PREFIX_PATH or CMAKE_MODULE_PATH here,
     # see the call point of _nuget_core_import_cmake_exports_set_cmake_paths() for that.
-    # Since we are in a new (function) scope here setting those variables here would not
+    # Since we are in a new (function) scope here, setting those variables here would not
     # have any effect.
     set("NUGET_LAST_DEPENDENCY_PREFIX_PATHS_${PACKAGE_ID}" "${PREFIX_PATHS}" CACHE INTERNAL "")
-    set("NUGET_LAST_DEPENDENCY_MODULE_PATHS_${PACKAGE_ID}" "${PREFIX_PATHS}" CACHE INTERNAL "")
+    set("NUGET_LAST_DEPENDENCY_MODULE_PATHS_${PACKAGE_ID}" "${MODULE_PATHS}" CACHE INTERNAL "")
     set("NUGET_LAST_DEPENDENCY_APPEND_PATHS_${PACKAGE_ID}" "${APPEND_PATHS}" CACHE INTERNAL "")
 endfunction()
 
