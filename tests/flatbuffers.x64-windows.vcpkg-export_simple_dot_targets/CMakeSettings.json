@@ -1,0 +1,38 @@
+{
+    "environments": [
+        {
+            "TargetsDir": "${projectDir}"
+        }
+    ],
+
+    "configurations": [
+        {
+            "name": "x64-Debug",
+            "generator": "Visual Studio 15 2017 Win64",
+            "configurationType": "Debug",
+            "inheritEnvironments": [ "msvc_x64_x64" ],
+            "buildRoot": "${env.TargetsDir}\\build\\${name}",
+            "installRoot": "${env.TargetsDir}\\install\\${name}",
+            "cmakeCommandArgs": "--trace-expand",
+            "buildCommandArgs": "/v:normal /m /p:CL_MPCount=8",
+            "ctestCommandArgs": "",
+            "variables": [
+                { "name": "NUGET_COMMAND", "value": "nuget" }
+            ]
+        },
+        {
+            "name": "x64-Release",
+            "generator": "Visual Studio 15 2017 Win64",
+            "configurationType": "Release",
+            "inheritEnvironments": [ "msvc_x64_x64" ],
+            "buildRoot": "${env.TargetsDir}\\build\\${name}",
+            "installRoot": "${env.TargetsDir}\\install\\${name}",
+            "cmakeCommandArgs": "--trace-expand",
+            "buildCommandArgs": "/v:normal /m /p:CL_MPCount=8",
+            "ctestCommandArgs": "",
+            "variables": [
+                { "name": "NUGET_COMMAND", "value": "nuget" }
+            ]
+        }
+    ]
+}

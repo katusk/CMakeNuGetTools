@@ -18,6 +18,7 @@ nuget_dependencies(
 )
 
 ## Find external dependencies
+# Business as usual from this point on. The above nuget_dependencies() takes care of setting the CMAKE_PREFIX_PATH.
 # Only for flatbuffers::flatc and INTERFACE_INCLUDE_DIRECTORIES, flatbuffers.lib not needed.
 find_package(Flatbuffers CONFIG REQUIRED)
 get_target_property(FLATBUFFERS_INTERFACE_INCLUDE_DIRECTORIES flatbuffers::flatbuffers INTERFACE_INCLUDE_DIRECTORIES)

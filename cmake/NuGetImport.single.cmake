@@ -93,14 +93,14 @@ endfunction()
 # Internal. Dispatcher to above functions.
 function(_nuget_single_dependencies)
     # Case: INTERFACE
-    list(FIND "${ARGV}" INTERFACE INTERFACE_IDX)
+    list(FIND ARGV INTERFACE INTERFACE_IDX)
     if(NOT ${INTERFACE_IDX} EQUAL -1)
         _nuget_single_register_as_interface(${ARGV})
         return()
     endif()
     # Case: IMPORT_DOT_TARGETS or IMPORT_DOT_TARGETS_AS
-    list(FIND "${ARGV}" IMPORT_DOT_TARGETS IMPORT_DOT_TARGETS_IDX)
-    list(FIND "${ARGV}" IMPORT_DOT_TARGETS_AS IMPORT_DOT_TARGETS_AS_IDX)
+    list(FIND ARGV IMPORT_DOT_TARGETS IMPORT_DOT_TARGETS_IDX)
+    list(FIND ARGV IMPORT_DOT_TARGETS_AS IMPORT_DOT_TARGETS_AS_IDX)
     if(NOT ${IMPORT_DOT_TARGETS_IDX} EQUAL -1 OR NOT ${IMPORT_DOT_TARGETS_AS_IDX} EQUAL -1)
         _nuget_single_import_dot_targets(${ARGV})
         return()
