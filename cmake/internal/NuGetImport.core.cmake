@@ -99,10 +99,6 @@ function(_nuget_core_install
     if(NOT ${NUGET_INSTALL_RESULT_VAR} EQUAL 0)
         message(FATAL_ERROR "NuGet package install returned with: \"${NUGET_INSTALL_RESULT_VAR}\"")
     endif()
-    # Include post-install hook
-    if(NOT "${POST_INSTALL_HOOK}" STREQUAL "")
-        include("${POST_INSTALL_HOOK}")
-    endif()
     # Mark package as succesfully installed
     set("NUGET_PACKAGE_INSTALLED_${PACKAGE_ID}" TRUE CACHE INTERNAL
         "True if the package \"${PACKAGE_ID}\" is successfully installed."
@@ -111,6 +107,14 @@ function(_nuget_core_install
     set("NUGET_PACKAGE_DIR_${PACKAGE_ID}" "${PACKAGE_DIR}" CACHE INTERNAL
         "Absolute path to the directory of the installed package \"${PACKAGE_ID}\"."
     )
+    # Include post-install hook
+    # NOTE: this should be the very last command making sure the included script can
+    # freely fiddle around with variables that we created in this function scope. If
+    # those are modified inside the included script, we do not care: we are not affected,
+    # as we are returning from this scope anyway.
+    if(NOT "${POST_INSTALL_HOOK}" STREQUAL "")
+        include("${POST_INSTALL_HOOK}")
+    endif()
 endfunction()
 
 ## Internal. Only Visual Studio generators are compatible. Creates a CMake build target
