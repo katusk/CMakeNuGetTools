@@ -15,6 +15,7 @@ macro(nuget_dependencies)
         message(FATAL_ERROR "No arguments provided.")
         return()
     endif()
+    message("Importing NuGet package dependencies...")
     # Reset last registered packages list. This is about to be filled in with
     # packages registered via only this single nuget_dependencies() call.
     set(NUGET_LAST_DEPENDENCIES_REGISTERED "" CACHE INTERNAL "")
