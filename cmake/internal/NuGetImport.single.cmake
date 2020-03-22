@@ -20,7 +20,7 @@ endfunction()
 function(_nuget_single_import_dot_targets)
     # Inputs
     set(options IGNORE_INCLUDE_DIR PUBLIC PRIVATE IMPORT_DOT_TARGETS)
-    set(oneValueArgs PACKAGE VERSION IMPORT_DOT_TARGETS_AS INCLUDE_DIR POST_INSTALL)
+    set(oneValueArgs PACKAGE VERSION IMPORT_DOT_TARGETS_AS INCLUDE_DIR)
     set(multiValueArgs "")
     cmake_parse_arguments(_arg
         "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGV}
@@ -40,7 +40,7 @@ function(_nuget_single_import_dot_targets)
     endif()
     # Actual functionality
     _nuget_core_register("${_arg_PACKAGE}" "${_arg_VERSION}" "${USAGE_REQUIREMENT}")
-    _nuget_core_install("${_arg_PACKAGE}" "${_arg_VERSION}" "${_arg_POST_INSTALL}")
+    _nuget_core_install("${_arg_PACKAGE}" "${_arg_VERSION}")
     _nuget_core_import_dot_targets(
         "${_arg_PACKAGE}"
         "${_arg_VERSION}"
@@ -60,7 +60,7 @@ endfunction()
 function(_nuget_single_import_cmake_exports)
     # Inputs
     set(options NO_OVERRIDE MODULE PUBLIC PRIVATE IMPORT_CMAKE_EXPORTS)
-    set(oneValueArgs PACKAGE VERSION IMPORT_FROM POST_INSTALL)
+    set(oneValueArgs PACKAGE VERSION IMPORT_FROM)
     set(multiValueArgs "")
     cmake_parse_arguments(_arg
         "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGV}
@@ -80,7 +80,7 @@ function(_nuget_single_import_cmake_exports)
     endif()
     # Actual functionality
     _nuget_core_register("${_arg_PACKAGE}" "${_arg_VERSION}" "${USAGE_REQUIREMENT}")
-    _nuget_core_install("${_arg_PACKAGE}" "${_arg_VERSION}" "${_arg_POST_INSTALL_HOOK}")
+    _nuget_core_install("${_arg_PACKAGE}" "${_arg_VERSION}")
     _nuget_core_import_cmake_exports(
         "${_arg_PACKAGE}"
         "${_arg_VERSION}"

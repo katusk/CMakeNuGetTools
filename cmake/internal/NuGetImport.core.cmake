@@ -61,20 +61,11 @@ endfunction()
 
 ## Internal. Runs NuGet install with PACKAGE_ID and PACKAGE_VERSION.
 ## The OutputDirectory is set by the CACHE variable NUGET_PACKAGES_DIR.
-##
-## POST_INSTALL_HOOK is a path to a custom CMake script to be included at the
-## end of this function (e.g. it can be used to install() all *.dll and *.pdb
-## files from the NuGet package's directory to the ${CMAKE_INSTALL_PREFIX}/bin
-## destination directory on Windows).
 function(_nuget_core_install
     PACKAGE_ID
     PACKAGE_VERSION
-    POST_INSTALL_HOOK
 )
     # Inputs
-    if("${POST_INSTALL_HOOK}" STREQUAL "")
-        set(POST_INSTALL_HOOK "${NUGET_DEFAULT_POST_INSTALL_HOOK}") # Default
-    endif()
     _nuget_helper_error_if_empty("${NUGET_COMMAND}" "No NuGet executable was provided.")
     # Execute install
     #
@@ -107,14 +98,6 @@ function(_nuget_core_install
     set("NUGET_PACKAGE_DIR_${PACKAGE_ID}" "${PACKAGE_DIR}" CACHE INTERNAL
         "Absolute path to the directory of the installed package \"${PACKAGE_ID}\"."
     )
-    # Include post-install hook
-    # NOTE: this should be the very last command making sure the included script can
-    # freely fiddle around with variables that we created in this function scope. If
-    # those are modified inside the included script, we do not care: we are not affected,
-    # as we are returning from this scope anyway.
-    if(NOT "${POST_INSTALL_HOOK}" STREQUAL "")
-        include("${POST_INSTALL_HOOK}")
-    endif()
 endfunction()
 
 ## Internal. Only Visual Studio generators are compatible. Creates a CMake build target
