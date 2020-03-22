@@ -53,6 +53,10 @@ function(_nuget_core_register
     set("NUGET_PACKAGE_USAGE_${PACKAGE_ID}" ${USAGE_REQUIREMENT} CACHE INTERNAL
         "The usage requirement of the registered package \"${PACKAGE_ID}\"."
     )
+    # Spec. cache var. for listing packages registered by a single nuget_dependencies() call
+    set(PACKAGES_LAST_REGISTERED ${NUGET_PACKAGES_LAST_REGISTERED})
+    list(APPEND PACKAGES_LAST_REGISTERED "${PACKAGE_ID}")
+    set(NUGET_PACKAGES_LAST_REGISTERED "${PACKAGES_LAST_REGISTERED}" CACHE INTERNAL "")
 endfunction()
 
 ## Internal. Runs NuGet install with PACKAGE_ID and PACKAGE_VERSION.
@@ -191,6 +195,9 @@ function(_nuget_core_import_cmake_exports
 endfunction()
 
 ## Internal. Needs to be macro for properly setting CMAKE_MODULE_PATH or CMAKE_PREFIX_PATH.
+## ASSUME: called from directory scope (or from another macro that is in dir. scope etc.).
+## E.g. we want to achieve that CMake's find_package() respects our CMAKE_PREFIX_PATH
+## modification here.
 macro(_nuget_core_import_cmake_exports_set_cmake_paths PACKAGE_ID)
     # Modify prefix or module path
     # See https://cmake.org/cmake/help/latest/command/find_package.html#search-procedure
@@ -208,4 +215,5 @@ macro(_nuget_core_import_cmake_exports_set_cmake_paths PACKAGE_ID)
             list(INSERT CMAKE_PREFIX_PATH 0 "${NUGET_PACKAGE_PREFIX_PATH_${PACKAGE_ID}}")
         endif()
     endif()
+    # NOTE: Make sure we did not introduce new variables here. Then we are safe macro-wise.
 endmacro()

@@ -4,6 +4,7 @@ include("${PROJECT_ROOT}/cmake/NuGetTools.cmake")
 ## CMake setup
 cmake_minimum_required(VERSION 3.8.2 FATAL_ERROR)
 project(flatbuffers_simple LANGUAGES CXX)
+set(CMAKE_C_COMPILER "")
 
 ## Import CMake exports of flatbuffers from NuGet
 nuget_dependencies(

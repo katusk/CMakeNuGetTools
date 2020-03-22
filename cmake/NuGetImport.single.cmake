@@ -108,3 +108,13 @@ function(_nuget_single_dependencies)
     # Default: no explicit import method (other than IMPORT_CMAKE_EXPORTS) provided
     _nuget_single_import_cmake_exports(${ARGV}) # Default
 endfunction()
+
+# Internal. Process each PACKAGE argument pack one-by-one. Deliberately a *function*.
+function(_nuget_foreach_dependencies)
+    set(ARGS_HEAD "")
+    set(ARGS_TAIL ${ARGV})
+    while(NOT "${ARGS_TAIL}" STREQUAL "")
+        _nuget_helper_cut_arg_list(PACKAGE "${ARGS_TAIL}" ARGS_HEAD ARGS_TAIL)
+        _nuget_single_dependencies(${ARGS_HEAD})
+    endwhile()
+endfunction()

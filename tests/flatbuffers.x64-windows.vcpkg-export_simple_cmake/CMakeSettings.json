@@ -17,8 +17,7 @@
             "buildCommandArgs": "/v:normal /m /p:CL_MPCount=8",
             "ctestCommandArgs": "",
             "variables": [
-                { "name": "NUGET_COMMAND", "value": "nuget" },
-                { "name": "NONONO2", "value": "2" }
+                { "name": "NUGET_COMMAND", "value": "nuget" }
             ]
         },
         {
@@ -32,8 +31,7 @@
             "buildCommandArgs": "/v:normal /m /p:CL_MPCount=8",
             "ctestCommandArgs": "",
             "variables": [
-                { "name": "NUGET_COMMAND", "value": "nuget" },
-                { "name": "NONONO2", "value": "2" }
+                { "name": "NUGET_COMMAND", "value": "nuget" }
             ]
         }
     ]
