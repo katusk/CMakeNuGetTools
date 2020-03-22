@@ -1,4 +1,4 @@
-## Internal. Similar to "list(SUBLIST <list> <begin> <length> <out-var>)" in CMake 3.12.4 and above.
+## Internal. Similar to "list(SUBLIST <list> <begin> <length> <out-var>)".
 function(_nuget_helper_list_sublist LIST BEGIN LEN OUT_SUBLIST)
     list(LENGTH LIST LIST_LENGTH)
     if(${LEN} EQUAL -1)
@@ -20,6 +20,16 @@ function(_nuget_helper_list_sublist LIST BEGIN LEN OUT_SUBLIST)
         list(GET LIST ${IDXS} SUBLIST)
     endif()
     set(${OUT_SUBLIST} "${SUBLIST}" PARENT_SCOPE)
+endfunction()
+
+## Internal. Similar to "list(TRANSFORM <list> PREPEND <arg> OUTPUT_VARIABLE <output variable>)".
+function(_nuget_helper_list_transform_prepend LIST STRING_ARG OUT_LIST)
+    set(TRANSFORMED_LIST "")
+    foreach(ELEMENT IN LISTS LIST)
+        string(CONCAT ELEMENT "${STRING_ARG}" "${ELEMENT}")
+        list(APPEND TRANSFORMED_LIST "${ELEMENT}")
+    endforeach()
+    set("${OUT_LIST}" "${TRANSFORMED_LIST}" PARENT_SCOPE)
 endfunction()
 
 ## Internal. If LIST is "PACKAGE flatbuffers VERSION 1.11.0 PACKAGE icu VERSION 65.1" and 

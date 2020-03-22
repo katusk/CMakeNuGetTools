@@ -13,8 +13,7 @@ nuget_dependencies(
     PACKAGE ${FLATBUFFERS_PACKAGE_ID}
     VERSION 1.11.0-1
     IMPORT_DOT_TARGETS_AS flatbuffers
-    INCLUDE_DIR "installed/x64-windows/include"
-    # IGNORE_INCLUDE_DIR
+    INCLUDE_DIRS "installed/x64-windows/include"
 )
 
 ## We are onto non-CMake way of doing things: no find_package() call here... A target has been created by

@@ -19,8 +19,8 @@ endfunction()
 # is explicitly specified by the user. Default usage requirement is PRIVATE.
 function(_nuget_single_import_dot_targets)
     # Inputs
-    set(options IGNORE_INCLUDE_DIR PUBLIC PRIVATE IMPORT_DOT_TARGETS)
-    set(oneValueArgs PACKAGE VERSION IMPORT_DOT_TARGETS_AS INCLUDE_DIR)
+    set(options PUBLIC PRIVATE IMPORT_DOT_TARGETS)
+    set(oneValueArgs PACKAGE VERSION IMPORT_DOT_TARGETS_AS INCLUDE_DIRS)
     set(multiValueArgs "")
     cmake_parse_arguments(_arg
         "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGV}
@@ -45,23 +45,22 @@ function(_nuget_single_import_dot_targets)
         "${_arg_PACKAGE}"
         "${_arg_VERSION}"
         "${_arg_IMPORT_DOT_TARGETS_AS}"
-        "${_arg_INCLUDE_DIR}"
-        "${_arg_IGNORE_INCLUDE_DIR}"
+        "${_arg_INCLUDE_DIRS}"
     )
 endfunction()
 
 # Internal. See arguments below. This should be called by default if no import method is specified explicitly.
-# NOTE: the IMPORT_CMAKE_EXPORTS option is only cosmetics for the user. The presence of IMPORT_FROM is not treated
+# NOTE: the IMPORT_CMAKE_EXPORTS option is only cosmetics for the user. The presence of PREFIX_PATHS is not treated
 # as a differentiator indicating an "IMPORT_CMAKE_EXPORTS" import method either: if the user explicitly provided a
-# different import method, the dispatcher logic dispatches the call accordingly and IMPORT_FROM is not taken into
-# account. E.g. providing IMPORT_DOT_TARGETS and IMPORT_FROM in _nuget_single_dependencies() would dispatch the call
-# to _nuget_single_import_dot_targets() but IMPORT_FROM does not have any meaning there, so that function should
+# different import method, the dispatcher logic dispatches the call accordingly and PREFIX_PATHS is not taken into
+# account. E.g. providing IMPORT_DOT_TARGETS and PREFIX_PATHS in _nuget_single_dependencies() would dispatch the call
+# to _nuget_single_import_dot_targets() but PREFIX_PATHS does not have any meaning there, so that function should
 # raise a CMake Error. Default usage requirement is PRIVATE.
 function(_nuget_single_import_cmake_exports)
     # Inputs
-    set(options NO_OVERRIDE MODULE PUBLIC PRIVATE IMPORT_CMAKE_EXPORTS)
-    set(oneValueArgs PACKAGE VERSION IMPORT_FROM)
-    set(multiValueArgs "")
+    set(options APPEND_PATHS PUBLIC PRIVATE IMPORT_CMAKE_EXPORTS)
+    set(oneValueArgs PACKAGE VERSION)
+    set(multiValueArgs PREFIX_PATHS MODULE_PATHS)
     cmake_parse_arguments(_arg
         "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGV}
     )
@@ -84,9 +83,9 @@ function(_nuget_single_import_cmake_exports)
     _nuget_core_import_cmake_exports(
         "${_arg_PACKAGE}"
         "${_arg_VERSION}"
-        "${_arg_IMPORT_FROM}"
-        "${_arg_MODULE}"
-        "${_arg_NO_OVERRIDE}"
+        "${_arg_PREFIX_PATHS}"
+        "${_arg_MODULE_PATHS}"
+        "${_arg_APPEND_PATHS}"
     )
 endfunction()
 

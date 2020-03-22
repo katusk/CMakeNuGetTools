@@ -10,7 +10,7 @@ function(_nuget_core_register
     _nuget_helper_error_if_empty("${PACKAGE_ID}" "Package ID must be provided.")
     _nuget_helper_error_if_empty("${PACKAGE_VERSION}" "Package version must be provided.")
     _nuget_helper_error_if_empty("${USAGE_REQUIREMENT}" "Usage requirement for package must be provided.")
-    if(DEFINED "NUGET_PACKAGE_VERSION_${PACKAGE_ID}")
+    if(DEFINED "${NUGET_PACKAGE_VERSION_${PACKAGE_ID}}")
         # Safety check. Do not allow more than one package to be used within the same CMake build
         # system with the same package ID but with different version numbers. The same version
         # can be installed as many times as you want -- only the first successful NuGet install
@@ -38,25 +38,27 @@ function(_nuget_core_register
                 "You are trying to register with usage ${USAGE_REQUIREMENT}."
             )
         endif()
-        # Return if already registered
-        return()
     endif()
     # Set internal cache variables
-    set(PACKAGES_REGISTERED ${NUGET_PACKAGES_REGISTERED})
-    list(APPEND PACKAGES_REGISTERED "${PACKAGE_ID}")
-    set(NUGET_PACKAGES_REGISTERED "${PACKAGES_REGISTERED}" CACHE INTERNAL
-        "The list of the registered NuGet packages in this build system."
-    )
     set("NUGET_PACKAGE_VERSION_${PACKAGE_ID}" ${PACKAGE_VERSION} CACHE INTERNAL
         "The version of the registered package \"${PACKAGE_ID}\"."
     )
     set("NUGET_PACKAGE_USAGE_${PACKAGE_ID}" ${USAGE_REQUIREMENT} CACHE INTERNAL
         "The usage requirement of the registered package \"${PACKAGE_ID}\"."
     )
+    # The same package is not allowed to be registered within the same nuget_dependencies() call
+    list(FIND NUGET_LAST_PACKAGES_REGISTERED "${PACKAGE_ID}" LAST_PACKAGE_IDX)
+    if(NOT ${LAST_PACKAGE_IDX} EQUAL -1)
+        message(FATAL_ERROR
+            "The \"${PACKAGE_ID}\" package is already registered by the same nuget_dependencies() call."
+        )
+    endif()
     # Spec. cache var. for listing packages registered by a single nuget_dependencies() call
-    set(PACKAGES_LAST_REGISTERED ${NUGET_PACKAGES_LAST_REGISTERED})
-    list(APPEND PACKAGES_LAST_REGISTERED "${PACKAGE_ID}")
-    set(NUGET_PACKAGES_LAST_REGISTERED "${PACKAGES_LAST_REGISTERED}" CACHE INTERNAL "")
+    set(LAST_PACKAGES_REGISTERED ${NUGET_LAST_PACKAGES_REGISTERED})
+    list(APPEND LAST_PACKAGES_REGISTERED "${PACKAGE_ID}")
+    set(NUGET_LAST_PACKAGES_REGISTERED "${LAST_PACKAGES_REGISTERED}" CACHE INTERNAL
+        "List of packages registered by the last nuget_dependencies() call."
+    )
 endfunction()
 
 ## Internal. Runs NuGet install with PACKAGE_ID and PACKAGE_VERSION.
@@ -103,15 +105,13 @@ endfunction()
 ## Internal. Only Visual Studio generators are compatible. Creates a CMake build target
 ## named IMPORT_AS (if non-empty, otherwise: PACKAGE_ID) from the PACKAGE_ID package with
 ## PACKAGE_VERSION version using the "${NUGET_DOT_TARGETS_DIR}/${PACKAGE_ID}.targets"
-## file within the package. INCLUDE_DIR relative to the package directory is ignored if
-## IGNORE_INCLUDE_DIR is set. INCLUDE_DIR is required for better Visual Studio editing
+## file within the package. INCLUDE_DIRS is required for better Visual Studio editing
 ## experience.
 function(_nuget_core_import_dot_targets
     PACKAGE_ID
     PACKAGE_VERSION
     IMPORT_AS
-    INCLUDE_DIR
-    IGNORE_INCLUDE_DIR
+    INCLUDE_DIRS
 )
     # Compatibility check
     if(NOT CMAKE_GENERATOR MATCHES "^Visual Studio")
@@ -125,10 +125,9 @@ function(_nuget_core_import_dot_targets
     if("${IMPORT_AS}" STREQUAL "")
         set(IMPORT_AS "${PACKAGE_ID}")
     endif()
-    if("${INCLUDE_DIR}" STREQUAL "")
-        set(INCLUDE_DIR "build/native/include") # Default
-    endif()
-    set(INCLUDE_DIR "${NUGET_PACKAGE_DIR_${PACKAGE_ID}}/${INCLUDE_DIR}")
+    _nuget_helper_list_transform_prepend(
+        "${INCLUDE_DIRS}" "${NUGET_PACKAGE_DIR_${PACKAGE_ID}}/" INCLUDE_DIRS
+    )
     if(TARGET ${IMPORT_AS})
         message(FATAL_ERROR
             "You are trying to import the \"${PACKAGE_ID}\" NuGet package "
@@ -147,42 +146,43 @@ function(_nuget_core_import_dot_targets
     # Create build target
     add_library(${IMPORT_AS} INTERFACE IMPORTED GLOBAL)
     set_property(TARGET ${IMPORT_AS} PROPERTY INTERFACE_LINK_LIBRARIES "${DOT_TARGETS_FILE}")
-    if(NOT IGNORE_INCLUDE_DIR)
+    if(NOT "${INCLUDE_DIRS}" STREQUAL "")
         # Experience shows that the Visual Studio editor does not recognize anything included
         # unless you set this property. Building your target would work regardless of setting
         # this property if the imported .targets file is written properly.
-        set_property(TARGET ${IMPORT_AS} PROPERTY INTERFACE_INCLUDE_DIRECTORIES "${INCLUDE_DIR}")
+        set_property(TARGET ${IMPORT_AS} PROPERTY INTERFACE_INCLUDE_DIRECTORIES ${INCLUDE_DIRS})
     endif()
 endfunction()
 
-## Internal. Preparations for prepending the IMPORT_FROM relative-to-package-directory path to the
-## CMAKE_PREFIX_PATH if AS_MODULE is FALSE and NO_OVERRIDE is FALSE. If AS_MODULE is TRUE then the
-## CMAKE_MODULE_PATH is modified later on. If NO_OVERRIDE is TRUE, the operation becomes an append
+## Internal. Preparations for prepending the PREFIX_PATHS relative-to-package-directory path to the
+## CMAKE_PREFIX_PATH if MODULE_PATHS is FALSE and APPEND_PATHS is FALSE. If MODULE_PATHS is TRUE then the
+## CMAKE_MODULE_PATH is modified later on. If APPEND_PATHS is TRUE, the operation becomes an append
 ## instead of a prepend later on.
 function(_nuget_core_import_cmake_exports
     PACKAGE_ID
     PACKAGE_VERSION
-    IMPORT_FROM
-    AS_MODULE
-    NO_OVERRIDE
+    PREFIX_PATHS
+    MODULE_PATHS
+    APPEND_PATHS
 )
     # Inputs
-    if("${IMPORT_FROM}" STREQUAL "")
-        set(IMPORT_FROM "build/native/cmake") # Default
+    if("${PREFIX_PATHS}" STREQUAL "" AND "${MODULE_PATHS}" STREQUAL "")
+        message(FATAL_ERROR "At least one of PREFIX_PATHS or MODULE_PATHS should be non-empty.")
     endif()
-    set(IMPORT_FROM "${NUGET_PACKAGE_DIR_${PACKAGE_ID}}/${IMPORT_FROM}")
+    _nuget_helper_list_transform_prepend(
+        "${PREFIX_PATHS}" "${NUGET_PACKAGE_DIR_${PACKAGE_ID}}/" PREFIX_PATHS
+    )
+    _nuget_helper_list_transform_prepend(
+        "${MODULE_PATHS}" "${NUGET_PACKAGE_DIR_${PACKAGE_ID}}/" MODULE_PATHS
+    )
 
     # Save settings: we do not actually set CMAKE_PREFIX_PATH or CMAKE_MODULE_PATH here,
     # see the call point of _nuget_core_import_cmake_exports_set_cmake_paths() for that.
     # Since we are in a new (function) scope here setting those variables here would not
     # have any effect.
-    if(AS_MODULE)
-        set("NUGET_PACKAGE_MODULE_PATH_${PACKAGE_ID}" "${IMPORT_FROM}" CACHE INTERNAL "")
-        set("NUGET_PACKAGE_MODULE_PATH_NO_OVERRIDE_${PACKAGE_ID}" "${NO_OVERRIDE}" CACHE INTERNAL "")
-    else()
-        set("NUGET_PACKAGE_PREFIX_PATH_${PACKAGE_ID}" "${IMPORT_FROM}" CACHE INTERNAL "")
-        set("NUGET_PACKAGE_PREFIX_PATH_NO_OVERRIDE_${PACKAGE_ID}" "${NO_OVERRIDE}" CACHE INTERNAL "")
-    endif()
+    set("NUGET_LAST_PACKAGE_PREFIX_PATHS_${PACKAGE_ID}" "${PREFIX_PATHS}" CACHE INTERNAL "")
+    set("NUGET_LAST_PACKAGE_MODULE_PATHS_${PACKAGE_ID}" "${PREFIX_PATHS}" CACHE INTERNAL "")
+    set("NUGET_LAST_PACKAGE_APPEND_PATHS_${PACKAGE_ID}" "${APPEND_PATHS}" CACHE INTERNAL "")
 endfunction()
 
 ## Internal. Needs to be macro for properly setting CMAKE_MODULE_PATH or CMAKE_PREFIX_PATH.
@@ -192,18 +192,18 @@ endfunction()
 macro(_nuget_core_import_cmake_exports_set_cmake_paths PACKAGE_ID)
     # Modify prefix or module path
     # See https://cmake.org/cmake/help/latest/command/find_package.html#search-procedure
-    if(NOT "${NUGET_PACKAGE_MODULE_PATH_${PACKAGE_ID}}" STREQUAL "")
-        if("${NUGET_PACKAGE_MODULE_PATH_NO_OVERRIDE_${PACKAGE_ID}}")
-            list(APPEND CMAKE_MODULE_PATH "${NUGET_PACKAGE_MODULE_PATH_${PACKAGE_ID}}")
+    if(NOT "${NUGET_LAST_PACKAGE_PREFIX_PATHS_${PACKAGE_ID}}" STREQUAL "")
+        if("${NUGET_LAST_PACKAGE_APPEND_PATHS_${PACKAGE_ID}}")
+            list(APPEND CMAKE_PREFIX_PATH "${NUGET_LAST_PACKAGE_PREFIX_PATHS_${PACKAGE_ID}}")
         else()
-            list(INSERT CMAKE_MODULE_PATH 0 "${NUGET_PACKAGE_MODULE_PATH_${PACKAGE_ID}}")
+            list(INSERT CMAKE_PREFIX_PATH 0 "${NUGET_LAST_PACKAGE_PREFIX_PATHS_${PACKAGE_ID}}")
         endif()
     endif()
-    if(NOT "${NUGET_PACKAGE_PREFIX_PATH_${PACKAGE_ID}}" STREQUAL "")
-        if("${NUGET_PACKAGE_PREFIX_PATH_NO_OVERRIDE_${PACKAGE_ID}}")
-            list(APPEND CMAKE_PREFIX_PATH "${NUGET_PACKAGE_PREFIX_PATH_${PACKAGE_ID}}")
+    if(NOT "${NUGET_LAST_PACKAGE_MODULE_PATHS_${PACKAGE_ID}}" STREQUAL "")
+        if("${NUGET_LAST_PACKAGE_APPEND_PATHS_${PACKAGE_ID}}")
+            list(APPEND CMAKE_MODULE_PATH "${NUGET_LAST_PACKAGE_MODULE_PATHS_${PACKAGE_ID}}")
         else()
-            list(INSERT CMAKE_PREFIX_PATH 0 "${NUGET_PACKAGE_PREFIX_PATH_${PACKAGE_ID}}")
+            list(INSERT CMAKE_MODULE_PATH 0 "${NUGET_LAST_PACKAGE_MODULE_PATHS_${PACKAGE_ID}}")
         endif()
     endif()
     # NOTE: Make sure we did not introduce new normal variables here. Then we are safe macro-wise.

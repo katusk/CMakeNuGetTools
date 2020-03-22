@@ -17,11 +17,11 @@ macro(nuget_dependencies)
     endif()
     # Reset last registered packages list. This is about to be filled in with
     # packages registered via only this single nuget_dependencies() call.
-    set(NUGET_PACKAGES_LAST_REGISTERED "" CACHE INTERNAL "")
+    set(NUGET_LAST_PACKAGES_REGISTERED "" CACHE INTERNAL "")
     # Process each PACKAGE argument pack one-by-one. This is a *function* call.
     _nuget_foreach_dependencies(${ARGV})
     # Foreach's loop_var should not introduce a new real variable: we are safe macro-wise.
-    foreach(PACKAGE_ID IN LISTS NUGET_PACKAGES_LAST_REGISTERED)
+    foreach(PACKAGE_ID IN LISTS NUGET_LAST_PACKAGES_REGISTERED)
         # Set CMAKE_MODULE_PATH and CMAKE_PREFIX_PATH via a *macro* call. Since
         # nuget_dependencies() is a macro as well, no new scopes are introduced
         # between the call of nuget_dependencies() and setting those variables.
@@ -30,5 +30,5 @@ macro(nuget_dependencies)
         _nuget_core_import_cmake_exports_set_cmake_paths("${PACKAGE_ID}")
     endforeach()
     # NOTE: Make sure we did not introduce new normal variables here. Then we are safe macro-wise.
-    # (NUGET_PACKAGES_LAST_REGISTERED is a *cache* variable so that does not count.)
+    # (NUGET_LAST_PACKAGES_REGISTERED is a *cache* variable so that does not count.)
 endmacro()
