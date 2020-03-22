@@ -10,7 +10,7 @@ function(_nuget_core_register
     _nuget_helper_error_if_empty("${PACKAGE_ID}" "Package ID must be provided.")
     _nuget_helper_error_if_empty("${PACKAGE_VERSION}" "Package version must be provided.")
     _nuget_helper_error_if_empty("${USAGE_REQUIREMENT}" "Usage requirement for package must be provided.")
-    if(DEFINED "${NUGET_PACKAGE_VERSION_${PACKAGE_ID}}")
+    if(DEFINED "NUGET_PACKAGE_VERSION_${PACKAGE_ID}")
         # Safety check. Do not allow more than one package to be used within the same CMake build
         # system with the same package ID but with different version numbers. The same version
         # can be installed as many times as you want -- only the first successful NuGet install
@@ -50,7 +50,9 @@ function(_nuget_core_register
     list(FIND NUGET_LAST_PACKAGES_REGISTERED "${PACKAGE_ID}" LAST_PACKAGE_IDX)
     if(NOT ${LAST_PACKAGE_IDX} EQUAL -1)
         message(FATAL_ERROR
-            "The \"${PACKAGE_ID}\" package is already registered by the same nuget_dependencies() call."
+            "The \"${PACKAGE_ID}\" package is already registered by the same nuget_dependencies() "
+            "call. A PACKAGE argument pack with the same package ID can only occur once in the "
+            "argument list of the same nuget_dependencies() call."
         )
     endif()
     # Spec. cache var. for listing packages registered by a single nuget_dependencies() call
