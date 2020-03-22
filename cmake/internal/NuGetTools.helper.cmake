@@ -67,7 +67,7 @@ function(_nuget_helper_error_if_empty VARIABLE)
 endfunction()
 
 ## Internal.
-function(_nuget_helper_error_if_non_empty VARIABLE)
+function(_nuget_helper_error_if_not_empty VARIABLE)
     if(NOT "${VARIABLE}" STREQUAL "")
         message(FATAL_ERROR ${ARGN} "\"${VARIABLE}\"")
     endif()
@@ -78,11 +78,11 @@ function(_nuget_helper_error_if_unparsed_args
     UNPARSED_ARGUMENTS
     KEYWORDS_MISSING_VALUES
 )
-    _nuget_helper_error_if_non_empty(
+    _nuget_helper_error_if_not_empty(
         "${UNPARSED_ARGUMENTS}"
         "UNPARSED_ARGUMENTS: "
     )
-    _nuget_helper_error_if_non_empty(
+    _nuget_helper_error_if_not_empty(
         "${KEYWORDS_MISSING_VALUES}"
         "KEYWORDS_MISSING_VALUES: "
     )

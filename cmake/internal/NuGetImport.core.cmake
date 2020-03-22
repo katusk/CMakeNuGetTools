@@ -83,7 +83,7 @@ function(_nuget_core_install
         RESULT_VARIABLE
             NUGET_INSTALL_RESULT_VAR
     )
-    _nuget_helper_error_if_non_empty(
+    _nuget_helper_error_if_not_empty(
         "${NUGET_INSTALL_ERROR_VAR}"
         "Running NuGet package install encountered some errors: "
     )
