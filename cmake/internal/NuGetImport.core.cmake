@@ -10,7 +10,7 @@ function(_nuget_core_register
     _nuget_helper_error_if_empty("${PACKAGE_ID}" "Package ID must be provided.")
     _nuget_helper_error_if_empty("${PACKAGE_VERSION}" "Package version must be provided.")
     _nuget_helper_error_if_empty("${USAGE_REQUIREMENT}" "Usage requirement for package must be provided.")
-    if(DEFINED "NUGET_PACKAGE_VERSION_${PACKAGE_ID}")
+    if(DEFINED "NUGET_DEPENDENCY_VERSION_${PACKAGE_ID}")
         # Safety check. Do not allow more than one package to be used within the same CMake build
         # system with the same package ID but with different version numbers. The same version
         # can be installed as many times as you want -- only the first successful NuGet install
@@ -22,33 +22,33 @@ function(_nuget_core_register
         # execute_process() in _nuget_core_install(). This problem can be avoided if
         # _nuget_core_install() is invoked for all the packages that are your transitive
         # dependencies.
-        if(NOT "${NUGET_PACKAGE_VERSION_${PACKAGE_ID}}" STREQUAL "${PACKAGE_VERSION}")
+        if(NOT "${NUGET_DEPENDENCY_VERSION_${PACKAGE_ID}}" STREQUAL "${PACKAGE_VERSION}")
             message(FATAL_ERROR
                 "NuGet package \"${PACKAGE_ID}\" is already registered "
-                "with version ${NUGET_PACKAGE_VERSION_${PACKAGE_ID}}. "
+                "with version ${NUGET_DEPENDENCY_VERSION_${PACKAGE_ID}}. "
                 "You are trying to register version ${PACKAGE_VERSION}."
             )
         endif()
         # Registering the same package multiple times with different usage requirements
         # is not allowed.
-        if(NOT "${NUGET_PACKAGE_USAGE_${PACKAGE_ID}}" STREQUAL "${USAGE_REQUIREMENT}")
+        if(NOT "${NUGET_DEPENDENCY_USAGE_${PACKAGE_ID}}" STREQUAL "${USAGE_REQUIREMENT}")
             message(FATAL_ERROR
                 "NuGet package \"${PACKAGE_ID}\" is already registered "
-                "with usage requirement ${NUGET_PACKAGE_USAGE_${PACKAGE_ID}}. "
+                "with usage requirement ${NUGET_DEPENDENCY_USAGE_${PACKAGE_ID}}. "
                 "You are trying to register with usage ${USAGE_REQUIREMENT}."
             )
         endif()
     endif()
     # Set internal cache variables
-    set("NUGET_PACKAGE_VERSION_${PACKAGE_ID}" ${PACKAGE_VERSION} CACHE INTERNAL
+    set("NUGET_DEPENDENCY_VERSION_${PACKAGE_ID}" ${PACKAGE_VERSION} CACHE INTERNAL
         "The version of the registered package \"${PACKAGE_ID}\"."
     )
-    set("NUGET_PACKAGE_USAGE_${PACKAGE_ID}" ${USAGE_REQUIREMENT} CACHE INTERNAL
+    set("NUGET_DEPENDENCY_USAGE_${PACKAGE_ID}" ${USAGE_REQUIREMENT} CACHE INTERNAL
         "The usage requirement of the registered package \"${PACKAGE_ID}\"."
     )
     # The same package is not allowed to be registered within the same nuget_dependencies() call
-    list(FIND NUGET_LAST_PACKAGES_REGISTERED "${PACKAGE_ID}" LAST_PACKAGE_IDX)
-    if(NOT ${LAST_PACKAGE_IDX} EQUAL -1)
+    list(FIND NUGET_LAST_DEPENDENCIES_REGISTERED "${PACKAGE_ID}" LAST_DEPENDENCY_IDX)
+    if(NOT ${LAST_DEPENDENCY_IDX} EQUAL -1)
         message(FATAL_ERROR
             "The \"${PACKAGE_ID}\" package is already registered by the same nuget_dependencies() "
             "call. A PACKAGE argument pack with the same package ID can only occur once in the "
@@ -56,9 +56,9 @@ function(_nuget_core_register
         )
     endif()
     # Spec. cache var. for listing packages registered by a single nuget_dependencies() call
-    set(LAST_PACKAGES_REGISTERED ${NUGET_LAST_PACKAGES_REGISTERED})
-    list(APPEND LAST_PACKAGES_REGISTERED "${PACKAGE_ID}")
-    set(NUGET_LAST_PACKAGES_REGISTERED "${LAST_PACKAGES_REGISTERED}" CACHE INTERNAL
+    set(LAST_DEPENDENCIES_REGISTERED ${NUGET_LAST_DEPENDENCIES_REGISTERED})
+    list(APPEND LAST_DEPENDENCIES_REGISTERED "${PACKAGE_ID}")
+    set(NUGET_LAST_DEPENDENCIES_REGISTERED "${LAST_DEPENDENCIES_REGISTERED}" CACHE INTERNAL
         "List of packages registered by the last nuget_dependencies() call."
     )
 endfunction()
@@ -95,11 +95,11 @@ function(_nuget_core_install
         message(FATAL_ERROR "NuGet package install returned with: \"${NUGET_INSTALL_RESULT_VAR}\"")
     endif()
     # Mark package as succesfully installed
-    set("NUGET_PACKAGE_INSTALLED_${PACKAGE_ID}" TRUE CACHE INTERNAL
+    set("NUGET_DEPENDENCY_INSTALLED_${PACKAGE_ID}" TRUE CACHE INTERNAL
         "True if the package \"${PACKAGE_ID}\" is successfully installed."
     )
     _nuget_helper_get_package_dir(${PACKAGE_ID} ${PACKAGE_VERSION} PACKAGE_DIR)
-    set("NUGET_PACKAGE_DIR_${PACKAGE_ID}" "${PACKAGE_DIR}" CACHE INTERNAL
+    set("NUGET_DEPENDENCY_DIR_${PACKAGE_ID}" "${PACKAGE_DIR}" CACHE INTERNAL
         "Absolute path to the directory of the installed package \"${PACKAGE_ID}\"."
     )
 endfunction()
@@ -128,7 +128,7 @@ function(_nuget_core_import_dot_targets
         set(IMPORT_AS "${PACKAGE_ID}")
     endif()
     _nuget_helper_list_transform_prepend(
-        "${INCLUDE_DIRS}" "${NUGET_PACKAGE_DIR_${PACKAGE_ID}}/" INCLUDE_DIRS
+        "${INCLUDE_DIRS}" "${NUGET_DEPENDENCY_DIR_${PACKAGE_ID}}/" INCLUDE_DIRS
     )
     if(TARGET ${IMPORT_AS})
         message(FATAL_ERROR
@@ -139,7 +139,7 @@ function(_nuget_core_import_dot_targets
     # NOTE. The fallback "build/${PACKAGE_ID}.targets" is deliberately not tried.
     # One should always place the native .target file under "build/native/".
     set(DOT_TARGETS_FILE
-        "${NUGET_PACKAGE_DIR_${PACKAGE_ID}}/build/native/${PACKAGE_ID}.targets" # Default (and non-settable)
+        "${NUGET_DEPENDENCY_DIR_${PACKAGE_ID}}/build/native/${PACKAGE_ID}.targets" # Default (and non-settable)
     )
     if(NOT EXISTS "${DOT_TARGETS_FILE}")
         message(FATAL_ERROR "The file \"${DOT_TARGETS_FILE}\" does not exist.")
@@ -172,19 +172,19 @@ function(_nuget_core_import_cmake_exports
         message(FATAL_ERROR "At least one of PREFIX_PATHS or MODULE_PATHS should be non-empty.")
     endif()
     _nuget_helper_list_transform_prepend(
-        "${PREFIX_PATHS}" "${NUGET_PACKAGE_DIR_${PACKAGE_ID}}/" PREFIX_PATHS
+        "${PREFIX_PATHS}" "${NUGET_DEPENDENCY_DIR_${PACKAGE_ID}}/" PREFIX_PATHS
     )
     _nuget_helper_list_transform_prepend(
-        "${MODULE_PATHS}" "${NUGET_PACKAGE_DIR_${PACKAGE_ID}}/" MODULE_PATHS
+        "${MODULE_PATHS}" "${NUGET_DEPENDENCY_DIR_${PACKAGE_ID}}/" MODULE_PATHS
     )
 
     # Save settings: we do not actually set CMAKE_PREFIX_PATH or CMAKE_MODULE_PATH here,
     # see the call point of _nuget_core_import_cmake_exports_set_cmake_paths() for that.
     # Since we are in a new (function) scope here setting those variables here would not
     # have any effect.
-    set("NUGET_LAST_PACKAGE_PREFIX_PATHS_${PACKAGE_ID}" "${PREFIX_PATHS}" CACHE INTERNAL "")
-    set("NUGET_LAST_PACKAGE_MODULE_PATHS_${PACKAGE_ID}" "${PREFIX_PATHS}" CACHE INTERNAL "")
-    set("NUGET_LAST_PACKAGE_APPEND_PATHS_${PACKAGE_ID}" "${APPEND_PATHS}" CACHE INTERNAL "")
+    set("NUGET_LAST_DEPENDENCY_PREFIX_PATHS_${PACKAGE_ID}" "${PREFIX_PATHS}" CACHE INTERNAL "")
+    set("NUGET_LAST_DEPENDENCY_MODULE_PATHS_${PACKAGE_ID}" "${PREFIX_PATHS}" CACHE INTERNAL "")
+    set("NUGET_LAST_DEPENDENCY_APPEND_PATHS_${PACKAGE_ID}" "${APPEND_PATHS}" CACHE INTERNAL "")
 endfunction()
 
 ## Internal. Needs to be macro for properly setting CMAKE_MODULE_PATH or CMAKE_PREFIX_PATH.
@@ -194,18 +194,18 @@ endfunction()
 macro(_nuget_core_import_cmake_exports_set_cmake_paths PACKAGE_ID)
     # Modify prefix or module path
     # See https://cmake.org/cmake/help/latest/command/find_package.html#search-procedure
-    if(NOT "${NUGET_LAST_PACKAGE_PREFIX_PATHS_${PACKAGE_ID}}" STREQUAL "")
-        if("${NUGET_LAST_PACKAGE_APPEND_PATHS_${PACKAGE_ID}}")
-            list(APPEND CMAKE_PREFIX_PATH "${NUGET_LAST_PACKAGE_PREFIX_PATHS_${PACKAGE_ID}}")
+    if(NOT "${NUGET_LAST_DEPENDENCY_PREFIX_PATHS_${PACKAGE_ID}}" STREQUAL "")
+        if("${NUGET_LAST_DEPENDENCY_APPEND_PATHS_${PACKAGE_ID}}")
+            list(APPEND CMAKE_PREFIX_PATH "${NUGET_LAST_DEPENDENCY_PREFIX_PATHS_${PACKAGE_ID}}")
         else()
-            list(INSERT CMAKE_PREFIX_PATH 0 "${NUGET_LAST_PACKAGE_PREFIX_PATHS_${PACKAGE_ID}}")
+            list(INSERT CMAKE_PREFIX_PATH 0 "${NUGET_LAST_DEPENDENCY_PREFIX_PATHS_${PACKAGE_ID}}")
         endif()
     endif()
-    if(NOT "${NUGET_LAST_PACKAGE_MODULE_PATHS_${PACKAGE_ID}}" STREQUAL "")
-        if("${NUGET_LAST_PACKAGE_APPEND_PATHS_${PACKAGE_ID}}")
-            list(APPEND CMAKE_MODULE_PATH "${NUGET_LAST_PACKAGE_MODULE_PATHS_${PACKAGE_ID}}")
+    if(NOT "${NUGET_LAST_DEPENDENCY_MODULE_PATHS_${PACKAGE_ID}}" STREQUAL "")
+        if("${NUGET_LAST_DEPENDENCY_APPEND_PATHS_${PACKAGE_ID}}")
+            list(APPEND CMAKE_MODULE_PATH "${NUGET_LAST_DEPENDENCY_MODULE_PATHS_${PACKAGE_ID}}")
         else()
-            list(INSERT CMAKE_MODULE_PATH 0 "${NUGET_LAST_PACKAGE_MODULE_PATHS_${PACKAGE_ID}}")
+            list(INSERT CMAKE_MODULE_PATH 0 "${NUGET_LAST_DEPENDENCY_MODULE_PATHS_${PACKAGE_ID}}")
         endif()
     endif()
     # NOTE: Make sure we did not introduce new normal variables here. Then we are safe macro-wise.

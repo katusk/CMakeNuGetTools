@@ -21,7 +21,7 @@ nuget_dependencies(
 # find_package(Flatbuffers CONFIG REQUIRED)
 
 ## Generated sources
-set(FLATC_COMMAND "${NUGET_PACKAGE_DIR_${FLATBUFFERS_PACKAGE_ID}}/installed/x64-windows/tools/flatbuffers/flatc.exe")
+set(FLATC_COMMAND "${NUGET_DEPENDENCY_DIR_${FLATBUFFERS_PACKAGE_ID}}/installed/x64-windows/tools/flatbuffers/flatc.exe")
 add_custom_command(OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/generated/monster.h"
     COMMAND "${FLATC_COMMAND}" --cpp -o "${CMAKE_CURRENT_BINARY_DIR}/generated" "${CMAKE_CURRENT_SOURCE_DIR}/monster.fbs"
     # From https://github.com/google/flatbuffers/blob/3ff6cdf49181061bd545bcd3a2a292bca3e8ef6b/samples/monster.fbs
