@@ -168,9 +168,10 @@ function(_nuget_core_import_dot_targets
     endif()
 endfunction()
 
-## Internal. Prepends the IMPORT_FROM relative-to-package-directory path to the CMAKE_PREFIX_PATH
-## if AS_MODULE is FALSE and NO_OVERRIDE is FALSE. If AS_MODULE is TRUE then the CMAKE_MODULE_PATH
-## is modified. If NO_OVERRIDE is TRUE, the operation becomes an append instead of a prepend.
+## Internal. Preparations for prepending the IMPORT_FROM relative-to-package-directory path to the
+## CMAKE_PREFIX_PATH if AS_MODULE is FALSE and NO_OVERRIDE is FALSE. If AS_MODULE is TRUE then the
+## CMAKE_MODULE_PATH is modified later on. If NO_OVERRIDE is TRUE, the operation becomes an append
+## instead of a prepend later on.
 function(_nuget_core_import_cmake_exports
     PACKAGE_ID
     PACKAGE_VERSION
@@ -184,7 +185,10 @@ function(_nuget_core_import_cmake_exports
     endif()
     set(IMPORT_FROM "${NUGET_PACKAGE_DIR_${PACKAGE_ID}}/${IMPORT_FROM}")
 
-    # Save settings
+    # Save settings: we do not actually set CMAKE_PREFIX_PATH or CMAKE_MODULE_PATH here,
+    # see the call point of _nuget_core_import_cmake_exports_set_cmake_paths() for that.
+    # Since we are in a new (function) scope here setting those variables here would not
+    # have any effect.
     if(AS_MODULE)
         set("NUGET_PACKAGE_MODULE_PATH_${PACKAGE_ID}" "${IMPORT_FROM}" CACHE INTERNAL "")
         set("NUGET_PACKAGE_MODULE_PATH_NO_OVERRIDE_${PACKAGE_ID}" "${NO_OVERRIDE}" CACHE INTERNAL "")
@@ -215,5 +219,5 @@ macro(_nuget_core_import_cmake_exports_set_cmake_paths PACKAGE_ID)
             list(INSERT CMAKE_PREFIX_PATH 0 "${NUGET_PACKAGE_PREFIX_PATH_${PACKAGE_ID}}")
         endif()
     endif()
-    # NOTE: Make sure we did not introduce new variables here. Then we are safe macro-wise.
+    # NOTE: Make sure we did not introduce new normal variables here. Then we are safe macro-wise.
 endmacro()

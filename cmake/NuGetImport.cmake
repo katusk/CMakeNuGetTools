@@ -29,5 +29,6 @@ macro(nuget_dependencies)
         # same scope (or below directory scopes for example).
         _nuget_core_import_cmake_exports_set_cmake_paths("${PACKAGE_ID}")
     endforeach()
-    # NOTE: Make sure we did not introduce new variables here. Then we are safe macro-wise.
+    # NOTE: Make sure we did not introduce new normal variables here. Then we are safe macro-wise.
+    # (NUGET_PACKAGES_LAST_REGISTERED is a *cache* variable so that does not count.)
 endmacro()
