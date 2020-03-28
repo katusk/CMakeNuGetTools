@@ -46,20 +46,20 @@ function(_nuget_core_register
     set("NUGET_DEPENDENCY_USAGE_${PACKAGE_ID}" ${USAGE_REQUIREMENT} CACHE INTERNAL
         "The usage requirement of the registered package \"${PACKAGE_ID}\"."
     )
-    # The same package is not allowed to be registered within the same nuget_dependencies() call
+    # The same package is not allowed to be registered within the same nuget_add_dependencies() call
     list(FIND NUGET_LAST_DEPENDENCIES_REGISTERED "${PACKAGE_ID}" LAST_DEPENDENCY_IDX)
     if(NOT ${LAST_DEPENDENCY_IDX} EQUAL -1)
         message(FATAL_ERROR
-            "The \"${PACKAGE_ID}\" package is already registered by the same nuget_dependencies() "
+            "The \"${PACKAGE_ID}\" package is already registered by the same nuget_add_dependencies() "
             "call. A PACKAGE argument pack with the same package ID can only occur once in the "
-            "argument list of the same nuget_dependencies() call."
+            "argument list of the same nuget_add_dependencies() call."
         )
     endif()
-    # Spec. cache var. for listing packages registered by a single nuget_dependencies() call
+    # Spec. cache var. for listing packages registered by a single nuget_add_dependencies() call
     set(LAST_DEPENDENCIES_REGISTERED ${NUGET_LAST_DEPENDENCIES_REGISTERED})
     list(APPEND LAST_DEPENDENCIES_REGISTERED "${PACKAGE_ID}")
     set(NUGET_LAST_DEPENDENCIES_REGISTERED "${LAST_DEPENDENCIES_REGISTERED}" CACHE INTERNAL
-        "List of packages registered by the last nuget_dependencies() call."
+        "List of packages registered by the last nuget_add_dependencies() call."
     )
 endfunction()
 
