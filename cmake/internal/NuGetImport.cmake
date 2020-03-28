@@ -2,7 +2,7 @@
 include("${CMAKE_CURRENT_LIST_DIR}/NuGetImport.core.cmake")
 include("${CMAKE_CURRENT_LIST_DIR}/NuGetImport.single.cmake")
 
-## Public interface. Needs to be called once before every other nuget_* command. Otherwise the
+## Public interface. Needs to be called once before every other nuget_*() command. Otherwise the
 ## result of those commands are all considered undefined, e.g. we might mistakenly detect the
 ## same nuget package registered twice but with different versions if you update the version of
 ## the given package in a nuget_dependencies() call.
@@ -11,7 +11,7 @@ function(nuget_init)
     foreach(DEPENDENCY IN LISTS NUGET_DEPENDENCY_VARIABLES)
         unset("${DEPENDENCY}" CACHE)
     endforeach()
-    set(NUGET_INITED TRUE CACHE INTERNAL "")
+    set(NUGET_IS_INITED_ONCE_CACHED TRUE CACHE INTERNAL "")
 endfunction()
 
 ## Public interface. Needs to be macro for properly setting CMAKE_MODULE_PATH
@@ -23,10 +23,10 @@ macro(nuget_dependencies)
         message(WARNING "NuGetTools for CMake is disabled: doing nothing.")
         return()
     endif()
-    if(NOT NUGET_INITED)
+    if(NOT NUGET_IS_INITED_ONCE_CACHED)
         message(FATAL_ERROR
             "NuGetTools for CMake has never been initialized before. "
-            "Please call nuget_init() only once before any other nuget_*() calls."
+            "Please call nuget_init() once before any other nuget_*() calls."
         )
     endif()
     if("${ARGV}" STREQUAL "")
