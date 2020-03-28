@@ -1,0 +1,69 @@
+set(PROJECT_ROOT "${CMAKE_CURRENT_LIST_DIR}/../..")
+include("${PROJECT_ROOT}/cmake/NuGetTools.cmake")
+
+## CMake setup
+cmake_minimum_required(VERSION 3.8.2 FATAL_ERROR)
+project(icu_cmake_and_install LANGUAGES C)
+set(CMAKE_CXX_COMPILER "")
+
+## NuGet setup: call it only once before any other nuget_* calls.
+nuget_initialize()
+
+## Import CMake exports of icu from NuGet package exported from Vcpkg
+# Please note that strictly speaking this is not the proper way of using packages exported from Vcpkg. The reason this works:
+# 1) The vcpkg.cmake toolchain file (that we do not use here) does not contain any tricky settings regarding icu.
+# 2) Icu comes with proper CMake export files that we can simply directly use from the NuGet package (see PREFIX_PATHS below).
+# See https://cmake.org/cmake/help/latest/command/find_package.html#search-procedure for determining a good PREFIX_PATHS value.
+nuget_add_dependencies(
+    PACKAGE icu.x64-windows.vcpkg-export
+    VERSION 65.1.0-2
+    PREFIX_PATHS installed/x64-windows
+)
+# You can create above NuGet package by e.g. (assuming you are at VCPKG_ROOT):
+# 1) $ vcpkg install icu:x64-windows
+# 2) $ vcpkg export icu:x64-windows --nuget --nuget-version=65.1.0-2 --nuget-id=icu.x64-windows.vcpkg-export
+# 3) $ nuget add icu.x64-windows.vcpkg-export.65.1.0-2.nupkg -Source "%USERPROFILE%/.nuget/repository"
+
+## Find external dependencies
+# Business as usual from this point on. The above nuget_add_dependencies() takes care of setting the CMAKE_PREFIX_PATH.
+find_package(ICU REQUIRED COMPONENTS data uc i18n)
+
+## Create executable
+# From "Examining UTF-8 code units" of https://begriffs.com/posts/2019-05-23-unicode-icu.html#icu-example-programs
+add_executable(IcuInstall utf8codeunits.c)
+target_link_libraries(IcuInstall PRIVATE ICU::uc ICU::i18n)
+
+## Install the executable
+install(TARGETS IcuInstall
+    CONFIGURATIONS Release RUNTIME DESTINATION release/${CMAKE_INSTALL_BINDIR}
+    CONFIGURATIONS Debug RUNTIME DESTINATION debug/${CMAKE_INSTALL_BINDIR}
+)
+
+## Install .dlls the brute force way
+include(GNUInstallDirs)
+nuget_get_dependencies(DEPENDENCIES)
+foreach(DEPENDENCY IN LISTS DEPENDENCIES)
+    nuget_get_dependency_dir("${DEPENDENCY}" PACKAGE_DIR)
+    nuget_is_dependency_installed("${DEPENDENCY}" IS_INSTALLED)
+    if(NOT IS_INSTALLED)
+        continue()
+    endif()
+    install(
+        DIRECTORY "${PACKAGE_DIR}/installed/x64-windows/bin"
+        DESTINATION release/${CMAKE_INSTALL_BINDIR}
+        CONFIGURATIONS Release
+        # Note: empty folders are copied: https://gitlab.kitware.com/cmake/cmake/issues/17122
+        FILES_MATCHING
+            PATTERN "*.dll"
+            PATTERN "*.pdb"
+    )
+    install(
+        DIRECTORY "${PACKAGE_DIR}/installed/x64-windows/debug/bin"
+        DESTINATION debug/${CMAKE_INSTALL_BINDIR}
+        CONFIGURATIONS Debug
+        # Note: empty folders are copied: https://gitlab.kitware.com/cmake/cmake/issues/17122
+        FILES_MATCHING
+            PATTERN "*.dll"
+            PATTERN "*.pdb"
+    )
+endforeach()

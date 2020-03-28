@@ -3,7 +3,7 @@
 cmake_minimum_required(VERSION 3.8.2 FATAL_ERROR)
 set(PROJECT_ROOT "${CMAKE_CURRENT_LIST_DIR}/..")
 include("${PROJECT_ROOT}/cmake/internal/NuGetTools.helper.cmake")
-include("${CMAKE_CURRENT_LIST_DIR}/Helper.cmake")
+include("${CMAKE_CURRENT_LIST_DIR}/TestHelpers.cmake")
 
 ## Test input
 set(TEST_PACKAGE_LIST_HEAD PACKAGE flatbuffers VERSION 1.11.0)

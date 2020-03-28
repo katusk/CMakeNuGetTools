@@ -3,7 +3,7 @@ include("${PROJECT_ROOT}/cmake/NuGetTools.cmake")
 
 ## CMake setup
 cmake_minimum_required(VERSION 3.8.2 FATAL_ERROR)
-project(flatbuffers_simple LANGUAGES CXX)
+project(flatbuffers_simple_dot_targets LANGUAGES CXX)
 set(CMAKE_C_COMPILER "")
 
 ## NuGet setup: call it only once before any other nuget_* calls.
