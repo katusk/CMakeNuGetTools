@@ -51,3 +51,44 @@ macro(nuget_add_dependencies)
     # NOTE: Make sure we did not introduce new normal variables here. Then we are safe macro-wise.
     # (NUGET_LAST_DEPENDENCIES_REGISTERED is an internal *cache* variable so that does not count.)
 endmacro()
+
+## Public interface. Returns the list of NuGet package IDs of registered dependencies.
+function(nuget_get_dependencies OUT_DEPENDENCIES)
+    _nuget_helper_get_internal_cache_variables_with_prefix(NUGET_DEPENDENCY_VERSION_ NUGET_DEPENDENCIES)
+    set("${OUT_DEPENDENCIES}" "${NUGET_DEPENDENCIES}" PARENT_SCOPE)
+endfunction()
+
+## Public interface. Returns the version of the given registered NuGet package ID.
+function(nuget_get_dependency_version PACKAGE_ID OUT_VERSION)
+    if(NOT DEFINED "${PACKAGE_ID}")
+        message(FATAL_ERROR "\"${PACKAGE_ID}\" is not registered.")
+    endif()
+    set("${OUT_VERSION}" "${NUGET_DEPENDENCY_VERSION_${PACKAGE_ID}}" PARENT_SCOPE)
+endfunction()
+
+## Public interface. Returns the usage requirement of the given registered NuGet package ID.
+function(nuget_get_dependency_usage PACKAGE_ID OUT_USAGE)
+    if(NOT DEFINED "${PACKAGE_ID}")
+        message(FATAL_ERROR "\"${PACKAGE_ID}\" is not registered.")
+    endif()
+    set("${OUT_USAGE}" "${NUGET_DEPENDENCY_USAGE_${PACKAGE_ID}}" PARENT_SCOPE)
+endfunction()
+
+## Public interface. Returns the absolute root directory path to the given installed NuGet package ID.
+## Please note that packages with INTERFACE usage requirement are never installed. Only returns a non-
+## empty path if nuget_is_dependency_installed() returns TRUE.
+function(nuget_get_dependency_dir PACKAGE_ID OUT_DIR)
+    if(NOT DEFINED "${PACKAGE_ID}")
+        message(FATAL_ERROR "\"${PACKAGE_ID}\" is not registered.")
+    endif()
+    set("${OUT_DIR}" "${NUGET_DEPENDENCY_DIR_${PACKAGE_ID}}" PARENT_SCOPE)
+endfunction()
+
+## Public interface. Returns whether the given registered NuGet package ID is or is not installed.
+## Please note that packages with INTERFACE usage requirement are never installed.
+function(nuget_is_dependency_installed PACKAGE_ID OUT_IS_INSTALLED)
+    if(NOT DEFINED "${PACKAGE_ID}")
+        message(FATAL_ERROR "\"${PACKAGE_ID}\" is not registered.")
+    endif()
+    set("${OUT_IS_INSTALLED}" "${NUGET_DEPENDENCY_INSTALLED_${PACKAGE_ID}}" PARENT_SCOPE)
+endfunction()
