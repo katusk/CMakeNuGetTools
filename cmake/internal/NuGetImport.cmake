@@ -2,6 +2,18 @@
 include("${CMAKE_CURRENT_LIST_DIR}/NuGetImport.core.cmake")
 include("${CMAKE_CURRENT_LIST_DIR}/NuGetImport.single.cmake")
 
+## Public interface. Needs to be called once before every other nuget_* command. Otherwise the
+## result of those commands are all considered undefined, e.g. we might mistakenly detect the
+## same nuget package registered twice but with different versions if you update the version of
+## the given package in a nuget_dependencies() call.
+function(nuget_init)
+    _nuget_helper_get_internal_cache_variables_with_prefix(NUGET_DEPENDENCY_ NUGET_DEPENDENCY_VARIABLES)
+    foreach(DEPENDENCY IN LISTS NUGET_DEPENDENCY_VARIABLES)
+        unset("${DEPENDENCY}" CACHE)
+    endforeach()
+    set(NUGET_INITED TRUE CACHE INTERNAL "")
+endfunction()
+
 ## Public interface. Needs to be macro for properly setting CMAKE_MODULE_PATH
 ## and CMAKE_PREFIX_PATH. It is assumed to be called from directory scope
 ## (or from another macro that is in dir. scope etc.).
@@ -10,6 +22,12 @@ macro(nuget_dependencies)
     if("${NUGET_COMMAND}" STREQUAL "")
         message(WARNING "NuGetTools for CMake is disabled: doing nothing.")
         return()
+    endif()
+    if(NOT NUGET_INITED)
+        message(FATAL_ERROR
+            "NuGetTools for CMake has never been initialized before. "
+            "Please call nuget_init() only once before any other nuget_*() calls."
+        )
     endif()
     if("${ARGV}" STREQUAL "")
         message(FATAL_ERROR "No arguments provided.")

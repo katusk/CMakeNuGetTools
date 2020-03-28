@@ -6,6 +6,9 @@ cmake_minimum_required(VERSION 3.8.2 FATAL_ERROR)
 project(flatbuffers_simple LANGUAGES CXX)
 set(CMAKE_C_COMPILER "")
 
+## NuGet setup: call it only once before any other nuget_* calls.
+nuget_init()
+
 ## Import flatbuffers via .targets file from NuGet package exported from Vcpkg. 
 ## Using .targets files is not CMake'ish at all but possible with Visual Studio generators...
 set(FLATBUFFERS_PACKAGE_ID flatbuffers.x64-windows.vcpkg-export)

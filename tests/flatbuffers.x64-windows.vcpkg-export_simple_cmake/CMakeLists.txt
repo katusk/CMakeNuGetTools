@@ -6,6 +6,9 @@ cmake_minimum_required(VERSION 3.8.2 FATAL_ERROR)
 project(flatbuffers_simple LANGUAGES CXX)
 set(CMAKE_C_COMPILER "")
 
+## NuGet setup: call it only once before any other nuget_* calls.
+nuget_init()
+
 ## Import CMake exports of flatbuffers from NuGet package exported from Vcpkg
 # Please note that strictly speaking this is not the proper way of using packages exported from Vcpkg. The reason this works:
 # 1) The vcpkg.cmake toolchain file (that we do not use here) does not contain any tricky settings regarding flatbuffers.

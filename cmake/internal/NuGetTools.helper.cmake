@@ -97,3 +97,23 @@ function(_nuget_helper_error_if_unparsed_args
         "KEYWORDS_MISSING_VALUES: "
     )
 endfunction()
+
+## Internal.
+function(_nuget_helper_get_internal_cache_variables_with_prefix PREFIX OUT_VARIABLES)
+    get_cmake_property(QUERIED_VARIABLES CACHE_VARIABLES)
+    set(PREFIX_FILTERED_VARIABLES "")
+    foreach(QUERIED_VARIABLE IN LISTS QUERIED_VARIABLES)
+        string(REGEX MATCH "^${PREFIX}.*" MATCHED_VARIABLE "${QUERIED_VARIABLE}")
+        if(NOT "${MATCHED_VARIABLE}" STREQUAL "")
+            list(APPEND PREFIX_FILTERED_VARIABLES "${MATCHED_VARIABLE}")
+        endif()
+    endforeach()
+    set(PREFIX_AND_TYPE_FILTERED_VARIABLES "")
+    foreach(PREFIX_FILTERED_VARIABLE IN LISTS PREFIX_FILTERED_VARIABLES)
+        get_property(PREFIX_FILTERED_VARIABLE_TYPE CACHE "${PREFIX_FILTERED_VARIABLE}" PROPERTY TYPE)
+        if("${PREFIX_FILTERED_VARIABLE_TYPE}" STREQUAL "INTERNAL")
+            list(APPEND PREFIX_AND_TYPE_FILTERED_VARIABLES "${PREFIX_FILTERED_VARIABLE}")
+        endif()
+    endforeach()
+    set("${OUT_VARIABLES}" "${PREFIX_AND_TYPE_FILTERED_VARIABLES}" PARENT_SCOPE)
+endfunction()
