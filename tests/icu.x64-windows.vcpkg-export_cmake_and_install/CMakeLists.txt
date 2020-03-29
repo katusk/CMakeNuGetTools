@@ -33,7 +33,7 @@ find_package(ICU REQUIRED COMPONENTS data uc io)
 # From "Examining UTF-8 code units" of https://begriffs.com/posts/2019-05-23-unicode-icu.html#icu-example-programs
 # Test: echo "résumé façade" | ./nomarks
 add_executable(nomarks nomarks.c)
-# TODO: These seem not to link against the -d*.dll icu libraries in Debug mode.
+# TODO: These seem not to link against the "icu*d65.dll" icu libraries in Debug mode (a "d" is appended just before the version number).
 target_link_libraries(nomarks PRIVATE ICU::data ICU::uc ICU::io)
 
 ## Install the executable
@@ -42,13 +42,8 @@ install(TARGETS nomarks
 )
 
 ## Install .dlls the brute force way
-nuget_get_dependencies(DEPENDENCIES)
-foreach(DEPENDENCY IN LISTS DEPENDENCIES)
-    nuget_get_dependency_dir("${DEPENDENCY}" PACKAGE_DIR)
-    nuget_is_dependency_installed("${DEPENDENCY}" IS_INSTALLED)
-    if(NOT IS_INSTALLED)
-        continue()
-    endif()
+nuget_get_installed_dependencies_dirs(DEPENDENCIES_DIRS)
+foreach(PACKAGE_DIR IN LISTS DEPENDENCIES_DIRS)
     install(
         DIRECTORY "${PACKAGE_DIR}/installed/x64-windows/bin/"
         DESTINATION ${CMAKE_INSTALL_BINDIR}

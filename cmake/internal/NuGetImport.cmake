@@ -59,6 +59,23 @@ function(nuget_get_dependencies OUT_DEPENDENCIES)
     set("${OUT_DEPENDENCIES}" "${NUGET_DEPENDENCIES}" PARENT_SCOPE)
 endfunction()
 
+## Public interface. Returns the list of NuGet package IDs of installed dependencies. Please
+## note that packages with INTERFACE usage requirement are never installed. Please also note
+## that a package is known to be installed if nuget_is_dependency_installed() returns TRUE
+## for the given package.
+function(nuget_get_installed_dependencies OUT_PACKAGE_IDS)
+    set(PACKAGE_IDS "")
+    nuget_get_dependencies(DEPENDENCIES)
+    foreach(DEPENDENCY IN LISTS DEPENDENCIES)
+        nuget_is_dependency_installed("${DEPENDENCY}" IS_INSTALLED)
+        if(NOT IS_INSTALLED)
+            continue()
+        endif()
+        list(APPEND PACKAGE_IDS "${DEPENDENCY}")
+    endforeach()
+    set("${OUT_PACKAGE_IDS}" "${PACKAGE_IDS}" PARENT_SCOPE)
+endfunction()
+
 ## Public interface. Returns the version of the given registered NuGet package ID.
 function(nuget_get_dependency_version PACKAGE_ID OUT_VERSION)
     if(NOT DEFINED "NUGET_DEPENDENCY_VERSION_${PACKAGE_ID}")
