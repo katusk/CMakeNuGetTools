@@ -1,5 +1,6 @@
 set(PROJECT_ROOT "${CMAKE_CURRENT_LIST_DIR}/../..")
 include("${PROJECT_ROOT}/cmake/NuGetTools.cmake")
+include(GNUInstallDirs)
 
 ## CMake setup
 cmake_minimum_required(VERSION 3.8.2 FATAL_ERROR)
@@ -40,7 +41,6 @@ install(TARGETS IcuInstall
 )
 
 ## Install .dlls the brute force way
-include(GNUInstallDirs)
 nuget_get_dependencies(DEPENDENCIES)
 foreach(DEPENDENCY IN LISTS DEPENDENCIES)
     nuget_get_dependency_dir("${DEPENDENCY}" PACKAGE_DIR)
@@ -49,21 +49,21 @@ foreach(DEPENDENCY IN LISTS DEPENDENCIES)
         continue()
     endif()
     install(
-        DIRECTORY "${PACKAGE_DIR}/installed/x64-windows/bin"
-        DESTINATION release/${CMAKE_INSTALL_BINDIR}
+        DIRECTORY "${PACKAGE_DIR}/installed/x64-windows/bin/"
+        DESTINATION "release/${CMAKE_INSTALL_BINDIR}"
         CONFIGURATIONS Release
-        # Note: empty folders are copied: https://gitlab.kitware.com/cmake/cmake/issues/17122
-        FILES_MATCHING
-            PATTERN "*.dll"
-            PATTERN "*.pdb"
+        # Note: empty folders are copied: https://gitlab.kitware.com/cmake/cmake/issues/17122
+        FILES_MATCHING
+            PATTERN "*.dll"
+            PATTERN "*.pdb"
     )
     install(
-        DIRECTORY "${PACKAGE_DIR}/installed/x64-windows/debug/bin"
-        DESTINATION debug/${CMAKE_INSTALL_BINDIR}
+        DIRECTORY "${PACKAGE_DIR}/installed/x64-windows/debug/bin/"
+        DESTINATION "release/${CMAKE_INSTALL_BINDIR}"
         CONFIGURATIONS Debug
-        # Note: empty folders are copied: https://gitlab.kitware.com/cmake/cmake/issues/17122
-        FILES_MATCHING
-            PATTERN "*.dll"
-            PATTERN "*.pdb"
+        # Note: empty folders are copied: https://gitlab.kitware.com/cmake/cmake/issues/17122
+        FILES_MATCHING
+            PATTERN "*.dll"
+            PATTERN "*.pdb"
     )
 endforeach()

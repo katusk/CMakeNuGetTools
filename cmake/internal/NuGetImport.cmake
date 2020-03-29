@@ -85,6 +85,24 @@ function(nuget_get_dependency_dir PACKAGE_ID OUT_DIR)
     set("${OUT_DIR}" "${NUGET_DEPENDENCY_DIR_${PACKAGE_ID}}" PARENT_SCOPE)
 endfunction()
 
+## Public interface. Returns the absolute root directory paths to all installed NuGet packages.
+## Please note that packages with INTERFACE usage requirement are never installed. Please also
+## note that a package is known to be installed if nuget_is_dependency_installed() returns TRUE
+## for the given package.
+function(nuget_get_installed_dependencies_dirs OUT_DIRS)
+    set(DIRS "")
+    nuget_get_dependencies(DEPENDENCIES)
+    foreach(DEPENDENCY IN LISTS DEPENDENCIES)
+        nuget_get_dependency_dir("${DEPENDENCY}" PACKAGE_DIR)
+        nuget_is_dependency_installed("${DEPENDENCY}" IS_INSTALLED)
+        if(NOT IS_INSTALLED)
+            continue()
+        endif()
+        list(APPEND DIRS "${PACKAGE_DIR}")
+    endforeach()
+    set("${OUT_DIRS}" "${DIRS}" PARENT_SCOPE)
+endfunction()
+
 ## Public interface. Returns whether the given registered NuGet package ID is or is not installed.
 ## Please note that packages with INTERFACE usage requirement are never installed.
 function(nuget_is_dependency_installed PACKAGE_ID OUT_IS_INSTALLED)
