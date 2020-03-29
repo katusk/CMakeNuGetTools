@@ -27,17 +27,17 @@ nuget_add_dependencies(
 
 ## Find external dependencies
 # Business as usual from this point on. The above nuget_add_dependencies() takes care of setting the CMAKE_PREFIX_PATH.
-find_package(ICU REQUIRED COMPONENTS data uc i18n)
+find_package(ICU REQUIRED COMPONENTS data uc io)
 
 ## Create executable
 # From "Examining UTF-8 code units" of https://begriffs.com/posts/2019-05-23-unicode-icu.html#icu-example-programs
-add_executable(IcuInstall utf8codeunits.c)
-target_link_libraries(IcuInstall PRIVATE ICU::uc ICU::i18n)
+# Test: echo "résumé façade" | ./nomarks
+add_executable(nomarks nomarks.c)
+target_link_libraries(nomarks PRIVATE ICU::data ICU::uc ICU::io)
 
 ## Install the executable
-install(TARGETS IcuInstall
-    CONFIGURATIONS Release RUNTIME DESTINATION release/${CMAKE_INSTALL_BINDIR}
-    CONFIGURATIONS Debug RUNTIME DESTINATION debug/${CMAKE_INSTALL_BINDIR}
+install(TARGETS nomarks
+    RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
 )
 
 ## Install .dlls the brute force way
@@ -50,7 +50,7 @@ foreach(DEPENDENCY IN LISTS DEPENDENCIES)
     endif()
     install(
         DIRECTORY "${PACKAGE_DIR}/installed/x64-windows/bin/"
-        DESTINATION "release/${CMAKE_INSTALL_BINDIR}"
+        DESTINATION ${CMAKE_INSTALL_BINDIR}
         CONFIGURATIONS Release
         # Note: empty folders are copied: https://gitlab.kitware.com/cmake/cmake/issues/17122
         FILES_MATCHING
@@ -59,7 +59,7 @@ foreach(DEPENDENCY IN LISTS DEPENDENCIES)
     )
     install(
         DIRECTORY "${PACKAGE_DIR}/installed/x64-windows/debug/bin/"
-        DESTINATION "release/${CMAKE_INSTALL_BINDIR}"
+        DESTINATION ${CMAKE_INSTALL_BINDIR}
         CONFIGURATIONS Debug
         # Note: empty folders are copied: https://gitlab.kitware.com/cmake/cmake/issues/17122
         FILES_MATCHING
