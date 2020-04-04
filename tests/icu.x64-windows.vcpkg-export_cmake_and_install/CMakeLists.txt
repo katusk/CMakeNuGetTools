@@ -33,7 +33,7 @@ find_package(ICU REQUIRED COMPONENTS data uc io)
 # From "Examining UTF-8 code units" of https://begriffs.com/posts/2019-05-23-unicode-icu.html#icu-example-programs
 # Test: echo "résumé façade" | ./nomarks
 add_executable(nomarks nomarks.c)
-# TODO: These seem not to link against the "icu*d65.dll" icu libraries in Debug mode (a "d" is appended just before the version number).
+# TODO: These does not seem to link against the "icu*d65.dll" icu libraries in Debug mode (a "d" is appended just before the version number).
 target_link_libraries(nomarks PRIVATE ICU::data ICU::uc ICU::io)
 
 ## Install the executable

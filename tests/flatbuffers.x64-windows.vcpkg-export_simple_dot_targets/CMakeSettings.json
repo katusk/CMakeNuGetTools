@@ -1,18 +1,20 @@
 {
     "environments": [
         {
-            "TargetsDir": "${projectDir}"
+            "BuildRoot": "${projectDir}\\..\\..\\build",
+            "InstallRoot": "${projectDir}\\..\\..\\install",
+            "ProjectName": "flatbuffers.x64-windows.vcpkg-export_simple_dot_targets"
         }
     ],
 
     "configurations": [
         {
-            "name": "x64-Debug",
-            "generator": "Visual Studio 15 2017 Win64",
             "configurationType": "Debug",
+            "name": "x64-windows\\${configurationType}",
+            "generator": "Visual Studio 15 2017 Win64",
             "inheritEnvironments": [ "msvc_x64_x64" ],
-            "buildRoot": "${env.TargetsDir}\\build\\${name}",
-            "installRoot": "${env.TargetsDir}\\install\\${name}",
+            "buildRoot": "${env.BuildRoot}\\vs2017\\${env.ProjectName}\\${name}",
+            "installRoot": "${env.InstallRoot}\\vs2017\\${env.ProjectName}\\${name}",
             "cmakeCommandArgs": "--trace-expand",
             "buildCommandArgs": "/v:normal /m /p:CL_MPCount=8",
             "ctestCommandArgs": "",
@@ -21,12 +23,12 @@
             ]
         },
         {
-            "name": "x64-Release",
-            "generator": "Visual Studio 15 2017 Win64",
             "configurationType": "Release",
+            "name": "x64-windows\\${configurationType}",
+            "generator": "Visual Studio 15 2017 Win64",
             "inheritEnvironments": [ "msvc_x64_x64" ],
-            "buildRoot": "${env.TargetsDir}\\build\\${name}",
-            "installRoot": "${env.TargetsDir}\\install\\${name}",
+            "buildRoot": "${env.BuildRoot}\\vs2017\\${env.ProjectName}\\${name}",
+            "installRoot": "${env.InstallRoot}\\vs2017\\${env.ProjectName}\\${name}",
             "cmakeCommandArgs": "--trace-expand",
             "buildCommandArgs": "/v:normal /m /p:CL_MPCount=8",
             "ctestCommandArgs": "",
