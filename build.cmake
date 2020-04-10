@@ -1,3 +1,6 @@
+## Simply call this by executing the following on the command line:
+## $ cmake -P build.cmake
+
 # Set working directory
 set(WORKDIR "${CMAKE_CURRENT_LIST_DIR}/build/meta/x64-windows")
 execute_process(COMMAND "${CMAKE_COMMAND}" -E make_directory "${WORKDIR}")
