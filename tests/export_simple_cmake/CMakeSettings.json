@@ -3,7 +3,8 @@
         {
             "BuildRoot": "${projectDir}\\..\\..\\build",
             "InstallRoot": "${projectDir}\\..\\..\\install",
-            "ProjectName": "flatbuffers.x64-windows.vcpkg-export_simple_cmake"
+            "PackagesRoot": "${projectDir}\\..\\..\\packages",
+            "ProjectName": "export_simple_cmake"
         }
     ],
 
@@ -19,7 +20,8 @@
             "buildCommandArgs": "/v:normal /m /p:CL_MPCount=8",
             "ctestCommandArgs": "",
             "variables": [
-                { "name": "NUGET_COMMAND", "value": "nuget" }
+                { "name": "NUGET_COMMAND", "value": "nuget" },
+                { "name": "NUGET_PACKAGES_DIR", "value": "${env.PackagesRoot}" }
             ]
         },
         {
@@ -33,7 +35,8 @@
             "buildCommandArgs": "/v:normal /m /p:CL_MPCount=8",
             "ctestCommandArgs": "",
             "variables": [
-                { "name": "NUGET_COMMAND", "value": "nuget" }
+                { "name": "NUGET_COMMAND", "value": "nuget" },
+                { "name": "NUGET_PACKAGES_DIR", "value": "${env.PackagesRoot}" }
             ]
         }
     ]

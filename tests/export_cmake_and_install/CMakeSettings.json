@@ -3,7 +3,8 @@
         {
             "BuildRoot": "${projectDir}\\..\\..\\build",
             "InstallRoot": "${projectDir}\\..\\..\\install",
-            "ProjectName": "icu.x64-windows.vcpkg-export_cmake_and_install"
+            "PackagesRoot": "${projectDir}\\..\\..\\packages",
+            "ProjectName": "export_cmake_and_install"
         }
     ],
 
@@ -19,7 +20,8 @@
             "buildCommandArgs": "/v:normal /m /p:CL_MPCount=8",
             "ctestCommandArgs": "",
             "variables": [
-                { "name": "NUGET_COMMAND", "value": "nuget" }
+                { "name": "NUGET_COMMAND", "value": "nuget" },
+                { "name": "NUGET_PACKAGES_DIR", "value": "${env.PackagesRoot}" }
             ]
         },
         {
@@ -33,7 +35,8 @@
             "buildCommandArgs": "/v:normal /m /p:CL_MPCount=8",
             "ctestCommandArgs": "",
             "variables": [
-                { "name": "NUGET_COMMAND", "value": "nuget" }
+                { "name": "NUGET_COMMAND", "value": "nuget" },
+                { "name": "NUGET_PACKAGES_DIR", "value": "${env.PackagesRoot}" }
             ]
         }
     ]
