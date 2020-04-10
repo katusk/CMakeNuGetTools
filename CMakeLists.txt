@@ -15,7 +15,8 @@ add_custom_target(export_simple_cmake.mkdir ALL
     COMMAND "${CMAKE_COMMAND}" -E make_directory "${CMAKE_SOURCE_DIR}/build/cmake/x64-windows/Release/export_simple_cmake"
 )
 add_test(NAME export_simple_cmake.g
-    COMMAND "${CMAKE_COMMAND}" -T v141,host=x64 -G "Visual Studio 15 2017 Win64" -DNUGET_COMMAND=nuget -DCMAKE_CONFIGURATION_TYPES=Release
+    COMMAND "${CMAKE_COMMAND}" -T v141,host=x64 -G "Visual Studio 15 2017 Win64" -DNUGET_COMMAND=nuget
+        "-DNUGET_PACKAGES_DIR=${CMAKE_SOURCE_DIR}/packages" -DCMAKE_CONFIGURATION_TYPES=Release
         "${CMAKE_SOURCE_DIR}/tests/export_simple_cmake"
     WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}/build/cmake/x64-windows/Release/export_simple_cmake"
 )
@@ -30,7 +31,8 @@ add_custom_target(export_simple_dot_targets.mkdir ALL
     COMMAND "${CMAKE_COMMAND}" -E make_directory "${CMAKE_SOURCE_DIR}/build/cmake/x64-windows/Release/export_simple_dot_targets"
 )
 add_test(NAME export_simple_dot_targets.g
-    COMMAND "${CMAKE_COMMAND}" -T v141,host=x64 -G "Visual Studio 15 2017 Win64" -DNUGET_COMMAND=nuget -DCMAKE_CONFIGURATION_TYPES=Release
+    COMMAND "${CMAKE_COMMAND}" -T v141,host=x64 -G "Visual Studio 15 2017 Win64" -DNUGET_COMMAND=nuget
+        "-DNUGET_PACKAGES_DIR=${CMAKE_SOURCE_DIR}/packages" -DCMAKE_CONFIGURATION_TYPES=Release
         "${CMAKE_SOURCE_DIR}/tests/export_simple_dot_targets"
     WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}/build/cmake/x64-windows/Release/export_simple_dot_targets"
 )
@@ -45,7 +47,8 @@ add_custom_target(export_cmake_and_install.mkdir ALL
     COMMAND "${CMAKE_COMMAND}" -E make_directory "${CMAKE_SOURCE_DIR}/build/cmake/x64-windows/Release/export_cmake_and_install"
 )
 add_test(NAME export_cmake_and_install.g
-    COMMAND "${CMAKE_COMMAND}" -T v141,host=x64 -G "Visual Studio 15 2017 Win64" -DNUGET_COMMAND=nuget -DCMAKE_CONFIGURATION_TYPES=Release
+    COMMAND "${CMAKE_COMMAND}" -T v141,host=x64 -G "Visual Studio 15 2017 Win64" -DNUGET_COMMAND=nuget
+        "-DNUGET_PACKAGES_DIR=${CMAKE_SOURCE_DIR}/packages" -DCMAKE_CONFIGURATION_TYPES=Release
         "${CMAKE_SOURCE_DIR}/tests/export_cmake_and_install"
     WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}/build/cmake/x64-windows/Release/export_cmake_and_install"
 )
