@@ -20,7 +20,7 @@ endfunction()
 macro(nuget_add_dependencies)
     # Sanity checks
     if("${NUGET_COMMAND}" STREQUAL "")
-        message(WARNING "NuGetTools for CMake is disabled: doing nothing.")
+        message("NUGET_COMMAND is empty: CMakeNuGetTools is disabled, no packages are restored.")
         return()
     endif()
     if(NOT NUGET_IS_INITIALIZED_ONCE_CACHED)

@@ -11,3 +11,4 @@ set(NUGET_PACKAGES_DIR "${CMAKE_SOURCE_DIR}/packages" CACHE PATH
 ## Includes
 include("${CMAKE_CURRENT_LIST_DIR}/internal/NuGetTools.helper.cmake")
 include("${CMAKE_CURRENT_LIST_DIR}/internal/NuGetImport.cmake")
+include("${CMAKE_CURRENT_LIST_DIR}/internal/NuGetPack.cmake")
