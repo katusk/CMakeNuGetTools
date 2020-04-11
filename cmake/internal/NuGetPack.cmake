@@ -26,7 +26,7 @@ function(nuget_write_nuspec)
     # Process arguments
     set(ARGS_HEAD "")
     set(ARGS_TAIL ${ARGV})
-    # Section: CMake-specific (without special section identifier)
+    # Section: CMake-specific (without special section identifier CMake argument)
     _nuget_helper_cut_arg_list(METADATA "${ARGS_TAIL}" ARGS_HEAD ARGS_TAIL)
     set(NUSPEC_CMAKE_ARGS ${ARGS_HEAD})
     # Section: /package/metadata in .nuspec XML file (METADATA as section identifier CMake argument)

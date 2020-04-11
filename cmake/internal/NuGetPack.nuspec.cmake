@@ -1,4 +1,4 @@
-## Internal. Section: /package/metadata in .nuspec XML file (METADATA as section identifier CMake argument)
+## Internal. Section: /package/metadata in .nuspec XML file (METADATA as section identifier CMake argument).
 function(_nuget_nuspec_process_metadata_args NUSPEC_INDENT_SIZE NUSPEC_CONTENT OUT_NUSPEC_CONTENT OUT_PACKAGE_ID)
     # Inputs
     set(options METADATA)
@@ -98,14 +98,18 @@ function(_nuget_nuspec_add_dependencies NUSPEC_INDENT_SIZE NUSPEC_CONTENT OUT_NU
     set(${OUT_NUSPEC_CONTENT} "${NUSPEC_CONTENT}" PARENT_SCOPE)
 endfunction()
 
-# Section: <files> (FILES)
+# Internal. Section: /package/files in .nuspec XML file (FILES as section identifier CMake argument).
 # _nuget_nuspec_process_files_args("${NUGET_NUSPEC_INDENT_SIZE}" "${NUSPEC_CONTENT}" NUSPEC_CONTENT ${ARGS_TAIL})
 function(_nuget_nuspec_process_files_args)
     # TODO
 endfunction()
 
-# Write output file
-# Section: CMake-specific (without special identifier)
+# Internal. Section: CMake-specific (without special section identifier CMake argument).
+# Write output .nuspec XML file(s) conditionally for given configurations intersected with the available configurations
+# in the current build system this function is actually called from. No error is raised if a given configuration is not
+# available -- the output file is simply not generated for that in the current build system. Not raising an error if a
+# given configuration is unavailable makes it possible to reuse the same nuget_write_nuspec() calls across different
+# build systems without adjustments or additional boilerplate code.
 # _nuget_nuspec_generate_output("${NUSPEC_CONTENT}" "${PACKAGE_ID}" ${NUSPEC_CMAKE_ARGS})
 function(_nuget_nuspec_generate_output)
     # TODO
