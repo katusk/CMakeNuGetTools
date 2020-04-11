@@ -186,12 +186,41 @@ function(_nuget_nuspec_add_file_conditionally NUSPEC_INDENT_SIZE NUSPEC_CONTENT 
 endfunction()
 
 # Internal. Section: CMake-specific (without special section identifier CMake argument).
-# Write output .nuspec XML file(s) conditionally for given configurations intersected with the available configurations
-# in the current build system this function is actually called from. No error is raised if a given configuration is not
-# available -- the output file is simply not generated for that in the current build system. Not raising an error if a
-# given configuration is unavailable makes it possible to reuse the same nuget_write_nuspec() calls across different
-# build systems without adjustments or additional boilerplate code.
-# _nuget_nuspec_generate_output("${NUSPEC_CONTENT}" "${PACKAGE_ID}" ${NUSPEC_CMAKE_ARGS})
-function(_nuget_nuspec_generate_output)
-    # TODO
+# Write output .nuspec XML file(s) conditionally for provided configurations in CMAKE_CONFIGURATIONS intersected with
+# the available configurations in the current build system this function is actually called from. No error is raised if
+# a given configuration is not available -- the output file is simply not generated for that in the current build system.
+# Not raising an error if a given configuration is unavailable makes it possible to reuse the same nuget_write_nuspec()
+# calls across different build systems without adjustments or writing additional code for generating the values of the
+# CMAKE_CONFIGURATIONS argument.
+function(_nuget_nuspec_generate_output NUSPEC_CONTENT PACKAGE_ID)
+    # Inputs
+    _nuget_helper_error_if_empty("${NUSPEC_CONTENT}" "NUSPEC_CONTENT to be written is empty: cannot generate .nuspec file's content.")
+    _nuget_helper_error_if_empty("${PACKAGE_ID}" "PACKAGE_ID to be written is empty: cannot generate .nuspec filename.")
+    set(options "")
+    set(oneValueArgs CMAKE_OUTPUT_DIR CMAKE_CONFIGURATIONS)
+    set(multiValueArgs "")
+    cmake_parse_arguments(_arg
+        "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN}
+    )
+    _nuget_helper_error_if_unparsed_args(
+        "${_arg_UNPARSED_ARGUMENTS}"
+        "${_arg_KEYWORDS_MISSING_VALUES}"
+    )
+    if("${_arg_CMAKE_OUTPUT_DIR}" STREQUAL "")
+        set(OUTPUT_FILE "${CMAKE_BINARY_DIR}/CMakeNuGetTools/nuspec/${PACKAGE_ID}.nuspec")
+    else()
+        set(OUTPUT_FILE "${_arg_CMAKE_OUTPUT_DIR}/${PACKAGE_ID}.nuspec")
+    endif()
+    # Actual functionality
+    if("${_arg_CMAKE_CONFIGURATIONS}" STREQUAL "")
+        file(GENERATE OUTPUT "${OUTPUT_FILE}" CONTENT "${NUSPEC_CONTENT}")
+    else()
+        set(CONDITIONS "$<OR:")
+        foreach(CONFIGURATION IN LISTS _arg_CMAKE_CONFIGURATIONS)
+            string(APPEND CONDITIONS "${CONDITIONS_SEPARATOR}$<CONFIG:${CONFIGURATION}>")
+            set(CONDITIONS_SEPARATOR ",")
+        endforeach()
+        string(APPEND CONDITIONS ">")
+        file(GENERATE OUTPUT "${OUTPUT_FILE}" CONTENT "${NUSPEC_CONTENT}" CONDITION "${CONDITIONS}")
+    endif()
 endfunction()
