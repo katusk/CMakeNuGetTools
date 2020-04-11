@@ -18,11 +18,9 @@ function(nuget_write_nuspec)
         return()
     endif()
     message("Writing .nuspec file...")
-
     # Begin .nuspec XML file
     set(NUSPEC_CONTENT "<?xml version=\"1.0\" encoding=\"utf-8\"?>")
     string(APPEND NUSPEC_CONTENT "\n<package xmlns=\"http://schemas.microsoft.com/packaging/2011/10/nuspec.xsd\">")
-
     # Process arguments
     set(ARGS_HEAD "")
     set(ARGS_TAIL ${ARGV})
@@ -34,10 +32,8 @@ function(nuget_write_nuspec)
     _nuget_nuspec_process_metadata_args("${NUGET_NUSPEC_INDENT_SIZE}" "${NUSPEC_CONTENT}" NUSPEC_CONTENT PACKAGE_ID ${ARGS_HEAD})
     # Section: /package/files in .nuspec XML file (FILES as section identifier CMake argument)
     _nuget_nuspec_process_files_args("${NUGET_NUSPEC_INDENT_SIZE}" "${NUSPEC_CONTENT}" NUSPEC_CONTENT ${ARGS_TAIL})
-
     # End .nuspec XML file
     string(APPEND NUSPEC_CONTENT "\n</package>")
-
     # Write output file(s)
     _nuget_nuspec_generate_output("${NUSPEC_CONTENT}" "${PACKAGE_ID}" ${NUSPEC_CMAKE_ARGS})
 endfunction()

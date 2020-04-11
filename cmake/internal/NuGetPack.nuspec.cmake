@@ -26,20 +26,20 @@ function(_nuget_nuspec_process_metadata_args NUSPEC_INDENT_SIZE NUSPEC_CONTENT O
     string(APPEND NUSPEC_CONTENT "\n${NUSPEC_INDENT_SIZE}<metadata>")
     set(NUSPEC_SUBELEMENT_INDENT_SIZE "${NUSPEC_INDENT_SIZE}${NUGET_NUSPEC_INDENT_SIZE}")
     # Required metadata subelements
-    string(APPEND NUSPEC_CONTENT "\n${NUSPEC_SUBELEMENT_INDENT_SIZE}<id>${PACKAGE}</id>")
-    string(APPEND NUSPEC_CONTENT "\n${NUSPEC_SUBELEMENT_INDENT_SIZE}<version>${VERSION}</version>")
-    string(APPEND NUSPEC_CONTENT "\n${NUSPEC_SUBELEMENT_INDENT_SIZE}<description>${DESCRIPTION}</description>")
-    string(REPLACE ";" "," AUTHORS "${AUTHORS}")
+    string(APPEND NUSPEC_CONTENT "\n${NUSPEC_SUBELEMENT_INDENT_SIZE}<id>${_arg_PACKAGE}</id>")
+    string(APPEND NUSPEC_CONTENT "\n${NUSPEC_SUBELEMENT_INDENT_SIZE}<version>${_arg_VERSION}</version>")
+    string(APPEND NUSPEC_CONTENT "\n${NUSPEC_SUBELEMENT_INDENT_SIZE}<description>${_arg_DESCRIPTION}</description>")
+    string(REPLACE ";" "," AUTHORS "${_arg_AUTHORS}")
     string(APPEND NUSPEC_CONTENT "\n${NUSPEC_SUBELEMENT_INDENT_SIZE}<authors>${AUTHORS}</authors>")
     # Optional simple metadata subelements
-    if(NOT "${PROJECT_URL}" STREQUAL "")
-        string(APPEND NUSPEC_CONTENT "\n${NUSPEC_SUBELEMENT_INDENT_SIZE}<projectUrl>${PROJECT_URL}</projectUrl>")
+    if(NOT "${_arg_PROJECT_URL}" STREQUAL "")
+        string(APPEND NUSPEC_CONTENT "\n${NUSPEC_SUBELEMENT_INDENT_SIZE}<projectUrl>${_arg_PROJECT_URL}</projectUrl>")
     endif()
-    if(NOT "${ICON}" STREQUAL "")
-        string(APPEND NUSPEC_CONTENT "\n${NUSPEC_SUBELEMENT_INDENT_SIZE}<icon>${ICON}</icon>")
+    if(NOT "${_arg_ICON}" STREQUAL "")
+        string(APPEND NUSPEC_CONTENT "\n${NUSPEC_SUBELEMENT_INDENT_SIZE}<icon>${_arg_ICON}</icon>")
     endif()
-    if(NOT "${COPYRIGHT}" STREQUAL "")
-        string(APPEND NUSPEC_CONTENT "\n${NUSPEC_SUBELEMENT_INDENT_SIZE}<copyright>${COPYRIGHT}</copyright>")
+    if(NOT "${_arg_COPYRIGHT}" STREQUAL "")
+        string(APPEND NUSPEC_CONTENT "\n${NUSPEC_SUBELEMENT_INDENT_SIZE}<copyright>${_arg_COPYRIGHT}</copyright>")
     endif()
     # Optional complex metadata subelements
     # Begin /package/metadata/repository
@@ -47,28 +47,31 @@ function(_nuget_nuspec_process_metadata_args NUSPEC_INDENT_SIZE NUSPEC_CONTENT O
     set(NUSPEC_REPOSITORY_CONTENT_END " />")
     set(NUSPEC_REPOSITORY_CONTENT "${NUSPEC_REPOSITORY_CONTENT_BEGIN}")
     # Attributes of /package/metadata/repository
-    if(NOT "${REPOSITORY_TYPE}" STREQUAL "")
-        string(APPEND NUSPEC_REPOSITORY_CONTENT " type=\"${REPOSITORY_TYPE}\"")
+    if(NOT "${_arg_REPOSITORY_TYPE}" STREQUAL "")
+        string(APPEND NUSPEC_REPOSITORY_CONTENT " type=\"${_arg_REPOSITORY_TYPE}\"")
     endif()
-    if(NOT "${REPOSITORY_URL}" STREQUAL "")
-        string(APPEND NUSPEC_REPOSITORY_CONTENT " url=\"${REPOSITORY_URL}\"")
+    if(NOT "${_arg_REPOSITORY_URL}" STREQUAL "")
+        string(APPEND NUSPEC_REPOSITORY_CONTENT " url=\"${_arg_REPOSITORY_URL}\"")
     endif()
-    if(NOT "${REPOSITORY_BRANCH}" STREQUAL "")
-        string(APPEND NUSPEC_REPOSITORY_CONTENT " branch=\"${REPOSITORY_BRANCH}\"")
+    if(NOT "${_arg_REPOSITORY_BRANCH}" STREQUAL "")
+        string(APPEND NUSPEC_REPOSITORY_CONTENT " branch=\"${_arg_REPOSITORY_BRANCH}\"")
     endif()
-    if(NOT "${REPOSITORY_COMMIT}" STREQUAL "")
-        string(APPEND NUSPEC_REPOSITORY_CONTENT " commit=\"${REPOSITORY_COMMIT}\"")
+    if(NOT "${_arg_REPOSITORY_COMMIT}" STREQUAL "")
+        string(APPEND NUSPEC_REPOSITORY_CONTENT " commit=\"${_arg_REPOSITORY_COMMIT}\"")
     endif()
     # End /package/metadata/repository
     string(APPEND NUSPEC_REPOSITORY_CONTENT "${NUSPEC_REPOSITORY_CONTENT_END}")
     if(NOT "${NUSPEC_REPOSITORY_CONTENT}" STREQUAL "${NUSPEC_REPOSITORY_CONTENT_BEGIN}${NUSPEC_REPOSITORY_CONTENT_END}")
         string(APPEND NUSPEC_CONTENT "${NUSPEC_REPOSITORY_CONTENT}")
     endif()
-    # Add package dependencies that are marked as PUBLIC or INTERFACE in previous nuget_add_dependencies() calls
+    # Optional collection metadata subelements
+    # Section: /package/metadata/dependencies -- add package dependencies that are marked as PUBLIC or INTERFACE
+    # in previous nuget_add_dependencies() calls.
     _nuget_nuspec_add_dependencies("${NUSPEC_SUBELEMENT_INDENT_SIZE}" "${NUSPEC_CONTENT}" NUSPEC_CONTENT)
     # End /package/metadata
     string(APPEND NUSPEC_CONTENT "\n${NUSPEC_INDENT_SIZE}</metadata>")
     set(${OUT_NUSPEC_CONTENT} "${NUSPEC_CONTENT}" PARENT_SCOPE)
+    set(${OUT_PACKAGE_ID} "${_arg_PACKAGE}" PARENT_SCOPE)
 endfunction()
 
 ## Internal. Section: /package/metadata/dependencies in .nuspec XML file.
@@ -99,9 +102,87 @@ function(_nuget_nuspec_add_dependencies NUSPEC_INDENT_SIZE NUSPEC_CONTENT OUT_NU
 endfunction()
 
 # Internal. Section: /package/files in .nuspec XML file (FILES as section identifier CMake argument).
-# _nuget_nuspec_process_files_args("${NUGET_NUSPEC_INDENT_SIZE}" "${NUSPEC_CONTENT}" NUSPEC_CONTENT ${ARGS_TAIL})
-function(_nuget_nuspec_process_files_args)
-    # TODO
+function(_nuget_nuspec_process_files_args NUSPEC_INDENT_SIZE NUSPEC_CONTENT OUT_NUSPEC_CONTENT)
+    # Input
+    list(GET ARGN 0 MAYBE_FILES_IDENTIFIER)
+    set(EMPTY_FILES_NODE_ERROR_MESSAGE
+        "FILES must not be empty: although the files node is not a required element (/package/files) of a .nuspec XML file, "
+        "the implementation of the nuget_write_nuspec() CMake command requires you to generate a non-empty files node."
+    )
+    if(NOT "${MAYBE_FILES_IDENTIFIER}" STREQUAL "FILES")
+        message(FATAL_ERROR ${EMPTY_FILES_NODE_ERROR_MESSAGE})
+    endif()
+    # Begin /package/files
+    set(NUSPEC_FILES_CONTENT_BEGIN "\n${NUSPEC_INDENT_SIZE}<files>")
+    set(NUSPEC_FILES_CONTENT_END "\n${NUSPEC_INDENT_SIZE}</files>")
+    set(APPEND NUSPEC_FILES_CONTENT "${NUSPEC_FILES_CONTENT_BEGIN}")
+    set(ARGS_HEAD "")
+    _nuget_helper_list_sublist("${ARGN}" 1 -1 ARGS_TAIL)
+    set(NUSPEC_SUBELEMENT_INDENT_SIZE "${NUSPEC_INDENT_SIZE}${NUGET_NUSPEC_INDENT_SIZE}")
+    while(NOT "${ARGS_TAIL}" STREQUAL "")
+        _nuget_helper_cut_arg_list(CMAKE_INCLUDE_CONDITION "${ARGS_TAIL}" ARGS_HEAD ARGS_TAIL)
+        list(GET ARGS_HEAD 0 MAYBE_CMAKE_INCLUDE_CONDITION_IDENTIFIER)
+        if("${MAYBE_CMAKE_INCLUDE_CONDITION_IDENTIFIER}" STREQUAL "CMAKE_INCLUDE_CONDITION")
+            list(GET ARGS_HEAD 1 CMAKE_INCLUDE_CONDITION)
+            _nuget_helper_list_sublist("${ARGS_HEAD}" 2 -1 ARGS_HEAD)
+        endif()
+        _nuget_nuspec_add_files_conditionally("${NUSPEC_SUBELEMENT_INDENT_SIZE}" "${NUSPEC_FILES_CONTENT}" NUSPEC_FILES_CONTENT
+            "${CMAKE_INCLUDE_CONDITION}" ${ARGS_HEAD}
+        )
+    endwhile()
+    # End /package/files
+    string(APPEND NUSPEC_FILES_CONTENT "${NUSPEC_FILES_CONTENT_END}")
+    if("${NUSPEC_FILES_CONTENT}" STREQUAL "${NUSPEC_FILES_CONTENT_BEGIN}${NUSPEC_FILES_CONTENT_END}")
+        message(FATAL_ERROR ${EMPTY_FILES_NODE_ERROR_MESSAGE})
+    endif()
+    string(APPEND NUSPEC_CONTENT "${NUSPEC_FILES_CONTENT}")
+    set(${OUT_NUSPEC_CONTENT} "${NUSPEC_CONTENT}" PARENT_SCOPE)
+endfunction()
+
+# Internal.
+function(_nuget_nuspec_add_files_conditionally NUSPEC_INDENT_SIZE NUSPEC_CONTENT OUT_NUSPEC_CONTENT CMAKE_INCLUDE_CONDITION)
+    string(APPEND NUSPEC_CONTENT "$<${CMAKE_INCLUDE_CONDITION}:")
+    set(ARGS_HEAD "")
+    set(ARGS_TAIL ${ARGN})
+    while(NOT "${ARGS_TAIL}" STREQUAL "")
+        _nuget_helper_cut_arg_list(FILE_SRC "${ARGS_TAIL}" ARGS_HEAD ARGS_TAIL)
+        _nuget_nuspec_add_file_conditionally("${NUSPEC_INDENT_SIZE}" "${NUSPEC_CONTENT}" NUSPEC_CONTENT
+            "${CMAKE_INCLUDE_CONDITION}" ${ARGS_HEAD}
+        )
+    endwhile()
+    string(APPEND NUSPEC_CONTENT ">")
+    set(${OUT_NUSPEC_CONTENT} "${NUSPEC_CONTENT}" PARENT_SCOPE)
+endfunction()
+
+# Internal.
+function(_nuget_nuspec_add_file_conditionally NUSPEC_INDENT_SIZE NUSPEC_CONTENT OUT_NUSPEC_CONTENT CMAKE_INCLUDE_CONDITION)
+    # Inputs
+    # See https://docs.microsoft.com/en-us/nuget/reference/nuspec#file-element-attributes
+    set(options "")
+    set(oneValueArgs FILE_SRC FILE_TARGET)
+    set(multiValueArgs FILE_EXCLUDE)
+    cmake_parse_arguments(_arg
+        "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN}
+    )
+    _nuget_helper_error_if_unparsed_args(
+        "${_arg_UNPARSED_ARGUMENTS}"
+        "${_arg_KEYWORDS_MISSING_VALUES}"
+    )
+    _nuget_helper_error_if_empty("${_arg_FILE_SRC}"
+        "FILE_SRC must not be empty: it is a required element (src) of "
+        "a .nuspec XML file's /package/files/file element."
+    )
+    # Actual functionality
+    string(APPEND NUSPEC_CONTENT "\n${NUSPEC_INDENT_SIZE}<file")
+    string(APPEND NUSPEC_CONTENT " src=\"${_arg_FILE_SRC}\"")
+    if(NOT "${_arg_FILE_TARGET}" STREQUAL "")
+        string(APPEND NUSPEC_CONTENT " target=\"${_arg_FILE_TARGET}\"")
+    endif()
+    if(NOT "${_arg_FILE_EXCLUDE}" STREQUAL "")
+        string(APPEND NUSPEC_CONTENT " exclude=\"${_arg_FILE_EXCLUDE}\"")
+    endif()
+    string(APPEND NUSPEC_CONTENT " />")
+    set(${OUT_NUSPEC_CONTENT} "${NUSPEC_CONTENT}" PARENT_SCOPE)
 endfunction()
 
 # Internal. Section: CMake-specific (without special section identifier CMake argument).
