@@ -17,7 +17,7 @@ function(nuget_write_nuspec)
         message(FATAL_ERROR "No arguments provided.")
         return()
     endif()
-    message("Writing .nuspec file...")
+    message("Writing .nuspec file(s)...")
     # Begin .nuspec XML file
     set(NUSPEC_CONTENT "<?xml version=\"1.0\" encoding=\"utf-8\"?>")
     string(APPEND NUSPEC_CONTENT "\n<package xmlns=\"http://schemas.microsoft.com/packaging/2011/10/nuspec.xsd\">")
