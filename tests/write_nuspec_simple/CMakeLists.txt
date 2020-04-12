@@ -54,8 +54,9 @@ target_include_directories(WriteNuspecSimple PRIVATE "${FLATBUFFERS_INTERFACE_IN
 
 ## Install the executable
 install(TARGETS WriteNuspecSimple
-    RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
-    LIBRARY DESTINATION ${CMAKE_INSTALL_BINDIR}
+    EXPORT WriteNuspecSimpleExport
+    RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}/$<CONFIG>
+    LIBRARY DESTINATION ${CMAKE_INSTALL_BINDIR}/$<CONFIG>
 )
 
 ## Install .dlls the brute force way
@@ -63,7 +64,7 @@ nuget_get_installed_dependencies_dirs(DEPENDENCIES_DIRS)
 foreach(PACKAGE_DIR IN LISTS DEPENDENCIES_DIRS)
     install(
         DIRECTORY "${PACKAGE_DIR}/installed/x64-windows/bin/"
-        DESTINATION ${CMAKE_INSTALL_BINDIR}
+        DESTINATION ${CMAKE_INSTALL_BINDIR}/$<CONFIG>
         CONFIGURATIONS Release
         # Note: empty folders are copied: https://gitlab.kitware.com/cmake/cmake/issues/17122
         FILES_MATCHING
@@ -72,7 +73,7 @@ foreach(PACKAGE_DIR IN LISTS DEPENDENCIES_DIRS)
     )
     install(
         DIRECTORY "${PACKAGE_DIR}/installed/x64-windows/debug/bin/"
-        DESTINATION ${CMAKE_INSTALL_BINDIR}
+        DESTINATION ${CMAKE_INSTALL_BINDIR}/$<CONFIG>
         CONFIGURATIONS Debug
         # Note: empty folders are copied: https://gitlab.kitware.com/cmake/cmake/issues/17122
         FILES_MATCHING
@@ -80,6 +81,28 @@ foreach(PACKAGE_DIR IN LISTS DEPENDENCIES_DIRS)
             PATTERN "*.pdb"
     )
 endforeach()
+
+## Installation of CMake Export Files
+include(CMakePackageConfigHelpers)
+configure_package_config_file(cmake/WriteNuspecSimpleConfig.cmake.in
+    "${CMAKE_CURRENT_BINARY_DIR}/WriteNuspecSimpleConfig.cmake"
+    INSTALL_DESTINATION cmake
+)
+write_basic_package_version_file(
+    "${CMAKE_CURRENT_BINARY_DIR}/WriteNuspecSimpleConfigVersion.cmake"
+    VERSION ${PROJECT_VERSION}
+    COMPATIBILITY SameMajorVersion
+)
+install(FILES
+    "${CMAKE_CURRENT_BINARY_DIR}/WriteNuspecSimpleConfig.cmake"
+    "${CMAKE_CURRENT_BINARY_DIR}/WriteNuspecSimpleConfigVersion.cmake"
+    DESTINATION cmake
+)
+install(EXPORT WriteNuspecSimpleExport
+    FILE WriteNuspecSimpleTargets.cmake
+    NAMESPACE WriteNuspecSimple::
+    DESTINATION cmake
+)
 
 ## Write .nuspec file(s)
 nuget_write_nuspec(
@@ -107,6 +130,12 @@ nuget_write_nuspec(
     FILES
         FILE_SRC "$<TARGET_FILE:WriteNuspecSimple>" FILE_TARGET "build/native/x64-windows/$<LOWER_CASE:$<CONFIG>>/bin"
         FILE_SRC "$<TARGET_LINKER_FILE:WriteNuspecSimple>" FILE_TARGET "build/native/x64-windows/$<LOWER_CASE:$<CONFIG>>/lib"
+        # CMake exports
+        FILE_SRC "${CMAKE_INSTALL_PREFIX}/cmake/WriteNuspecSimpleConfig.cmake" FILE_TARGET "build/native/x64-windows/cmake"
+        FILE_SRC "${CMAKE_INSTALL_PREFIX}/cmake/WriteNuspecSimpleConfigVersion.cmake" FILE_TARGET "build/native/x64-windows/cmake"
+        FILE_SRC "${CMAKE_INSTALL_PREFIX}/cmake/WriteNuspecSimpleTargets.cmake" FILE_TARGET "build/native/x64-windows/cmake"
+        FILE_SRC "${CMAKE_INSTALL_PREFIX}/cmake/WriteNuspecSimpleTargets-$<LOWER_CASE:$<CONFIG>>.cmake" FILE_TARGET "build/native/x64-windows/cmake"
+        # Only in Debug mode: .pdb file
         CMAKE_CONDITIONAL_SECTION $<CONFIG:Debug>
             FILE_SRC "$<TARGET_PDB_FILE:WriteNuspecSimple>" FILE_TARGET "build/native/x64-windows/$<LOWER_CASE:$<CONFIG>>/bin"
 )

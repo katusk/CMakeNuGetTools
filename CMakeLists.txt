@@ -73,6 +73,7 @@ add_custom_target(write_nuspec_simple.mkdir ALL
 add_test(NAME write_nuspec_simple.g
     COMMAND "${CMAKE_COMMAND}" -T v141,host=x64 -G "Visual Studio 15 2017 Win64" -DNUGET_COMMAND=nuget
         "-DNUGET_PACKAGES_DIR=${CMAKE_SOURCE_DIR}/packages" "-DCMAKE_CONFIGURATION_TYPES=Release;Debug"
+        "-DCMAKE_INSTALL_PREFIX=${CMAKE_SOURCE_DIR}/install/cmake/x64-windows/MultiConfig/write_nuspec_simple"
         "${CMAKE_SOURCE_DIR}/tests/write_nuspec_simple"
     WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}/build/cmake/x64-windows/MultiConfig/write_nuspec_simple"
 )
@@ -82,5 +83,16 @@ add_test(NAME write_nuspec_simple.release.build
 )
 add_test(NAME write_nuspec_simple.debug.build
     COMMAND "${CMAKE_COMMAND}" --build . --config Debug --target ALL_BUILD -- /p:PlatformToolset=v141 /p:Configuration=Debug /p:Platform=x64
+    WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}/build/cmake/x64-windows/MultiConfig/write_nuspec_simple"
+)
+add_custom_target(write_nuspec_simple.install.mkdir ALL
+    COMMAND "${CMAKE_COMMAND}" -E make_directory "${CMAKE_SOURCE_DIR}/install/cmake/x64-windows/MultiConfig/write_nuspec_simple"
+)
+add_test(NAME write_nuspec_simple.release.install
+    COMMAND "${CMAKE_COMMAND}" --build . --config Release --target INSTALL -- /p:PlatformToolset=v141 /p:Configuration=Release /p:Platform=x64
+    WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}/build/cmake/x64-windows/MultiConfig/write_nuspec_simple"
+)
+add_test(NAME write_nuspec_simple.debug.install
+    COMMAND "${CMAKE_COMMAND}" --build . --config Debug --target INSTALL -- /p:PlatformToolset=v141 /p:Configuration=Debug /p:Platform=x64
     WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}/build/cmake/x64-windows/MultiConfig/write_nuspec_simple"
 )

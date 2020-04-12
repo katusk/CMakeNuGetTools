@@ -1,0 +1,6 @@
+get_filename_component(WriteNuspecSimple_CMAKE_DIR "${CMAKE_CURRENT_LIST_FILE}" PATH)
+list(APPEND CMAKE_MODULE_PATH ${WriteNuspecSimple_CMAKE_DIR})
+if(NOT TARGET WriteNuspecSimple::WriteNuspecSimple)
+    include("${WriteNuspecSimple_CMAKE_DIR}/WriteNuspecSimpleTargets.cmake")
+endif()
+set(WriteNuspecSimple_LIBRARIES WriteNuspecSimple::WriteNuspecSimple)
