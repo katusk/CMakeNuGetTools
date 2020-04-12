@@ -122,17 +122,17 @@ function(_nuget_nuspec_process_files_args NUSPEC_INDENT_SIZE NUSPEC_CONTENT OUT_
     _nuget_helper_list_sublist("${ARGN}" 1 -1 ARGS_TAIL)
     set(NUSPEC_SUBELEMENT_INDENT_SIZE "${NUSPEC_INDENT_SIZE}${NUGET_NUSPEC_INDENT_SIZE}")
     while(NOT "${ARGS_TAIL}" STREQUAL "")
-        _nuget_helper_cut_arg_list(CMAKE_INCLUDE_CONDITION "${ARGS_TAIL}" ARGS_HEAD ARGS_TAIL)
+        _nuget_helper_cut_arg_list(CMAKE_CONDITIONAL_SECTION "${ARGS_TAIL}" ARGS_HEAD ARGS_TAIL)
         list(LENGTH ARGS_HEAD ARGS_HEAD_LENGTH)
         if(ARGS_HEAD_LENGTH GREATER_EQUAL 2)
             list(GET ARGS_HEAD 0 MAYBE_CMAKE_INCLUDE_CONDITION_IDENTIFIER)
-            if("${MAYBE_CMAKE_INCLUDE_CONDITION_IDENTIFIER}" STREQUAL "CMAKE_INCLUDE_CONDITION")
-                list(GET ARGS_HEAD 1 CMAKE_INCLUDE_CONDITION)
+            if("${MAYBE_CMAKE_INCLUDE_CONDITION_IDENTIFIER}" STREQUAL "CMAKE_CONDITIONAL_SECTION")
+                list(GET ARGS_HEAD 1 CMAKE_CONDITIONAL_SECTION)
                 _nuget_helper_list_sublist("${ARGS_HEAD}" 2 -1 ARGS_HEAD)
             endif()
         endif()
         _nuget_nuspec_add_files_conditionally("${NUSPEC_SUBELEMENT_INDENT_SIZE}" "${NUSPEC_FILES_CONTENT}" NUSPEC_FILES_CONTENT
-            "${CMAKE_INCLUDE_CONDITION}" ${ARGS_HEAD}
+            "${CMAKE_CONDITIONAL_SECTION}" ${ARGS_HEAD}
         )
     endwhile()
     # End /package/files
@@ -145,10 +145,10 @@ function(_nuget_nuspec_process_files_args NUSPEC_INDENT_SIZE NUSPEC_CONTENT OUT_
 endfunction()
 
 # Internal.
-function(_nuget_nuspec_add_files_conditionally NUSPEC_INDENT_SIZE NUSPEC_CONTENT OUT_NUSPEC_CONTENT CMAKE_INCLUDE_CONDITION)
-    # Input: check for a CMAKE_INCLUDE_CONDITION parameter pack
-    if(NOT "${CMAKE_INCLUDE_CONDITION}" STREQUAL "")
-        string(APPEND NUSPEC_CONTENT "$<${CMAKE_INCLUDE_CONDITION}:")
+function(_nuget_nuspec_add_files_conditionally NUSPEC_INDENT_SIZE NUSPEC_CONTENT OUT_NUSPEC_CONTENT CMAKE_CONDITIONAL_SECTION)
+    # Input: check for a CMAKE_CONDITIONAL_SECTION parameter pack
+    if(NOT "${CMAKE_CONDITIONAL_SECTION}" STREQUAL "")
+        string(APPEND NUSPEC_CONTENT "$<${CMAKE_CONDITIONAL_SECTION}:")
     endif()
     # Loop over parameter pack
     set(ARGS_HEAD "")
@@ -156,18 +156,18 @@ function(_nuget_nuspec_add_files_conditionally NUSPEC_INDENT_SIZE NUSPEC_CONTENT
     while(NOT "${ARGS_TAIL}" STREQUAL "")
         _nuget_helper_cut_arg_list(FILE_SRC "${ARGS_TAIL}" ARGS_HEAD ARGS_TAIL)
         _nuget_nuspec_add_file_conditionally("${NUSPEC_INDENT_SIZE}" "${NUSPEC_CONTENT}" NUSPEC_CONTENT
-            "${CMAKE_INCLUDE_CONDITION}" ${ARGS_HEAD}
+            "${CMAKE_CONDITIONAL_SECTION}" ${ARGS_HEAD}
         )
     endwhile()
-    # Close generator expression if this was a CMAKE_INCLUDE_CONDITION parameter pack
-    if(NOT "${CMAKE_INCLUDE_CONDITION}" STREQUAL "")
+    # Close generator expression if this was a CMAKE_CONDITIONAL_SECTION parameter pack
+    if(NOT "${CMAKE_CONDITIONAL_SECTION}" STREQUAL "")
         string(APPEND NUSPEC_CONTENT ">")
     endif()
     set(${OUT_NUSPEC_CONTENT} "${NUSPEC_CONTENT}" PARENT_SCOPE)
 endfunction()
 
 # Internal.
-function(_nuget_nuspec_add_file_conditionally NUSPEC_INDENT_SIZE NUSPEC_CONTENT OUT_NUSPEC_CONTENT CMAKE_INCLUDE_CONDITION)
+function(_nuget_nuspec_add_file_conditionally NUSPEC_INDENT_SIZE NUSPEC_CONTENT OUT_NUSPEC_CONTENT CMAKE_CONDITIONAL_SECTION)
     # Inputs
     # See https://docs.microsoft.com/en-us/nuget/reference/nuspec#file-element-attributes
     set(options "")

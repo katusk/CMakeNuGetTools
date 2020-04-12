@@ -107,6 +107,6 @@ nuget_write_nuspec(
     FILES
         FILE_SRC "$<TARGET_FILE:WriteNuspecSimple>" FILE_TARGET "build/native/x64-windows/$<LOWER_CASE:$<CONFIG>>/bin"
         FILE_SRC "$<TARGET_LINKER_FILE:WriteNuspecSimple>" FILE_TARGET "build/native/x64-windows/$<LOWER_CASE:$<CONFIG>>/lib"
-        CMAKE_INCLUDE_CONDITION $<CONFIG:Debug>
+        CMAKE_CONDITIONAL_SECTION $<CONFIG:Debug>
             FILE_SRC "$<TARGET_PDB_FILE:WriteNuspecSimple>" FILE_TARGET "build/native/x64-windows/$<LOWER_CASE:$<CONFIG>>/bin"
 )
