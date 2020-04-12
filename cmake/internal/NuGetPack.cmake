@@ -37,3 +37,8 @@ function(nuget_write_nuspec)
     # Write output file(s)
     _nuget_nuspec_generate_output("${NUSPEC_CONTENT}" "${PACKAGE_ID}" ${NUSPEC_CMAKE_ARGS})
 endfunction()
+
+## Public interface.
+function(nuget_merge_nuspecs)
+    # TODO
+endfunction()

@@ -118,7 +118,7 @@ nuget_write_nuspec(
         AUTHORS katusk cmake CMakeNuGetTools
         ## Optional elements
         PROJECT_URL https://github.com/katusk
-        ICON fake.png
+        # ICON fake.png
         COPYRIGHT katusk
         REPOSITORY_TYPE git
         REPOSITORY_URL https://github.com/katusk/whatnot.git
@@ -129,7 +129,7 @@ nuget_write_nuspec(
     ## FILES node: required by our CMake implementation
     FILES
         FILE_SRC "$<TARGET_FILE:WriteNuspecSimple>" FILE_TARGET "build/native/x64-windows/bin/$<LOWER_CASE:$<CONFIG>>"
-        FILE_SRC "$<TARGET_LINKER_FILE:WriteNuspecSimple>" FILE_TARGET "build/native/x64-windows/lib/$<LOWER_CASE:$<CONFIG>>"
+        # FILE_SRC "$<TARGET_LINKER_FILE:WriteNuspecSimple>" FILE_TARGET "build/native/x64-windows/lib/$<LOWER_CASE:$<CONFIG>>"
         # CMake exports
         FILE_SRC "${CMAKE_INSTALL_PREFIX}/cmake/WriteNuspecSimpleConfig.cmake" FILE_TARGET "build/native/x64-windows/cmake"
         FILE_SRC "${CMAKE_INSTALL_PREFIX}/cmake/WriteNuspecSimpleConfigVersion.cmake" FILE_TARGET "build/native/x64-windows/cmake"
