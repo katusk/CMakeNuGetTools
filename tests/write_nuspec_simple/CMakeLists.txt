@@ -4,7 +4,7 @@ include(GNUInstallDirs)
 
 ## CMake setup
 cmake_minimum_required(VERSION 3.8.2 FATAL_ERROR)
-project(icu_cmake_and_install LANGUAGES CXX)
+project(write_nuspec_simple LANGUAGES CXX VERSION 1.2.3)
 set(CMAKE_C_COMPILER "")
 
 ## NuGet setup: call it only once before any other nuget_* calls.
@@ -80,3 +80,36 @@ foreach(PACKAGE_DIR IN LISTS DEPENDENCIES_DIRS)
             PATTERN "*.pdb"
     )
 endforeach()
+
+## Write .nuspec file(s)
+nuget_write_nuspec(
+    ## CMake-specific arguments section
+    CMAKE_OUTPUT_DIR ${CMAKE_BINARY_DIR}/CMakeNuGetTools # Optional: defaults to ${CMAKE_BINARY_DIR}/CMakeNuGetTools/nuspec
+    CMAKE_CONFIGURATIONS Release Debug                   # Optional: defaults to no restrictions given
+
+    ## NuSpec-related section below
+    METADATA
+        ## Required elements
+        PACKAGE ${PROJECT_NAME}
+        VERSION ${PROJECT_VERSION}
+        DESCRIPTION "It's *the* package."
+        AUTHORS katusk cmake CMakeNuGetTools
+        ## Optional elements
+        # PROJECT_URL https://github.com/katusk
+        # ICON
+        # COPYRIGHT
+        # REPOSITORY_TYPE
+        # REPOSITORY_URL
+        # REPOSITORY_BRANCH
+        # REPOSITORY_COMMIT
+        ## Collection elements
+        ## Currently DEPENDENCIES which is automatically generated based on nuget_add_dependencies() calls.
+    ## FILES node: required by our CMake implementation
+    FILES
+        # FILE_SRC "debug\bin\*.dll" FILE_TARGET "build\native\x64-windows\debug\bin"
+        # CMAKE_INCLUDE_CONDITION some <config> gen. expression
+        # FILE_SRC "release\bin\*.dll" FILE_TARGET "build\native\x64-windows\release\bin" [FILE_EXCLUDE …]
+        # CMAKE_INCLUDE_CONDITION some <config> gen. expression
+        # FILE_SRC "debug\bin\*.dll" FILE_TARGET "build\native\x64-windows\debug\bin"
+        # FILE_SRC "debug\bin\*.pdb" FILE_TARGET "build\native\x64-windows\debug\bin"
+)

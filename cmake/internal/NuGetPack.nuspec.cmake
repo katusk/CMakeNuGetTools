@@ -104,18 +104,20 @@ endfunction()
 # Internal. Section: /package/files in .nuspec XML file (FILES as section identifier CMake argument).
 function(_nuget_nuspec_process_files_args NUSPEC_INDENT_SIZE NUSPEC_CONTENT OUT_NUSPEC_CONTENT)
     # Input
-    list(GET ARGN 0 MAYBE_FILES_IDENTIFIER)
     set(EMPTY_FILES_NODE_ERROR_MESSAGE
         "FILES must not be empty: although the files node is not a required element (/package/files) of a .nuspec XML file, "
         "the implementation of the nuget_write_nuspec() CMake command requires you to generate a non-empty files node."
     )
+    string(REPLACE ";" "" EMPTY_FILES_NODE_ERROR_MESSAGE "${EMPTY_FILES_NODE_ERROR_MESSAGE}")
+    _nuget_helper_error_if_empty("${ARGN}" ${EMPTY_FILES_NODE_ERROR_MESSAGE})
+    list(GET ARGN 0 MAYBE_FILES_IDENTIFIER)
     if(NOT "${MAYBE_FILES_IDENTIFIER}" STREQUAL "FILES")
         message(FATAL_ERROR ${EMPTY_FILES_NODE_ERROR_MESSAGE})
     endif()
     # Begin /package/files
     set(NUSPEC_FILES_CONTENT_BEGIN "\n${NUSPEC_INDENT_SIZE}<files>")
     set(NUSPEC_FILES_CONTENT_END "\n${NUSPEC_INDENT_SIZE}</files>")
-    set(APPEND NUSPEC_FILES_CONTENT "${NUSPEC_FILES_CONTENT_BEGIN}")
+    set(NUSPEC_FILES_CONTENT "${NUSPEC_FILES_CONTENT_BEGIN}")
     set(ARGS_HEAD "")
     _nuget_helper_list_sublist("${ARGN}" 1 -1 ARGS_TAIL)
     set(NUSPEC_SUBELEMENT_INDENT_SIZE "${NUSPEC_INDENT_SIZE}${NUGET_NUSPEC_INDENT_SIZE}")
@@ -197,8 +199,8 @@ function(_nuget_nuspec_generate_output NUSPEC_CONTENT PACKAGE_ID)
     _nuget_helper_error_if_empty("${NUSPEC_CONTENT}" "NUSPEC_CONTENT to be written is empty: cannot generate .nuspec file's content.")
     _nuget_helper_error_if_empty("${PACKAGE_ID}" "PACKAGE_ID to be written is empty: cannot generate .nuspec filename.")
     set(options "")
-    set(oneValueArgs CMAKE_OUTPUT_DIR CMAKE_CONFIGURATIONS)
-    set(multiValueArgs "")
+    set(oneValueArgs CMAKE_OUTPUT_DIR)
+    set(multiValueArgs CMAKE_CONFIGURATIONS)
     cmake_parse_arguments(_arg
         "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN}
     )
