@@ -128,8 +128,8 @@ nuget_write_nuspec(
         ## Currently only DEPENDENCIES which is automatically generated based on nuget_add_dependencies() calls.
     ## FILES node: required by our CMake implementation
     FILES
-        FILE_SRC "$<TARGET_FILE:WriteNuspecSimple>" FILE_TARGET "build/native/x64-windows/$<LOWER_CASE:$<CONFIG>>/bin"
-        FILE_SRC "$<TARGET_LINKER_FILE:WriteNuspecSimple>" FILE_TARGET "build/native/x64-windows/$<LOWER_CASE:$<CONFIG>>/lib"
+        FILE_SRC "$<TARGET_FILE:WriteNuspecSimple>" FILE_TARGET "build/native/x64-windows/bin/$<LOWER_CASE:$<CONFIG>>"
+        FILE_SRC "$<TARGET_LINKER_FILE:WriteNuspecSimple>" FILE_TARGET "build/native/x64-windows/lib/$<LOWER_CASE:$<CONFIG>>"
         # CMake exports
         FILE_SRC "${CMAKE_INSTALL_PREFIX}/cmake/WriteNuspecSimpleConfig.cmake" FILE_TARGET "build/native/x64-windows/cmake"
         FILE_SRC "${CMAKE_INSTALL_PREFIX}/cmake/WriteNuspecSimpleConfigVersion.cmake" FILE_TARGET "build/native/x64-windows/cmake"
@@ -137,5 +137,5 @@ nuget_write_nuspec(
         FILE_SRC "${CMAKE_INSTALL_PREFIX}/cmake/WriteNuspecSimpleTargets-$<LOWER_CASE:$<CONFIG>>.cmake" FILE_TARGET "build/native/x64-windows/cmake"
         # Only in Debug mode: .pdb file
         CMAKE_CONDITIONAL_SECTION $<CONFIG:Debug>
-            FILE_SRC "$<TARGET_PDB_FILE:WriteNuspecSimple>" FILE_TARGET "build/native/x64-windows/$<LOWER_CASE:$<CONFIG>>/bin"
+            FILE_SRC "$<TARGET_PDB_FILE:WriteNuspecSimple>" FILE_TARGET "build/native/x64-windows/bin/$<LOWER_CASE:$<CONFIG>>"
 )
