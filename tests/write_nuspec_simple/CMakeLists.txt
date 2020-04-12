@@ -86,7 +86,6 @@ nuget_write_nuspec(
     ## CMake-specific arguments section
     CMAKE_OUTPUT_DIR ${CMAKE_BINARY_DIR}/CMakeNuGetTools # Optional: defaults to ${CMAKE_BINARY_DIR}/CMakeNuGetTools/nuspec
     CMAKE_CONFIGURATIONS Release Debug                   # Optional: defaults to no restrictions given
-
     ## NuSpec-related section below
     METADATA
         ## Required elements
@@ -95,22 +94,19 @@ nuget_write_nuspec(
         DESCRIPTION "It's *the* package."
         AUTHORS katusk cmake CMakeNuGetTools
         ## Optional elements
-        # PROJECT_URL https://github.com/katusk
-        # ICON
-        # COPYRIGHT
-        # REPOSITORY_TYPE
-        # REPOSITORY_URL
-        # REPOSITORY_BRANCH
-        # REPOSITORY_COMMIT
+        PROJECT_URL https://github.com/katusk
+        ICON fake.png
+        COPYRIGHT katusk
+        REPOSITORY_TYPE git
+        REPOSITORY_URL https://github.com/katusk/whatnot.git
+        REPOSITORY_BRANCH dev
+        REPOSITORY_COMMIT e1c65e4524cd70ee6e22abe33e6cb6ec73938cb3
         ## Collection elements
-        ## Currently DEPENDENCIES which is automatically generated based on nuget_add_dependencies() calls.
+        ## Currently only DEPENDENCIES which is automatically generated based on nuget_add_dependencies() calls.
     ## FILES node: required by our CMake implementation
     FILES
         FILE_SRC "$<TARGET_FILE:WriteNuspecSimple>" FILE_TARGET "build/native/x64-windows/$<LOWER_CASE:$<CONFIG>>/bin"
+        FILE_SRC "$<TARGET_LINKER_FILE:WriteNuspecSimple>" FILE_TARGET "build/native/x64-windows/$<LOWER_CASE:$<CONFIG>>/lib"
         CMAKE_INCLUDE_CONDITION $<CONFIG:Debug>
-        FILE_SRC "$<TARGET_PDB_FILE:WriteNuspecSimple>" FILE_TARGET "build/native/x64-windows/$<LOWER_CASE:$<CONFIG>>/bin"
-        # FILE_SRC "release\bin\*.dll" FILE_TARGET "build\native\x64-windows\release\bin" [FILE_EXCLUDE …]
-        # CMAKE_INCLUDE_CONDITION some <config> gen. expression
-        # FILE_SRC "debug\bin\*.dll" FILE_TARGET "build\native\x64-windows\debug\bin"
-        # FILE_SRC "debug\bin\*.pdb" FILE_TARGET "build\native\x64-windows\debug\bin"
+            FILE_SRC "$<TARGET_PDB_FILE:WriteNuspecSimple>" FILE_TARGET "build/native/x64-windows/$<LOWER_CASE:$<CONFIG>>/bin"
 )
