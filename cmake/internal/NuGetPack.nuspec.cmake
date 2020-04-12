@@ -193,7 +193,7 @@ function(_nuget_nuspec_add_file_conditionally NUSPEC_INDENT_SIZE NUSPEC_CONTENT 
     if(NOT "${_arg_FILE_EXCLUDE}" STREQUAL "")
         string(APPEND NUSPEC_CONTENT " exclude=\"${_arg_FILE_EXCLUDE}\"")
     endif()
-    string(APPEND NUSPEC_CONTENT " />")
+    string(APPEND NUSPEC_CONTENT " /$<ANGLE-R>")
     set(${OUT_NUSPEC_CONTENT} "${NUSPEC_CONTENT}" PARENT_SCOPE)
 endfunction()
 

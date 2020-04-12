@@ -107,7 +107,8 @@ nuget_write_nuspec(
     ## FILES node: required by our CMake implementation
     FILES
         FILE_SRC "$<TARGET_FILE:WriteNuspecSimple>" FILE_TARGET "build/native/x64-windows/$<LOWER_CASE:$<CONFIG>>/bin"
-        # CMAKE_INCLUDE_CONDITION some <config> gen. expression
+        CMAKE_INCLUDE_CONDITION $<CONFIG:Debug>
+        FILE_SRC "$<TARGET_PDB_FILE:WriteNuspecSimple>" FILE_TARGET "build/native/x64-windows/$<LOWER_CASE:$<CONFIG>>/bin"
         # FILE_SRC "release\bin\*.dll" FILE_TARGET "build\native\x64-windows\release\bin" [FILE_EXCLUDE …]
         # CMAKE_INCLUDE_CONDITION some <config> gen. expression
         # FILE_SRC "debug\bin\*.dll" FILE_TARGET "build\native\x64-windows\debug\bin"
