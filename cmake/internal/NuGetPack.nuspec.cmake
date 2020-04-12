@@ -143,7 +143,15 @@ endfunction()
 
 # Internal.
 function(_nuget_nuspec_add_files_conditionally NUSPEC_INDENT_SIZE NUSPEC_CONTENT OUT_NUSPEC_CONTENT CMAKE_INCLUDE_CONDITION)
-    string(APPEND NUSPEC_CONTENT "$<${CMAKE_INCLUDE_CONDITION}:")
+    # Input: check for a CMAKE_INCLUDE_CONDITION parameter pack
+    list(GET ARGN 0 MAYBE_CMAKE_INCLUDE_CONDITION)
+    if("${MAYBE_CMAKE_INCLUDE_CONDITION}" STREQUAL "CMAKE_INCLUDE_CONDITION")
+        set(IS_CMAKE_INCLUDE_CONDITION TRUE)
+    endif()
+    if(IS_CMAKE_INCLUDE_CONDITION)
+        string(APPEND NUSPEC_CONTENT "$<${CMAKE_INCLUDE_CONDITION}:")
+    endif()
+    # Loop over parameter pack
     set(ARGS_HEAD "")
     set(ARGS_TAIL ${ARGN})
     while(NOT "${ARGS_TAIL}" STREQUAL "")
@@ -152,7 +160,10 @@ function(_nuget_nuspec_add_files_conditionally NUSPEC_INDENT_SIZE NUSPEC_CONTENT
             "${CMAKE_INCLUDE_CONDITION}" ${ARGS_HEAD}
         )
     endwhile()
-    string(APPEND NUSPEC_CONTENT ">")
+    # Close generator expression if this was a CMAKE_INCLUDE_CONDITION parameter pack
+    if(IS_CMAKE_INCLUDE_CONDITION)
+        string(APPEND NUSPEC_CONTENT ">")
+    endif()
     set(${OUT_NUSPEC_CONTENT} "${NUSPEC_CONTENT}" PARENT_SCOPE)
 endfunction()
 
