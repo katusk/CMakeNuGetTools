@@ -181,7 +181,7 @@ function(_nuget_nuspec_add_file_conditionally NUSPEC_INDENT_SIZE NUSPEC_CONTENT 
         "${_arg_KEYWORDS_MISSING_VALUES}"
     )
     _nuget_helper_error_if_empty("${_arg_FILE_SRC}"
-        "FILE_SRC must not be empty: it is a required element (src) of "
+        "FILE_SRC must not be empty: it is a required attribute (src) of "
         "a .nuspec XML file's /package/files/file element."
     )
     # Actual functionality

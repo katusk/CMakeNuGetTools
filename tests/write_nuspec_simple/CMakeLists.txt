@@ -106,7 +106,7 @@ nuget_write_nuspec(
         ## Currently DEPENDENCIES which is automatically generated based on nuget_add_dependencies() calls.
     ## FILES node: required by our CMake implementation
     FILES
-        FILE_SRC "debug/bin/*.dll" FILE_TARGET "build/native/x64-windows/debug/bin"
+        FILE_SRC "$<TARGET_FILE:WriteNuspecSimple>" FILE_TARGET "build/native/x64-windows/$<LOWER_CASE:$<CONFIG>>/bin"
         # CMAKE_INCLUDE_CONDITION some <config> gen. expression
         # FILE_SRC "release\bin\*.dll" FILE_TARGET "build\native\x64-windows\release\bin" [FILE_EXCLUDE …]
         # CMAKE_INCLUDE_CONDITION some <config> gen. expression
