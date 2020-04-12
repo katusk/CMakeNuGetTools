@@ -219,9 +219,9 @@ function(_nuget_nuspec_generate_output NUSPEC_CONTENT PACKAGE_ID)
         "${_arg_KEYWORDS_MISSING_VALUES}"
     )
     if("${_arg_CMAKE_OUTPUT_DIR}" STREQUAL "")
-        set(OUTPUT_FILE "${CMAKE_BINARY_DIR}/CMakeNuGetTools/nuspec/${PACKAGE_ID}.nuspec")
+        set(OUTPUT_FILE "${CMAKE_BINARY_DIR}/CMakeNuGetTools/nuspec/${PACKAGE_ID}.$<CONFIG>.nuspec")
     else()
-        set(OUTPUT_FILE "${_arg_CMAKE_OUTPUT_DIR}/${PACKAGE_ID}.nuspec")
+        set(OUTPUT_FILE "${_arg_CMAKE_OUTPUT_DIR}/${PACKAGE_ID}.$<CONFIG>.nuspec")
     endif()
     # Actual functionality
     if("${_arg_CMAKE_CONFIGURATIONS}" STREQUAL "")
