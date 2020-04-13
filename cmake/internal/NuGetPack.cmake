@@ -56,3 +56,8 @@ function(nuget_merge_nuspecs)
     # Actual functionality
     _nuget_merge_n_nuspec_files("${_arg_OUTPUT}" ${_arg_INPUTS})
 endfunction()
+
+## Public interface.
+function(nuget_pack)
+    # TODO
+endfunction()

@@ -96,3 +96,9 @@ add_test(NAME write_nuspec_simple.debug.install
     COMMAND "${CMAKE_COMMAND}" --build . --config Debug --target INSTALL -- /p:PlatformToolset=v141 /p:Configuration=Debug /p:Platform=x64
     WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}/build/cmake/x64-windows/MultiConfig/write_nuspec_simple"
 )
+add_test(NAME write_nuspec_simple.mergenuspecs
+    COMMAND "${CMAKE_COMMAND}" -P "${CMAKE_SOURCE_DIR}/CMakeLists.nuspec.cmake"
+        "-DMERGEOUTPUT=CMakeNuGetTools/write_nuspec_simple.nuspec"
+        "-DMERGEINPUTS=CMakeNuGetTools/write_nuspec_simple.Release.nuspec;CMakeNuGetTools/write_nuspec_simple.Debug.nuspec"
+    WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}/build/cmake/x64-windows/MultiConfig/write_nuspec_simple"
+)
