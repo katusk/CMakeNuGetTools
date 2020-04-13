@@ -277,10 +277,10 @@ function(_nuget_merge_second_nuspec_file_into_first FILEPATH_ACC FILEPATH_IN)
         message(FATAL_ERROR "Cannot merge: file content after the .nuspec files node of \"${FILEPATH_ACC}\" and \"${FILEPATH_IN}\" differs.")
     endif()
     # Create merged content
-    # NOTE: no need to check for duplicate <file> element entries when merging FILES_NODE_A and FILES_NODE_B: nuget pack does not
+    # NOTE: no need to check for duplicate <file> element entries when merging FILEPATH_ACC and FILEPATH_IN: nuget pack does not
     # seem to complain when file elements with the same src and target attributes are present in the files node of a .nuspec file.
     string(SUBSTRING "${LINES_ACC}" 0 ${LINES_ACC_FILES_NODE_END_POS} NEW_LINES_ACC)
-    string(APPEND NEW_LINES_ACC "<!-- Below appended from: \"${FILEPATH_IN}\" -->")
+    string(APPEND NEW_LINES_ACC "<!-- Below merged from: \"${FILEPATH_IN}\" -->")
     math(EXPR LINES_IN_AFTER_FILES_NODE_BEGIN_POS "${LINES_IN_FILES_NODE_BEGIN_POS} + ${FILES_NODE_BEGIN_LEN}")
     string(SUBSTRING "${LINES_IN}" ${LINES_IN_AFTER_FILES_NODE_BEGIN_POS} -1 LINES_IN_AFTER_FILES_NODE_BEGIN)
     string(APPEND NEW_LINES_ACC "${LINES_IN_AFTER_FILES_NODE_BEGIN}")
@@ -289,6 +289,16 @@ function(_nuget_merge_second_nuspec_file_into_first FILEPATH_ACC FILEPATH_IN)
 endfunction()
 
 ## Internal.
-function(_nuget_merge_n_nuspec_files)
-    # TODO
+function(_nuget_merge_n_nuspec_files FILEPATH_ACC)
+    _nuget_helper_error_if_empty("${ARGN}" "No .nuspec filepaths provided for merge operation.")
+    # Initialize FILEPATH_ACC with first input file
+    list(GET ARGN 0 FILEPATH_BASE)
+    file(WRITE "${FILEPATH_ACC}" "<!-- Base initialized from: \"${FILEPATH_BASE}\" -->\n")
+    file(STRINGS "${FILEPATH_BASE}" LINES_BASE NEWLINE_CONSUME ENCODING UTF-8)
+    file(APPEND "${FILEPATH_ACC}" "${FILEPATH_BASE}")
+    # Merge rest of the input files into FILEPATH_ACC
+    _nuget_helper_list_sublist("${ARGN}" 1 -1 FILEPATHS_IN_TAIL)
+    foreach(FILEPATH_IN IN LISTS FILEPATHS_IN_TAIL)
+        # TODO: call _nuget_merge_second_nuspec_file_into_first() ...
+    endforeach()
 endfunction()
