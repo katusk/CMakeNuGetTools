@@ -240,35 +240,55 @@ function(_nuget_nuspec_generate_output NUSPEC_CONTENT PACKAGE_ID)
 endfunction()
 
 ## Internal.
-function(_nuget_merge_two_nuspec_file_contents LINES_A LINES_B OUT_MERGED_CONTENT)
-    set(FILE_NODE_REGEXP "(.*)( *<files>)(.*)( *</files>)(.*)")
-    string(REGEX REPLACE "${FILE_NODE_REGEXP}" "\\1" PRE_FILES_NODE_A "${LINES_A}")
-    string(REGEX REPLACE "${FILE_NODE_REGEXP}" "\\1" PRE_FILES_NODE_B "${LINES_B}")
-    if(NOT "${PRE_FILES_NODE_A}" STREQUAL "${PRE_FILES_NODE_B}")
-        message(FATAL_ERROR "Cannot merge: file content before the .nuspec files node of \"${FILEPATH_A}\" and \"${FILEPATH_B}\" differs.")
+function(_nuget_merge_second_nuspec_file_into_first FILEPATH_ACC FILEPATH_IN)
+    set(FILES_NODE_BEGIN_STR "<files>")
+    set(FILES_NODE_END_STR "</files>")
+    string(LENGTH "${FILES_NODE_BEGIN_STR}" FILES_NODE_BEGIN_LEN)
+    string(LENGTH "${FILES_NODE_END_STR}" FILES_NODE_END_LEN)
+    # Inputs: FILEPATH_IN
+    file(STRINGS "${FILEPATH_IN}" LINES_IN NEWLINE_CONSUME ENCODING UTF-8)
+    string(FIND "${LINES_IN}" "${FILES_NODE_BEGIN_STR}" LINES_IN_FILES_NODE_BEGIN_POS)
+    if(${LINES_IN_FILES_NODE_BEGIN_POS} EQUAL -1)
+        message(FATAL_ERROR "Cannot merge: did not find the \"${FILES_NODE_BEGIN_STR}\" part of the .nuspec files node in \"${FILEPATH_IN}\".")
     endif()
-    string(REGEX REPLACE "${FILE_NODE_REGEXP}" "\\5" POST_FILES_NODE_A "${LINES_A}")
-    string(REGEX REPLACE "${FILE_NODE_REGEXP}" "\\5" POST_FILES_NODE_B "${LINES_B}")
-    if(NOT "${POST_FILES_NODE_A}" STREQUAL "${POST_FILES_NODE_B}")
-        message(FATAL_ERROR "Cannot merge: file content after the .nuspec files node of \"${FILEPATH_A}\" and \"${FILEPATH_B}\" differs.")
+    string(FIND "${LINES_IN}" "${FILES_NODE_END_STR}" LINES_IN_FILES_NODE_END_POS REVERSE)
+    if(${LINES_IN_FILES_NODE_END_POS} EQUAL -1)
+        message(FATAL_ERROR "Cannot merge: did not find the \"${FILES_NODE_END_STR}\" part of the .nuspec files node in \"${FILEPATH_IN}\".")
     endif()
-    string(REGEX REPLACE "${FILE_NODE_REGEXP}" "\\2" SPACES_BEGIN_FILES_NODE_A "${LINES_A}")
-    string(REGEX REPLACE "${FILE_NODE_REGEXP}" "\\3" FILES_NODE_A "${LINES_A}")
-    string(REGEX REPLACE "${FILE_NODE_REGEXP}" "\\4" SPACES_END_FILES_NODE_A "${LINES_A}")
-    string(REGEX REPLACE "${FILE_NODE_REGEXP}" "\\2" SPACES_BEGIN_FILES_NODE_B "${LINES_B}")
-    string(REGEX REPLACE "${FILE_NODE_REGEXP}" "\\3" FILES_NODE_B "${LINES_B}")
-    string(REGEX REPLACE "${FILE_NODE_REGEXP}" "\\4" SPACES_END_FILES_NODE_B "${LINES_B}")
+    # Inputs: FILEPATH_ACC
+    file(STRINGS "${FILEPATH_ACC}" LINES_ACC NEWLINE_CONSUME ENCODING UTF-8)
+    string(FIND "${LINES_ACC}" "${FILES_NODE_BEGIN_STR}" LINES_ACC_FILES_NODE_BEGIN_POS)
+    if(${LINES_ACC_FILES_NODE_BEGIN_POS} EQUAL -1)
+        message(FATAL_ERROR "Cannot merge: did not find the \"${FILES_NODE_BEGIN_STR}\" part of the .nuspec files node in \"${FILEPATH_ACC}\".")
+    endif()
+    string(FIND "${LINES_ACC}" "${FILES_NODE_END_STR}" LINES_ACC_FILES_NODE_END_POS REVERSE)
+    if(${LINES_ACC_FILES_NODE_END_POS} EQUAL -1)
+        message(FATAL_ERROR "Cannot merge: did not find the \"${FILES_NODE_END_STR}\" part of the .nuspec files node in \"${FILEPATH_ACC}\".")
+    endif()
+    # Check: FILEPATH_ACC and FILEPATH_IN contents outside the files node should not differ
+    string(SUBSTRING "${LINES_IN}" 0 ${LINES_IN_FILES_NODE_BEGIN_POS} LINES_IN_UNTIL_FILES_NODE_BEGIN)
+    string(SUBSTRING "${LINES_ACC}" 0 ${LINES_ACC_FILES_NODE_BEGIN_POS} LINES_ACC_UNTIL_FILES_NODE_BEGIN)
+    if(NOT "${LINES_IN_UNTIL_FILES_NODE_BEGIN}" STREQUAL "${LINES_ACC_UNTIL_FILES_NODE_BEGIN}")
+        message(FATAL_ERROR "Cannot merge: file content before the .nuspec files node of \"${FILEPATH_ACC}\" and \"${FILEPATH_IN}\" differs.")
+    endif()
+    string(SUBSTRING "${LINES_IN}" ${LINES_IN_FILES_NODE_END_POS} -1 LINES_IN_AFTER_FILES_NODE_END)
+    string(SUBSTRING "${LINES_ACC}" ${LINES_ACC_FILES_NODE_END_POS} -1 LINES_ACC_AFTER_FILES_NODE_END)
+    if(NOT "${LINES_IN_AFTER_FILES_NODE_END}" STREQUAL "${LINES_ACC_AFTER_FILES_NODE_END}")
+        message(FATAL_ERROR "Cannot merge: file content after the .nuspec files node of \"${FILEPATH_ACC}\" and \"${FILEPATH_IN}\" differs.")
+    endif()
+    # Create merged content
     # NOTE: no need to check for duplicate <file> element entries when merging FILES_NODE_A and FILES_NODE_B: nuget pack does not
     # seem to complain when file elements with the same src and target attributes are present in the files node of a .nuspec file.
-    set(${OUT_MERGED_CONTENT}
-        "${PRE_FILES_NODE_A}${SPACES_BEGIN_FILES_NODE_A}${FILES_NODE_A}${FILES_NODE_B}${SPACES_END_FILES_NODE_A}${POST_FILES_NODE_A}"
-        PARENT_SCOPE
-    )
+    string(SUBSTRING "${LINES_ACC}" 0 ${LINES_ACC_FILES_NODE_END_POS} NEW_LINES_ACC)
+    string(APPEND NEW_LINES_ACC "<!-- Below appended from: \"${FILEPATH_IN}\" -->")
+    math(EXPR LINES_IN_AFTER_FILES_NODE_BEGIN_POS "${LINES_IN_FILES_NODE_BEGIN_POS} + ${FILES_NODE_BEGIN_LEN}")
+    string(SUBSTRING "${LINES_IN}" ${LINES_IN_AFTER_FILES_NODE_BEGIN_POS} -1 LINES_IN_AFTER_FILES_NODE_BEGIN)
+    string(APPEND NEW_LINES_ACC "${LINES_IN_AFTER_FILES_NODE_BEGIN}")
+    # Output: overwrite FILEPATH_ACC with merged content
+    file(WRITE "${FILEPATH_ACC}" "${NEW_LINES_ACC}")
 endfunction()
 
 ## Internal.
 function(_nuget_merge_n_nuspec_files)
     # TODO
-    # file(STRINGS "${FILEPATH_A}" LINES_A NEWLINE_CONSUME ENCODING UTF-8)
-    # file(STRINGS "${FILEPATH_B}" LINES_B NEWLINE_CONSUME ENCODING UTF-8)
 endfunction()
