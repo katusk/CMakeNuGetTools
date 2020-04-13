@@ -45,7 +45,7 @@ function(nuget_merge_nuspecs)
     set(oneValueArgs OUTPUT)
     set(multiValueArgs INPUTS)
     cmake_parse_arguments(_arg
-        "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGv}
+        "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGV}
     )
     _nuget_helper_error_if_unparsed_args(
         "${_arg_UNPARSED_ARGUMENTS}"
