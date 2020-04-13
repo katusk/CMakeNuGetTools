@@ -40,5 +40,19 @@ endfunction()
 
 ## Public interface.
 function(nuget_merge_nuspecs)
-    # TODO
+    # Inputs
+    set(options "")
+    set(oneValueArgs OUTPUT)
+    set(multiValueArgs INPUTS)
+    cmake_parse_arguments(_arg
+        "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGv}
+    )
+    _nuget_helper_error_if_unparsed_args(
+        "${_arg_UNPARSED_ARGUMENTS}"
+        "${_arg_KEYWORDS_MISSING_VALUES}"
+    )
+    _nuget_helper_error_if_empty("${_arg_OUTPUT}" "You must provide a filepath as an OUTPUT argument.")
+    _nuget_helper_error_if_empty("${_arg_INPUTS}" "You must provide at least one filepath to a .nuspec file as an INPUTS argument.")
+    # Actual functionality
+    _nuget_merge_n_nuspec_files("${_arg_OUTPUT}" ${_arg_INPUTS})
 endfunction()

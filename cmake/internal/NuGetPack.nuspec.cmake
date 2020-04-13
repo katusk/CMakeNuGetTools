@@ -290,6 +290,7 @@ endfunction()
 
 ## Internal.
 function(_nuget_merge_n_nuspec_files FILEPATH_ACC)
+    _nuget_helper_error_if_empty("${FILEPATH_ACC}" "No filepath to a .nuspec file provided as a basis for merge operation.")
     _nuget_helper_error_if_empty("${ARGN}" "No .nuspec filepaths provided for merge operation.")
     # Read first input file (FILEPATH_BASE)
     list(GET ARGN 0 FILEPATH_BASE)
