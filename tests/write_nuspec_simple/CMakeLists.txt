@@ -66,7 +66,7 @@ foreach(PACKAGE_DIR IN LISTS DEPENDENCIES_DIRS)
         DIRECTORY "${PACKAGE_DIR}/installed/x64-windows/bin/"
         DESTINATION ${CMAKE_INSTALL_BINDIR}/$<CONFIG>
         CONFIGURATIONS Release
-        # Note: empty folders are copied: https://gitlab.kitware.com/cmake/cmake/issues/17122
+        # Note: empty folders are copied: https://gitlab.kitware.com/cmake/cmake/issues/17122
         FILES_MATCHING
             PATTERN "*.dll"
             PATTERN "*.pdb"
@@ -75,7 +75,7 @@ foreach(PACKAGE_DIR IN LISTS DEPENDENCIES_DIRS)
         DIRECTORY "${PACKAGE_DIR}/installed/x64-windows/debug/bin/"
         DESTINATION ${CMAKE_INSTALL_BINDIR}/$<CONFIG>
         CONFIGURATIONS Debug
-        # Note: empty folders are copied: https://gitlab.kitware.com/cmake/cmake/issues/17122
+        # Note: empty folders are copied: https://gitlab.kitware.com/cmake/cmake/issues/17122
         FILES_MATCHING
             PATTERN "*.dll"
             PATTERN "*.pdb"
