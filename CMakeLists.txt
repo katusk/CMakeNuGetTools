@@ -101,6 +101,7 @@ add_test(NAME write_nuspec_simple.mergeandpack
         "-DMERGE_OUTPUT=CMakeNuGetTools/write_nuspec_simple.nuspec"
         "-DMERGE_INPUTS=CMakeNuGetTools/write_nuspec_simple.Release.nuspec;CMakeNuGetTools/write_nuspec_simple.Debug.nuspec"
         -DNUGET_COMMAND=nuget
+        "-DNUPKG_OUTPUT_DIRECTORY=${CMAKE_SOURCE_DIR}/build/cmake/x64-windows/MultiConfig/write_nuspec_simple/CMakeNuGetTools/nupkg"
         -P "${CMAKE_SOURCE_DIR}/CMakeLists.pack.cmake"
     WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}/build/cmake/x64-windows/MultiConfig/write_nuspec_simple"
 )
