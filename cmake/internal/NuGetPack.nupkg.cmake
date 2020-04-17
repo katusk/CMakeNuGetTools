@@ -7,7 +7,7 @@ function(_nuget_pack NUSPEC_FILEPATH OUTPUT_DIRECTORY)
     )
     # Execute pack
     execute_process(
-        COMMAND "${NUGET_COMMAND}" pack ${NUSPEC_FILEPATH}
+        COMMAND "${NUGET_COMMAND}" pack "${NUSPEC_FILEPATH}"
             -OutputDirectory "${OUTPUT_DIRECTORY}"
             -NonInteractive
         ERROR_VARIABLE
