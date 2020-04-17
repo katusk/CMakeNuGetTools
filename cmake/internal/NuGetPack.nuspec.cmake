@@ -106,7 +106,7 @@ function(_nuget_nuspec_process_files_args NUSPEC_INDENT_SIZE NUSPEC_CONTENT OUT_
     # Input
     set(EMPTY_FILES_NODE_ERROR_MESSAGE
         "FILES must not be empty: although the files node is not a required element (/package/files) of a .nuspec XML file, "
-        "the implementation of the nuget_write_nuspec() CMake command requires you to generate a non-empty files node."
+        "the implementation of the nuget_generate_nuspec_files() CMake command requires you to generate a non-empty files node."
     )
     string(REPLACE ";" "" EMPTY_FILES_NODE_ERROR_MESSAGE "${EMPTY_FILES_NODE_ERROR_MESSAGE}")
     _nuget_helper_error_if_empty("${ARGN}" ${EMPTY_FILES_NODE_ERROR_MESSAGE})
@@ -201,7 +201,7 @@ endfunction()
 ## Write output .nuspec XML file(s) conditionally for provided configurations in CMAKE_CONFIGURATIONS intersected with
 ## the available configurations in the current build system this function is actually called from. No error is raised if
 ## a given configuration is not available -- the output file is simply not generated for that in the current build system.
-## Not raising an error if a given configuration is unavailable makes it possible to reuse the same nuget_write_nuspec()
+## Not raising an error if a given configuration is unavailable makes it possible to reuse the same nuget_generate_nuspec_files()
 ## calls across different build systems without adjustments or writing additional code for generating the values of the
 ## CMAKE_CONFIGURATIONS argument.
 function(_nuget_nuspec_generate_output NUSPEC_CONTENT PACKAGE_ID)

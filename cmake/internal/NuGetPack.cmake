@@ -7,7 +7,7 @@ set(NUGET_NUSPEC_INDENT_SIZE "  " CACHE INTERNAL
 )
 
 ## Public interface.
-function(nuget_write_nuspec)
+function(nuget_generate_nuspec_files)
     # Sanity checks
     if("${NUGET_COMMAND}" STREQUAL "")
         message("NUGET_COMMAND is empty: CMakeNuGetTools is disabled, no .nuspec files are written.")
@@ -39,7 +39,7 @@ function(nuget_write_nuspec)
 endfunction()
 
 ## Public interface.
-function(nuget_merge_nuspecs)
+function(nuget_merge_nuspec_files)
     # Inputs
     set(options "")
     set(oneValueArgs OUTPUT)

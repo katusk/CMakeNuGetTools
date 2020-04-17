@@ -158,34 +158,34 @@ function(_nuget_core_import_dot_targets
     endif()
 endfunction()
 
-## Internal. Preparations for prepending the PREFIX_PATHS and MODULE_PATHS relative-to-package-directory
-## paths to the CMAKE_PREFIX_PATH and CMAKE_MODULE_PATHS if APPEND_PATHS is FALSE. If APPEND_PATHS is TRUE,
+## Internal. Preparations for prepending the CMAKE_PREFIX_PATHS and CMAKE_MODULE_PATHS relative-to-package-directory
+## paths to the CMAKE_PREFIX_PATH and CMAKE_MODULE_PATHS if CMAKE_APPEND_PATHS is FALSE. If CMAKE_APPEND_PATHS is TRUE,
 ## the operation becomes an append instead of a prepend later on.
 function(_nuget_core_import_cmake_exports
     PACKAGE_ID
     PACKAGE_VERSION
-    PREFIX_PATHS
-    MODULE_PATHS
-    APPEND_PATHS
+    CMAKE_PREFIX_PATHS
+    CMAKE_MODULE_PATHS
+    CMAKE_APPEND_PATHS
 )
     # Inputs
-    if("${PREFIX_PATHS}" STREQUAL "" AND "${MODULE_PATHS}" STREQUAL "")
-        message(FATAL_ERROR "At least one of PREFIX_PATHS or MODULE_PATHS should be non-empty.")
+    if("${CMAKE_PREFIX_PATHS}" STREQUAL "" AND "${CMAKE_MODULE_PATHS}" STREQUAL "")
+        message(FATAL_ERROR "At least one of CMAKE_PREFIX_PATHS or CMAKE_MODULE_PATHS should be non-empty.")
     endif()
     _nuget_helper_list_transform_prepend(
-        "${PREFIX_PATHS}" "${NUGET_DEPENDENCY_DIR_${PACKAGE_ID}}/" PREFIX_PATHS
+        "${CMAKE_PREFIX_PATHS}" "${NUGET_DEPENDENCY_DIR_${PACKAGE_ID}}/" CMAKE_PREFIX_PATHS
     )
     _nuget_helper_list_transform_prepend(
-        "${MODULE_PATHS}" "${NUGET_DEPENDENCY_DIR_${PACKAGE_ID}}/" MODULE_PATHS
+        "${CMAKE_MODULE_PATHS}" "${NUGET_DEPENDENCY_DIR_${PACKAGE_ID}}/" CMAKE_MODULE_PATHS
     )
 
     # Save settings: we do not actually set CMAKE_PREFIX_PATH or CMAKE_MODULE_PATH here,
     # see the call point of _nuget_core_import_cmake_exports_set_cmake_paths() for that.
     # Since we are in a new (function) scope here, setting those variables here would not
     # have any effect.
-    set("NUGET_LAST_DEPENDENCY_PREFIX_PATHS_${PACKAGE_ID}" "${PREFIX_PATHS}" CACHE INTERNAL "")
-    set("NUGET_LAST_DEPENDENCY_MODULE_PATHS_${PACKAGE_ID}" "${MODULE_PATHS}" CACHE INTERNAL "")
-    set("NUGET_LAST_DEPENDENCY_APPEND_PATHS_${PACKAGE_ID}" "${APPEND_PATHS}" CACHE INTERNAL "")
+    set("NUGET_LAST_DEPENDENCY_CMAKE_PREFIX_PATHS_${PACKAGE_ID}" "${CMAKE_PREFIX_PATHS}" CACHE INTERNAL "")
+    set("NUGET_LAST_DEPENDENCY_CMAKE_MODULE_PATHS_${PACKAGE_ID}" "${CMAKE_MODULE_PATHS}" CACHE INTERNAL "")
+    set("NUGET_LAST_DEPENDENCY_CMAKE_APPEND_PATHS_${PACKAGE_ID}" "${CMAKE_APPEND_PATHS}" CACHE INTERNAL "")
 endfunction()
 
 ## Internal. Needs to be macro for properly setting CMAKE_MODULE_PATH or CMAKE_PREFIX_PATH.
@@ -195,18 +195,18 @@ endfunction()
 macro(_nuget_core_import_cmake_exports_set_cmake_paths PACKAGE_ID)
     # Modify prefix or module path
     # See https://cmake.org/cmake/help/latest/command/find_package.html#search-procedure
-    if(NOT "${NUGET_LAST_DEPENDENCY_PREFIX_PATHS_${PACKAGE_ID}}" STREQUAL "")
-        if("${NUGET_LAST_DEPENDENCY_APPEND_PATHS_${PACKAGE_ID}}")
-            list(APPEND CMAKE_PREFIX_PATH "${NUGET_LAST_DEPENDENCY_PREFIX_PATHS_${PACKAGE_ID}}")
+    if(NOT "${NUGET_LAST_DEPENDENCY_CMAKE_PREFIX_PATHS_${PACKAGE_ID}}" STREQUAL "")
+        if("${NUGET_LAST_DEPENDENCY_CMAKE_APPEND_PATHS_${PACKAGE_ID}}")
+            list(APPEND CMAKE_PREFIX_PATH "${NUGET_LAST_DEPENDENCY_CMAKE_PREFIX_PATHS_${PACKAGE_ID}}")
         else()
-            list(INSERT CMAKE_PREFIX_PATH 0 "${NUGET_LAST_DEPENDENCY_PREFIX_PATHS_${PACKAGE_ID}}")
+            list(INSERT CMAKE_PREFIX_PATH 0 "${NUGET_LAST_DEPENDENCY_CMAKE_PREFIX_PATHS_${PACKAGE_ID}}")
         endif()
     endif()
-    if(NOT "${NUGET_LAST_DEPENDENCY_MODULE_PATHS_${PACKAGE_ID}}" STREQUAL "")
-        if("${NUGET_LAST_DEPENDENCY_APPEND_PATHS_${PACKAGE_ID}}")
-            list(APPEND CMAKE_MODULE_PATH "${NUGET_LAST_DEPENDENCY_MODULE_PATHS_${PACKAGE_ID}}")
+    if(NOT "${NUGET_LAST_DEPENDENCY_CMAKE_MODULE_PATHS_${PACKAGE_ID}}" STREQUAL "")
+        if("${NUGET_LAST_DEPENDENCY_CMAKE_APPEND_PATHS_${PACKAGE_ID}}")
+            list(APPEND CMAKE_MODULE_PATH "${NUGET_LAST_DEPENDENCY_CMAKE_MODULE_PATHS_${PACKAGE_ID}}")
         else()
-            list(INSERT CMAKE_MODULE_PATH 0 "${NUGET_LAST_DEPENDENCY_MODULE_PATHS_${PACKAGE_ID}}")
+            list(INSERT CMAKE_MODULE_PATH 0 "${NUGET_LAST_DEPENDENCY_CMAKE_MODULE_PATHS_${PACKAGE_ID}}")
         endif()
     endif()
     # NOTE: Make sure we did not introduce new normal variables here. Then we are safe macro-wise.

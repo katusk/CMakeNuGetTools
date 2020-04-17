@@ -2,3 +2,4 @@
 build/
 packages/
 install/
+*.nupkg

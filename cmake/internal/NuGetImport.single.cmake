@@ -50,17 +50,17 @@ function(_nuget_single_import_dot_targets)
 endfunction()
 
 # Internal. See arguments below. This should be called by default if no import method is specified explicitly.
-# NOTE: the IMPORT_CMAKE_EXPORTS option is only cosmetics for the user. The presence of PREFIX_PATHS is not treated
+# NOTE: the IMPORT_CMAKE_EXPORTS option is only cosmetics for the user. The presence of CMAKE_PREFIX_PATHS is not treated
 # as a differentiator indicating an "IMPORT_CMAKE_EXPORTS" import method either: if the user explicitly provided a
-# different import method, the dispatcher logic dispatches the call accordingly and PREFIX_PATHS is not taken into
-# account. E.g. providing IMPORT_DOT_TARGETS and PREFIX_PATHS in _nuget_single_dependencies() would dispatch the call
-# to _nuget_single_import_dot_targets() but PREFIX_PATHS does not have any meaning there, so that function should
+# different import method, the dispatcher logic dispatches the call accordingly and CMAKE_PREFIX_PATHS is not taken into
+# account. E.g. providing IMPORT_DOT_TARGETS and CMAKE_PREFIX_PATHS in _nuget_single_dependencies() would dispatch the call
+# to _nuget_single_import_dot_targets() but CMAKE_PREFIX_PATHS does not have any meaning there, so that function should
 # raise a CMake Error. Default usage requirement is PRIVATE.
 function(_nuget_single_import_cmake_exports)
     # Inputs
-    set(options PUBLIC PRIVATE IMPORT_CMAKE_EXPORTS APPEND_PATHS)
+    set(options PUBLIC PRIVATE IMPORT_CMAKE_EXPORTS CMAKE_APPEND_PATHS)
     set(oneValueArgs PACKAGE VERSION)
-    set(multiValueArgs PREFIX_PATHS MODULE_PATHS)
+    set(multiValueArgs CMAKE_PREFIX_PATHS CMAKE_MODULE_PATHS)
     cmake_parse_arguments(_arg
         "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGV}
     )
@@ -83,9 +83,9 @@ function(_nuget_single_import_cmake_exports)
     _nuget_core_import_cmake_exports(
         "${_arg_PACKAGE}"
         "${_arg_VERSION}"
-        "${_arg_PREFIX_PATHS}"
-        "${_arg_MODULE_PATHS}"
-        "${_arg_APPEND_PATHS}"
+        "${_arg_CMAKE_PREFIX_PATHS}"
+        "${_arg_CMAKE_MODULE_PATHS}"
+        "${_arg_CMAKE_APPEND_PATHS}"
     )
 endfunction()
 

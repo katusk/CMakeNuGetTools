@@ -12,12 +12,12 @@ nuget_initialize()
 ## Import CMake exports of flatbuffers from NuGet package exported from Vcpkg
 # Please note that strictly speaking this is not the proper way of using packages exported from Vcpkg. The reason this works:
 # 1) The vcpkg.cmake toolchain file (that we do not use here) does not contain any tricky settings regarding flatbuffers.
-# 2) Flatbuffers comes with proper CMake export files that we can simply directly use from the NuGet package (see PREFIX_PATHS below).
-# See https://cmake.org/cmake/help/latest/command/find_package.html#search-procedure for determining a good PREFIX_PATHS value.
+# 2) Flatbuffers comes with proper CMake export files that we can simply directly use from the NuGet package (see CMAKE_PREFIX_PATHS below).
+# See https://cmake.org/cmake/help/latest/command/find_package.html#search-procedure for determining a good CMAKE_PREFIX_PATHS value.
 nuget_add_dependencies(
     PACKAGE flatbuffers.x64-windows.vcpkg-export
     VERSION 1.11.0-1
-    PREFIX_PATHS installed/x64-windows
+    CMAKE_PREFIX_PATHS installed/x64-windows
 )
 
 ## Find external dependencies

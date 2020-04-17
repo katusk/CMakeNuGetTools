@@ -13,12 +13,12 @@ nuget_initialize()
 ## Import CMake exports of icu from NuGet package exported from Vcpkg
 # Please note that strictly speaking this is not the proper way of using packages exported from Vcpkg. The reason this works:
 # 1) The vcpkg.cmake toolchain file (that we do not use here) does not contain any tricky settings regarding icu.
-# 2) Icu comes with proper CMake export files that we can simply directly use from the NuGet package (see PREFIX_PATHS below).
-# See https://cmake.org/cmake/help/latest/command/find_package.html#search-procedure for determining a good PREFIX_PATHS value.
+# 2) Icu comes with proper CMake export files that we can simply directly use from the NuGet package (see CMAKE_PREFIX_PATHS below).
+# See https://cmake.org/cmake/help/latest/command/find_package.html#search-procedure for determining a good CMAKE_PREFIX_PATHS value.
 nuget_add_dependencies(
     PACKAGE icu.x64-windows.vcpkg-export
     VERSION 65.1.0-2
-    PREFIX_PATHS installed/x64-windows
+    CMAKE_PREFIX_PATHS installed/x64-windows
 )
 # You can create above NuGet package by e.g. (assuming you are at VCPKG_ROOT):
 # 1) $ vcpkg install icu:x64-windows

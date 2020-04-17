@@ -13,11 +13,11 @@ nuget_initialize()
 ## Import CMake exports of icu/flatbuffers from NuGet package exported from Vcpkg
 # Please note that strictly speaking this is not the proper way of using packages exported from Vcpkg. The reason this works:
 # 1) The vcpkg.cmake toolchain file (that we do not use here) does not contain any tricky settings regarding icu/flatbuffers.
-# 2) Icu/flatbuffers comes with proper CMake export files that we can simply directly use from the NuGet package (see PREFIX_PATHS below).
-# See https://cmake.org/cmake/help/latest/command/find_package.html#search-procedure for determining a good PREFIX_PATHS value.
+# 2) Icu/flatbuffers comes with proper CMake export files that we can simply directly use from the NuGet package (see CMAKE_PREFIX_PATHS below).
+# See https://cmake.org/cmake/help/latest/command/find_package.html#search-procedure for determining a good CMAKE_PREFIX_PATHS value.
 nuget_add_dependencies(
-    PACKAGE flatbuffers.x64-windows.vcpkg-export VERSION 1.11.0-1 PREFIX_PATHS installed/x64-windows
-    PACKAGE icu.x64-windows.vcpkg-export PUBLIC VERSION 65.1.0-2 PREFIX_PATHS installed/x64-windows
+    PACKAGE flatbuffers.x64-windows.vcpkg-export VERSION 1.11.0-1 CMAKE_PREFIX_PATHS installed/x64-windows
+    PACKAGE icu.x64-windows.vcpkg-export PUBLIC VERSION 65.1.0-2 CMAKE_PREFIX_PATHS installed/x64-windows
 )
 # You can create above icu NuGet package by e.g. (assuming you are at VCPKG_ROOT):
 # 1) $ vcpkg install icu:x64-windows
@@ -105,7 +105,7 @@ install(EXPORT WriteNuspecSimpleExport
 )
 
 ## Write .nuspec file(s)
-nuget_write_nuspec(
+nuget_generate_nuspec_files(
     ## CMake-specific arguments section
     CMAKE_OUTPUT_DIR ${CMAKE_BINARY_DIR}/CMakeNuGetTools # Optional: defaults to ${CMAKE_BINARY_DIR}/CMakeNuGetTools/nuspec
     CMAKE_CONFIGURATIONS Release Debug                   # Optional: defaults to no restrictions given
