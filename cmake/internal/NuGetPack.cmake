@@ -60,6 +60,11 @@ endfunction()
 
 ## Public interface.
 function(nuget_pack)
+    # Sanity checks
+    if("${NUGET_COMMAND}" STREQUAL "")
+        message("NUGET_COMMAND is empty: CMakeNuGetTools is disabled, no packages are packed.")
+        return()
+    endif()
     # Inputs
     set(options "")
     set(oneValueArgs NUSPEC_FILEPATH OUTPUT_DIRECTORY)
