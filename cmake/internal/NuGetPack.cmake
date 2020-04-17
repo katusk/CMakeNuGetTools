@@ -1,5 +1,6 @@
 ## Include implementation
 include("${CMAKE_CURRENT_LIST_DIR}/NuGetPack.nuspec.cmake")
+include("${CMAKE_CURRENT_LIST_DIR}/NuGetPack.nupkg.cmake")
 
 ## Internal cache variables
 set(NUGET_NUSPEC_INDENT_SIZE "  " CACHE INTERNAL
@@ -59,5 +60,19 @@ endfunction()
 
 ## Public interface.
 function(nuget_pack)
-    # TODO
+    # Inputs
+    set(options "")
+    set(oneValueArgs NUSPEC_FILEPATH OUTPUT_DIRECTORY)
+    set(multiValueArgs "")
+    cmake_parse_arguments(_arg
+        "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGV}
+    )
+    _nuget_helper_error_if_unparsed_args(
+        "${_arg_UNPARSED_ARGUMENTS}"
+        "${_arg_KEYWORDS_MISSING_VALUES}"
+    )
+    _nuget_helper_error_if_empty("${_arg_NUSPEC_FILEPATH}" "You must provide a filepath to a .nuspec file as a NUSPEC_FILEPATH argument.")
+    _nuget_helper_error_if_empty("${_arg_OUTPUT_DIRECTORY}" "You must provide an output directory where the .nupkg is created as an OUTPUT_DIRECTORY argument.")
+    # Actual functionality
+    _nuget_pack("${NUSPEC_FILEPATH}" "${OUTPUT_DIRECTORY}")
 endfunction()
