@@ -15,6 +15,7 @@ nuget_initialize()
 nuget_add_dependencies(
     PACKAGE flatbuffers.x64-windows.vcpkg-export
     VERSION 1.11.0-1
+    # TODO: extend functionality with CMAKE_TOOLCHAIN_FILE argument here...
     CMAKE_PREFIX_PATHS "nothing"
 )
 nuget_get_dependency_dir(flatbuffers.x64-windows.vcpkg-export PACKAGE_DIR)

@@ -23,6 +23,7 @@ function(_nuget_git_parse_semantic_version
     set(${MAJOR_OUT} "${MAJOR}" PARENT_SCOPE)
     set(${MINOR_OUT} "${MINOR}" PARENT_SCOPE)
     set(${PATCH_OUT} "${PATCH}" PARENT_SCOPE)
+    set(${PRERELEASE_OUT} "${PRERELEASE}" PARENT_SCOPE)
 endfunction()
 
 ## Internal. BRANCH_NAME_REGEXES, PRERELEASE_PREFIX_LABELS, and PRERELEASE_POSTFIX_FLAGS should contain the same number
@@ -88,8 +89,31 @@ function(_nuget_git_get_semantic_version_applying_rules
     set(${PRERELEASE_OUT} "${PRERELEASE}" PARENT_SCOPE)
 endfunction()
 
+# Internal.
+function(_nuget_git_get_semantic_version_with_prerelease_override
+    GIT_TAG_PREFIX
+    PRERELEASE_LABEL
+    MAJOR_OUT
+    MINOR_OUT
+    PATCH_OUT
+    PRERELEASE_OUT
+)
+    # Query version tag
+    _nuget_git_parse_git_describe("${GIT_TAG_PREFIX}" TAG_WITHOUT_PREFIX COMMITS_SINCE_MOST_RECENT_TAG MOST_RECENT_COMMIT_ABBREV)
+    _nuget_git_parse_semantic_version("${TAG_WITHOUT_PREFIX}" MAJOR MINOR PATCH PRERELEASE)
+    math(EXPR PATCH "${PATCH} + ${COMMITS_SINCE_MOST_RECENT_TAG}")
+    # Overwrite prerelease part
+    if(NOT "${PRERELEASE_LABEL}" STREQUAL "")
+        set(PRERELEASE "${PRERELEASE_LABEL}")
+    endif()
+    set(${MAJOR_OUT} "${MAJOR}" PARENT_SCOPE)
+    set(${MINOR_OUT} "${MINOR}" PARENT_SCOPE)
+    set(${PATCH_OUT} "${PATCH}" PARENT_SCOPE)
+    set(${PRERELEASE_OUT} "${PRERELEASE}" PARENT_SCOPE)
+endfunction()
+
 # TODO:
-# 1. get semver as is with commits ahead added (if not at tag then postfix with "snapshot" -- PRERELEASE_LABEL param...)...
-# 2. Public: separate funcs: get repository metadata (nuget_git_get_repository_type: "git"), nuget_git_get_repository_metadata
+# 1. Public: get semver as is with commits ahead added (nuget_git_get_semantic_version)
+# 2. Public: separate funcs: get repository metadata (nuget_git_get_repository_type: "git")
 # 3. Public: nuget_git_get_mapped_semantic_version based on _nuget_git_get_semantic_version_applying_rules
 # -- Create branches for testing...
