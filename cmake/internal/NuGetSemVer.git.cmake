@@ -1,16 +1,18 @@
 ## Internal.
-function(_nuget_git_describe_parse
+function(_nuget_git_parse_git_describe
     GIT_TAG_PREFIX
     TAG_WITHOUT_PREFIX_OUT
     COMMITS_SINCE_MOST_RECENT_TAG_OUT
     MOST_RECENT_COMMIT_ABBREV_OUT
 )
-    # Prerequisites check
+    # Prerequisites check; find_package results should be cached, next line is fine here.
     find_package(Git)
     if(NOT Git_FOUND)
-        message(FATAL_ERROR "Git was not found: cannot describe tags.")
+        message(FATAL_ERROR "Git was not found: cannot describe most recent tag.")
     endif()
     # Describe most recent tag; e.g. "v0.1-36-g9cba053". Error if not found.
+    # NOTE: consider using "--first-parent"; see:
+    # https://git-scm.com/docs/git-describe#Documentation/git-describe.txt---first-parent
     execute_process(
         COMMAND ${GIT_EXECUTABLE} describe --tags --long --match "${GIT_TAG_PREFIX}*"
         WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
@@ -29,6 +31,8 @@ function(_nuget_git_describe_parse
     set(REGEX_GIT_DESCRIBE "^${GIT_TAG_PREFIX}(.*)-(${REGEX_NUMBER})-(${REGEX_SHA})$")
     string(REGEX REPLACE "${REGEX_GIT_DESCRIBE}" "\\1" TAG_WITHOUT_PREFIX "${GIT_DESCRIBE_OUTPUT}")
     _nuget_helper_error_if_empty("${TAG_WITHOUT_PREFIX}" "Cannot parse tag part of Git describe's output: ")
+    # Due to "--long" in the above below is also emitted even if most recent commit has the tag
+    # (COMMITS_SINCE_MOST_RECENT_TAG is going to be 0 if that is the case).
     string(REGEX REPLACE "${REGEX_GIT_DESCRIBE}" "\\2" COMMITS_SINCE_MOST_RECENT_TAG "${GIT_DESCRIBE_OUTPUT}")
     _nuget_helper_error_if_empty("${COMMITS_SINCE_MOST_RECENT_TAG}"
         "Cannot parse number of commits since most recent tag part of Git describe's output: "
@@ -42,13 +46,31 @@ function(_nuget_git_describe_parse
     set(${MOST_RECENT_COMMIT_ABBREV_OUT} "${MOST_RECENT_COMMIT_ABBREV}" PARENT_SCOPE)
 endfunction()
 
+# 1. get semver as is with commits ahead added (if not at tag then postfix with "snapshot" -- param...)...
+# 2. get repository metadata
+#    - one git command per internal function...
+# 3. get prev two with prerelease naming method
+#    - list of branch name regexes (empty means default) & list of prerelease prefixes (empty if no prerel at all for that branch) & list of flags: postfix with git commit?
+
 # TODO:
-# set(REGEX_PRERELEASE "${REGEX_NUMBER}|[0-9]*[a-zA-Z-][0-9a-zA-Z]*")
 # Check prerelease logic...
+# <!--Default version-->
+# <SemVer>$(GitSemVerMajor).$(GitSemVerMinor).$(GitSemVerPatch)</SemVer>
+# <!--Any other branch-->
+# <GitSemVerDashLabel>pre$(GitCommit)</GitSemVerDashLabel>
+# <!-- Packages for feature branches are marked as "alpha" (ex., 2.1.0-alpha426e8bcf) -->
+# <GitSemVerDashLabel Condition="$(GitBranch.Contains('feature'))">alpha$(GitCommit)</GitSemVerDashLabel>
+# <!-- Packages for release branches are marked as "rc", release candidates (ex., 2.1.0-rc426e8bcf) -->
+# <GitSemVerDashLabel Condition="$(GitBranch.Contains('release'))">rc$(GitCommit)</GitSemVerDashLabel>
+# <!-- Packages for the master branch have no suffix (ex., 2.1.0) -->
+# <GitSemVerDashLabel Condition="$(GitBranch.Contains('master'))"></GitSemVerDashLabel>
+# <PackageVersion Condition="'$(GitSemVerDashLabel)' != ''">$(SemVer)-$(GitSemVerDashLabel)</PackageVersion>
+# <PackageVersion Condition="'$(GitSemVerDashLabel)' == ''">$(SemVer)</PackageVersion>
 # major, minor, patch, prerelease
 # ^(${REGEX_NUMBER})\.(${REGEX_NUMBER})\.(${REGEX_NUMBER})(-)?$
 
-# TODO: separate function(s) for:
+# TODO: separate function for (nuget_git_get_repository_metadata):
+# also return _type as git
 # REPOSITORY_URL https://github.com/katusk/whatnot.git
 # REPOSITORY_BRANCH dev
 # REPOSITORY_COMMIT e1c65e4524cd70ee6e22abe33e6cb6ec73938cb3
