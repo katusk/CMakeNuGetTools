@@ -105,3 +105,19 @@ add_test(NAME write_nuspec_simple.mergeandpack
         -P "${CMAKE_SOURCE_DIR}/CMakeLists.pack.cmake"
     WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}/build/cmake/x64-windows/MultiConfig/write_nuspec_simple"
 )
+
+# Test: export_simple_toolchain
+# TODO: we rely on sequential execution here...
+add_custom_target(export_simple_toolchain.mkdir ALL
+    COMMAND "${CMAKE_COMMAND}" -E make_directory "${CMAKE_SOURCE_DIR}/build/cmake/x64-windows/Release/export_simple_toolchain"
+)
+add_test(NAME export_simple_toolchain.g
+    COMMAND "${CMAKE_COMMAND}" -T v141,host=x64 -G "Visual Studio 15 2017 Win64" -DNUGET_COMMAND=nuget
+        "-DNUGET_PACKAGES_DIR=${CMAKE_SOURCE_DIR}/packages" -DCMAKE_CONFIGURATION_TYPES=Release
+        "${CMAKE_SOURCE_DIR}/tests/export_simple_toolchain"
+    WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}/build/cmake/x64-windows/Release/export_simple_toolchain"
+)
+add_test(NAME export_simple_toolchain.build
+    COMMAND "${CMAKE_COMMAND}" --build . --config Release --target ALL_BUILD -- /p:PlatformToolset=v141 /p:Configuration=Release /p:Platform=x64
+    WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}/build/cmake/x64-windows/Release/export_simple_toolchain"
+)

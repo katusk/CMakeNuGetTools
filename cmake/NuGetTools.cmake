@@ -12,3 +12,4 @@ set(NUGET_PACKAGES_DIR "${CMAKE_SOURCE_DIR}/packages" CACHE PATH
 include("${CMAKE_CURRENT_LIST_DIR}/internal/NuGetTools.helper.cmake")
 include("${CMAKE_CURRENT_LIST_DIR}/internal/NuGetImport.cmake")
 include("${CMAKE_CURRENT_LIST_DIR}/internal/NuGetPack.cmake")
+include("${CMAKE_CURRENT_LIST_DIR}/internal/NuGetSemVer.cmake")
