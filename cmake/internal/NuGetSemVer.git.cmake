@@ -1,138 +1,95 @@
 ## Internal.
-function(_nuget_git_parse_git_describe
-    GIT_TAG_PREFIX
-    TAG_WITHOUT_PREFIX_OUT
-    COMMITS_SINCE_MOST_RECENT_TAG_OUT
-    MOST_RECENT_COMMIT_ABBREV_OUT
+function(_nuget_git_parse_semantic_version
+    TAG_WITHOUT_PREFIX
+    MAJOR_OUT
+    MINOR_OUT
+    PATCH_OUT
+    PRERELEASE_OUT
 )
-    # Prerequisites check; find_package results should be cached, next line is fine here.
-    find_package(Git)
-    if(NOT Git_FOUND)
-        message(FATAL_ERROR "Git was not found: cannot describe most recent tag.")
-    endif()
-    # Describe most recent tag; e.g. "v0.1-36-g9cba053". Error if not found.
-    # NOTE: consider using "--first-parent"; see:
-    # https://git-scm.com/docs/git-describe#Documentation/git-describe.txt---first-parent
-    execute_process(
-        COMMAND ${GIT_EXECUTABLE} describe --tags --long --match "${GIT_TAG_PREFIX}*"
-        WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
-        OUTPUT_STRIP_TRAILING_WHITESPACE
-        OUTPUT_VARIABLE GIT_DESCRIBE_OUTPUT
-        ERROR_VARIABLE GIT_DESCRIBE_ERROR_VAR
-        RESULT_VARIABLE GIT_DESCRIBE_RESULT_VAR
-    )
-    _nuget_helper_error_if_not_empty("${GIT_DESCRIBE_ERROR_VAR}" "Running Git describe encountered some errors: ")
-    if(NOT ${GIT_DESCRIBE_RESULT_VAR} EQUAL 0)
-        message(FATAL_ERROR "Git describe returned with: \"${GIT_DESCRIBE_RESULT_VAR}\"")
-    endif()
-    # Parse output of Git describe
     set(REGEX_NUMBER "0|[1-9][0-9]*")
-    set(REGEX_SHA "[0-9a-f]+")
-    set(REGEX_GIT_DESCRIBE "^${GIT_TAG_PREFIX}(.*)-(${REGEX_NUMBER})-(${REGEX_SHA})$")
-    string(REGEX REPLACE "${REGEX_GIT_DESCRIBE}" "\\1" TAG_WITHOUT_PREFIX "${GIT_DESCRIBE_OUTPUT}")
-    _nuget_helper_error_if_empty("${TAG_WITHOUT_PREFIX}" "Cannot parse tag part of Git describe's output: ")
-    # Due to "--long" in the above below is also emitted even if most recent commit has the tag
-    # (COMMITS_SINCE_MOST_RECENT_TAG is going to be 0 if that is the case).
-    string(REGEX REPLACE "${REGEX_GIT_DESCRIBE}" "\\2" COMMITS_SINCE_MOST_RECENT_TAG "${GIT_DESCRIBE_OUTPUT}")
-    _nuget_helper_error_if_empty("${COMMITS_SINCE_MOST_RECENT_TAG}"
-        "Cannot parse number of commits since most recent tag part of Git describe's output: "
-    )
-    string(REGEX REPLACE "${REGEX_GIT_DESCRIBE}" "\\3" MOST_RECENT_COMMIT_ABBREV "${GIT_DESCRIBE_OUTPUT}")
-    _nuget_helper_error_if_empty("${MOST_RECENT_COMMIT_ABBREV}"
-        "Cannot parse most recent abbreviated commit part of Git describe's output: "
-    )
-    set(${TAG_WITHOUT_PREFIX_OUT} "${TAG_WITHOUT_PREFIX}" PARENT_SCOPE)
-    set(${COMMITS_SINCE_MOST_RECENT_TAG_OUT} "${COMMITS_SINCE_MOST_RECENT_TAG}" PARENT_SCOPE)
-    set(${MOST_RECENT_COMMIT_ABBREV_OUT} "${MOST_RECENT_COMMIT_ABBREV}" PARENT_SCOPE)
+    set(REGEX_PRERELEASE "${REGEX_NUMBER}|[0-9]*[a-zA-Z-][0-9a-zA-Z]*")
+    set(REGEX_SEMVER "^(${REGEX_NUMBER})\.(${REGEX_NUMBER})\.(${REGEX_NUMBER})(-${REGEX_PRERELEASE})?$")
+    string(REGEX REPLACE "${REGEX_SEMVER}" "\\1" MAJOR "${TAG_WITHOUT_PREFIX}")
+    _nuget_helper_error_if_empty("${MAJOR}" "Cannot parse major version part of tag outputted by Git describe: ")
+    string(REGEX REPLACE "${REGEX_SEMVER}" "\\2" MINOR "${TAG_WITHOUT_PREFIX}")
+    _nuget_helper_error_if_empty("${MINOR}" "Cannot parse minor version part of tag outputted by Git describe: ")
+    string(REGEX REPLACE "${REGEX_SEMVER}" "\\3" PATCH "${TAG_WITHOUT_PREFIX}")
+    _nuget_helper_error_if_empty("${PATCH}" "Cannot parse patch version part of tag outputted by Git describe: ")
+    string(REGEX REPLACE "${REGEX_SEMVER}" "\\4" PRERELEASE "${TAG_WITHOUT_PREFIX}")
+    string(LENGTH "${PRERELEASE}" PRERELEASE_LENGTH)
+    if(PRERELEASE_LENGTH GREATER 0)
+        string(SUBSTRING "${PRERELEASE}" 1 -1 PRERELEASE)
+    endif()    
+    set(${MAJOR_OUT} "${MAJOR}" PARENT_SCOPE)
+    set(${MINOR_OUT} "${MINOR}" PARENT_SCOPE)
+    set(${PATCH_OUT} "${PATCH}" PARENT_SCOPE)
 endfunction()
 
-## Internal.
-function(_nuget_git_get_current_branch_name BRANCH_NAME_OUT)
-    find_package(Git)
-    if(NOT Git_FOUND)
-        message(FATAL_ERROR "Git was not found: cannot get name of current branch.")
+## Internal. BRANCH_NAME_REGEXES, PRERELEASE_PREFIX_LABELS, and PRERELEASE_POSTFIX_FLAGS should contain the same number
+## of elements. For each branch_regex in BRANCH_NAME_REGEXES in order: if branch_regex matches the current branch name, 
+## then the corresponding prefix_label from PRERELEASE_PREFIX_LABELS is used as a prerelease prefix (if prefix_label
+## is empty, then the prerelease part is omitted completely except when the most recent tag from git has a prerelease
+## part which then be used). If prefix_label is not empty, and the corresponding element of PRERELEASE_POSTFIX_FLAGS is
+## TRUE, then the prerelease label is postfixed with the abbreviated hash of the current commit.
+function(_nuget_git_get_semantic_version_applying_rules
+    GIT_TAG_PREFIX
+    BRANCH_NAME_REGEXES
+    PRERELEASE_PREFIX_LABELS
+    PRERELEASE_POSTFIX_FLAGS
+    BRANCH_OUT
+    MAJOR_OUT
+    MINOR_OUT
+    PATCH_OUT
+    PRERELEASE_OUT
+)
+    # Inputs
+    list(LENGTH BRANCH_NAME_REGEXES BRANCH_NAME_REGEXES_LENGTH)
+    list(LENGTH PRERELEASE_PREFIX_LABELS PRERELEASE_PREFIX_LABELS_LENGTH)
+    list(LENGTH PRERELEASE_POSTFIX_FLAGS PRERELEASE_POSTFIX_FLAGS_LENGTH)
+    if(NOT BRANCH_NAME_REGEXES_LENGTH EQUAL PRERELEASE_PREFIX_LABELS_LENGTH)
+        message(FATAL_ERROR "Number of provided branch name regexes and prerelease prefix labels differ.")
     endif()
-    execute_process(
-        COMMAND ${GIT_EXECUTABLE} rev-parse --abbrev-ref HEAD
-        WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
-        OUTPUT_STRIP_TRAILING_WHITESPACE
-        OUTPUT_VARIABLE GIT_BRANCH_OUTPUT
-        ERROR_VARIABLE GIT_BRANCH_ERROR_VAR
-        RESULT_VARIABLE GIT_BRANCH_RESULT_VAR
-    )
-    _nuget_helper_error_if_not_empty("${GIT_BRANCH_ERROR_VAR}" "Running Git rev-parse --abbrev-ref HEAD encountered some errors: ")
-    if(NOT ${GIT_BRANCH_RESULT_VAR} EQUAL 0)
-        message(FATAL_ERROR "Git rev-parse --abbrev-ref HEAD returned with: \"${GIT_BRANCH_RESULT_VAR}\"")
+    if(NOT BRANCH_NAME_REGEXES_LENGTH EQUAL PRERELEASE_POSTFIX_FLAGS_LENGTH)
+        message(FATAL_ERROR "Number of provided branch name regexes and prerelease postfix flags differ.")
     endif()
-    set(${BRANCH_NAME_OUT} "${GIT_BRANCH_RESULT_VAR}" PARENT_SCOPE)
+    # Query version tag
+    _nuget_git_parse_git_describe("${GIT_TAG_PREFIX}" TAG_WITHOUT_PREFIX COMMITS_SINCE_MOST_RECENT_TAG MOST_RECENT_COMMIT_ABBREV)
+    _nuget_git_parse_semantic_version("${TAG_WITHOUT_PREFIX}" MAJOR MINOR PATCH PRERELEASE)
+    math(EXPR PATCH "${PATCH} + ${COMMITS_SINCE_MOST_RECENT_TAG}")
+    _nuget_git_get_current_branch_name(BRANCH_NAME)
+    # Apply mapping rules
+    set(ITER 0)
+    foreach(BRANCH_NAME_REGEX IN LISTS BRANCH_NAME_REGEXES)
+        string(REGEX MATCH "${BRANCH_NAME_REGEX}" BRANCH_MATCH "${BRANCH_NAME}")
+        if(NOT "${BRANCH_MATCH}" STREQUAL "")
+            list(GET PRERELEASE_PREFIX_LABELS ${ITER} PRERELEASE_PREFIX_LABEL)
+            if(NOT "${PRERELEASE_PREFIX_LABEL}" STREQUAL "")
+                set(PRERELEASE "${PRERELEASE_PREFIX_LABEL}")
+            endif()
+            if(NOT "${PRERELEASE}" STREQUAL "")
+                list(GET PRERELEASE_POSTFIX_FLAGS ${ITER} PRERELEASE_POSTFIX_FLAG)
+                # MOST_RECENT_COMMIT_ABBREV is used as postfix without adding the "+" glue character: "If you upload a SemVer
+                # v2.0.0-specific package to nuget.org, the package is invisible to older clients and available to only the
+                # following NuGet clients" -- and we want to maintain backwards compatibility. Quote from:
+                # https://docs.microsoft.com/en-us/nuget/concepts/package-versioning#semantic-versioning-200
+                # Also see: https://semver.org/#spec-item-10
+                if(PRERELEASE_POSTFIX_FLAG)
+                    set(PRERELEASE "${PRERELEASE}${MOST_RECENT_COMMIT_ABBREV}")
+                endif()
+            endif()
+            break()
+        endif()
+        math(EXPR ITER "${ITER} + 1")
+    endforeach()
+    set(${BRANCH_OUT} "${BRANCH_NAME}" PARENT_SCOPE)
+    set(${MAJOR_OUT} "${MAJOR}" PARENT_SCOPE)
+    set(${MINOR_OUT} "${MINOR}" PARENT_SCOPE)
+    set(${PATCH_OUT} "${PATCH}" PARENT_SCOPE)
+    set(${PRERELEASE_OUT} "${PRERELEASE}" PARENT_SCOPE)
 endfunction()
-
-## Internal.
-function(_nuget_git_get_current_commit_sha1 HEAD_COMMIT_SHA1_OUT)
-    find_package(Git)
-    if(NOT Git_FOUND)
-        message(FATAL_ERROR "Git was not found: cannot get SHA-1 of HEAD.")
-    endif()
-    execute_process(
-        COMMAND ${GIT_EXECUTABLE} rev-parse --verify HEAD
-        WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
-        OUTPUT_STRIP_TRAILING_WHITESPACE
-        OUTPUT_VARIABLE GIT_HEAD_COMMIT_OUTPUT
-        ERROR_VARIABLE GIT_HEAD_COMMIT_ERROR_VAR
-        RESULT_VARIABLE GIT_HEAD_COMMIT_RESULT_VAR
-    )
-    _nuget_helper_error_if_not_empty("${GIT_HEAD_COMMIT_ERROR_VAR}" "Running Git rev-parse --verify HEAD encountered some errors: ")
-    if(NOT ${GIT_HEAD_COMMIT_RESULT_VAR} EQUAL 0)
-        message(FATAL_ERROR "Git rev-parse --verify HEAD returned with: \"${GIT_HEAD_COMMIT_RESULT_VAR}\"")
-    endif()
-    set(${HEAD_COMMIT_SHA1_OUT} "${GIT_HEAD_COMMIT_RESULT_VAR}" PARENT_SCOPE)
-endfunction()
-
-## Internal.
-function(_nuget_git_get_remote_url REMOTE_URL_OUT)
-    find_package(Git)
-    if(NOT Git_FOUND)
-        message(FATAL_ERROR "Git was not found: cannot get URL of remote.")
-    endif()
-    execute_process(
-        COMMAND ${GIT_EXECUTABLE} ls-remote --get-url
-        WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
-        OUTPUT_STRIP_TRAILING_WHITESPACE
-        OUTPUT_VARIABLE GIT_REMOTE_URL_OUTPUT
-        ERROR_VARIABLE GIT_REMOTE_URL_ERROR_VAR
-        RESULT_VARIABLE GIT_REMOTE_URL_RESULT_VAR
-    )
-    _nuget_helper_error_if_not_empty("${GIT_REMOTE_URL_ERROR_VAR}" "Running Git ls-remote --get-url encountered some errors: ")
-    if(NOT ${GIT_REMOTE_URL_RESULT_VAR} EQUAL 0)
-        message(FATAL_ERROR "Git ls-remote --get-url returned with: \"${GIT_REMOTE_URL_RESULT_VAR}\"")
-    endif()
-    set(${REMOTE_URL_OUT} "${GIT_REMOTE_URL_RESULT_VAR}" PARENT_SCOPE)
-endfunction()
-
-# 1. get semver as is with commits ahead added (if not at tag then postfix with "snapshot" -- param...)...
-# 2. get repository metadata
-# 3. get prev two with prerelease naming method
-#    - list of branch name regexes (empty means default) & list of prerelease prefixes (empty if no prerel at all for that branch) & list of flags: postfix with git commit?
 
 # TODO:
-# Check prerelease logic...
-# <!--Default version-->
-# <SemVer>$(GitSemVerMajor).$(GitSemVerMinor).$(GitSemVerPatch)</SemVer>
-# <!--Any other branch-->
-# <GitSemVerDashLabel>pre$(GitCommit)</GitSemVerDashLabel>
-# <!-- Packages for feature branches are marked as "alpha" (ex., 2.1.0-alpha426e8bcf) -->
-# <GitSemVerDashLabel Condition="$(GitBranch.Contains('feature'))">alpha$(GitCommit)</GitSemVerDashLabel>
-# <!-- Packages for release branches are marked as "rc", release candidates (ex., 2.1.0-rc426e8bcf) -->
-# <GitSemVerDashLabel Condition="$(GitBranch.Contains('release'))">rc$(GitCommit)</GitSemVerDashLabel>
-# <!-- Packages for the master branch have no suffix (ex., 2.1.0) -->
-# <GitSemVerDashLabel Condition="$(GitBranch.Contains('master'))"></GitSemVerDashLabel>
-# <PackageVersion Condition="'$(GitSemVerDashLabel)' != ''">$(SemVer)-$(GitSemVerDashLabel)</PackageVersion>
-# <PackageVersion Condition="'$(GitSemVerDashLabel)' == ''">$(SemVer)</PackageVersion>
-# major, minor, patch, prerelease
-# ^(${REGEX_NUMBER})\.(${REGEX_NUMBER})\.(${REGEX_NUMBER})(-)?$
-
-# TODO: separate function for (nuget_git_get_repository_metadata):
-# also return _type as git
-# REPOSITORY_URL https://github.com/katusk/whatnot.git
-# REPOSITORY_BRANCH dev
-# REPOSITORY_COMMIT e1c65e4524cd70ee6e22abe33e6cb6ec73938cb3
+# 1. get semver as is with commits ahead added (if not at tag then postfix with "snapshot" -- PRERELEASE_LABEL param...)...
+# 2. Public: separate funcs: get repository metadata (nuget_git_get_repository_type: "git"), nuget_git_get_repository_metadata
+# 3. Public: nuget_git_get_mapped_semantic_version based on _nuget_git_get_semantic_version_applying_rules
+# -- Create branches for testing...
