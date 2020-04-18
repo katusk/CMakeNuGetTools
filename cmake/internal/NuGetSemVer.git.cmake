@@ -46,9 +46,71 @@ function(_nuget_git_parse_git_describe
     set(${MOST_RECENT_COMMIT_ABBREV_OUT} "${MOST_RECENT_COMMIT_ABBREV}" PARENT_SCOPE)
 endfunction()
 
+## Internal.
+function(_nuget_git_get_current_branch_name BRANCH_NAME_OUT)
+    find_package(Git)
+    if(NOT Git_FOUND)
+        message(FATAL_ERROR "Git was not found: cannot get name of current branch.")
+    endif()
+    execute_process(
+        COMMAND ${GIT_EXECUTABLE} rev-parse --abbrev-ref HEAD
+        WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
+        OUTPUT_STRIP_TRAILING_WHITESPACE
+        OUTPUT_VARIABLE GIT_BRANCH_OUTPUT
+        ERROR_VARIABLE GIT_BRANCH_ERROR_VAR
+        RESULT_VARIABLE GIT_BRANCH_RESULT_VAR
+    )
+    _nuget_helper_error_if_not_empty("${GIT_BRANCH_ERROR_VAR}" "Running Git rev-parse --abbrev-ref HEAD encountered some errors: ")
+    if(NOT ${GIT_BRANCH_RESULT_VAR} EQUAL 0)
+        message(FATAL_ERROR "Git rev-parse --abbrev-ref HEAD returned with: \"${GIT_BRANCH_RESULT_VAR}\"")
+    endif()
+    set(${BRANCH_NAME_OUT} "${GIT_BRANCH_RESULT_VAR}" PARENT_SCOPE)
+endfunction()
+
+## Internal.
+function(_nuget_git_get_current_commit_sha1 HEAD_COMMIT_SHA1_OUT)
+    find_package(Git)
+    if(NOT Git_FOUND)
+        message(FATAL_ERROR "Git was not found: cannot get SHA-1 of HEAD.")
+    endif()
+    execute_process(
+        COMMAND ${GIT_EXECUTABLE} rev-parse --verify HEAD
+        WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
+        OUTPUT_STRIP_TRAILING_WHITESPACE
+        OUTPUT_VARIABLE GIT_HEAD_COMMIT_OUTPUT
+        ERROR_VARIABLE GIT_HEAD_COMMIT_ERROR_VAR
+        RESULT_VARIABLE GIT_HEAD_COMMIT_RESULT_VAR
+    )
+    _nuget_helper_error_if_not_empty("${GIT_HEAD_COMMIT_ERROR_VAR}" "Running Git rev-parse --verify HEAD encountered some errors: ")
+    if(NOT ${GIT_HEAD_COMMIT_RESULT_VAR} EQUAL 0)
+        message(FATAL_ERROR "Git rev-parse --verify HEAD returned with: \"${GIT_HEAD_COMMIT_RESULT_VAR}\"")
+    endif()
+    set(${HEAD_COMMIT_SHA1_OUT} "${GIT_HEAD_COMMIT_RESULT_VAR}" PARENT_SCOPE)
+endfunction()
+
+## Internal.
+function(_nuget_git_get_remote_url REMOTE_URL_OUT)
+    find_package(Git)
+    if(NOT Git_FOUND)
+        message(FATAL_ERROR "Git was not found: cannot get URL of remote.")
+    endif()
+    execute_process(
+        COMMAND ${GIT_EXECUTABLE} ls-remote --get-url
+        WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
+        OUTPUT_STRIP_TRAILING_WHITESPACE
+        OUTPUT_VARIABLE GIT_REMOTE_URL_OUTPUT
+        ERROR_VARIABLE GIT_REMOTE_URL_ERROR_VAR
+        RESULT_VARIABLE GIT_REMOTE_URL_RESULT_VAR
+    )
+    _nuget_helper_error_if_not_empty("${GIT_REMOTE_URL_ERROR_VAR}" "Running Git ls-remote --get-url encountered some errors: ")
+    if(NOT ${GIT_REMOTE_URL_RESULT_VAR} EQUAL 0)
+        message(FATAL_ERROR "Git ls-remote --get-url returned with: \"${GIT_REMOTE_URL_RESULT_VAR}\"")
+    endif()
+    set(${REMOTE_URL_OUT} "${GIT_REMOTE_URL_RESULT_VAR}" PARENT_SCOPE)
+endfunction()
+
 # 1. get semver as is with commits ahead added (if not at tag then postfix with "snapshot" -- param...)...
 # 2. get repository metadata
-#    - one git command per internal function...
 # 3. get prev two with prerelease naming method
 #    - list of branch name regexes (empty means default) & list of prerelease prefixes (empty if no prerel at all for that branch) & list of flags: postfix with git commit?
 
