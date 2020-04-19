@@ -59,7 +59,7 @@ endfunction()
 function(_nuget_single_import_cmake_exports)
     # Inputs
     set(options PUBLIC PRIVATE IMPORT_CMAKE_EXPORTS CMAKE_APPEND_PATHS)
-    set(oneValueArgs PACKAGE VERSION)
+    set(oneValueArgs PACKAGE VERSION CMAKE_TOOLCHAIN_FILE)
     set(multiValueArgs CMAKE_PREFIX_PATHS CMAKE_MODULE_PATHS)
     cmake_parse_arguments(_arg
         "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGV}
@@ -86,6 +86,7 @@ function(_nuget_single_import_cmake_exports)
         "${_arg_CMAKE_PREFIX_PATHS}"
         "${_arg_CMAKE_MODULE_PATHS}"
         "${_arg_CMAKE_APPEND_PATHS}"
+        "${_arg_CMAKE_TOOLCHAIN_FILE}"
     )
 endfunction()
 

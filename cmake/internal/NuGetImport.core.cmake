@@ -167,16 +167,20 @@ function(_nuget_core_import_cmake_exports
     CMAKE_PREFIX_PATHS
     CMAKE_MODULE_PATHS
     CMAKE_APPEND_PATHS
+    CMAKE_TOOLCHAIN_FILE
 )
     # Inputs
-    if("${CMAKE_PREFIX_PATHS}" STREQUAL "" AND "${CMAKE_MODULE_PATHS}" STREQUAL "")
-        message(FATAL_ERROR "At least one of CMAKE_PREFIX_PATHS or CMAKE_MODULE_PATHS should be non-empty.")
+    if("${CMAKE_PREFIX_PATHS}" STREQUAL "" AND "${CMAKE_MODULE_PATHS}" STREQUAL "" AND "${CMAKE_TOOLCHAIN_FILE}" STREQUAL "")
+        message(FATAL_ERROR "At least one of CMAKE_PREFIX_PATHS, CMAKE_MODULE_PATHS, or CMAKE_TOOLCHAIN_FILE should be non-empty.")
     endif()
     _nuget_helper_list_transform_prepend(
         "${CMAKE_PREFIX_PATHS}" "${NUGET_DEPENDENCY_DIR_${PACKAGE_ID}}/" CMAKE_PREFIX_PATHS
     )
     _nuget_helper_list_transform_prepend(
         "${CMAKE_MODULE_PATHS}" "${NUGET_DEPENDENCY_DIR_${PACKAGE_ID}}/" CMAKE_MODULE_PATHS
+    )
+    _nuget_helper_list_transform_prepend(
+        "${CMAKE_TOOLCHAIN_FILE}" "${NUGET_DEPENDENCY_DIR_${PACKAGE_ID}}/" CMAKE_TOOLCHAIN_FILE
     )
 
     # Save settings: we do not actually set CMAKE_PREFIX_PATH or CMAKE_MODULE_PATH here,
@@ -186,6 +190,7 @@ function(_nuget_core_import_cmake_exports
     set("NUGET_LAST_DEPENDENCY_CMAKE_PREFIX_PATHS_${PACKAGE_ID}" "${CMAKE_PREFIX_PATHS}" CACHE INTERNAL "")
     set("NUGET_LAST_DEPENDENCY_CMAKE_MODULE_PATHS_${PACKAGE_ID}" "${CMAKE_MODULE_PATHS}" CACHE INTERNAL "")
     set("NUGET_LAST_DEPENDENCY_CMAKE_APPEND_PATHS_${PACKAGE_ID}" "${CMAKE_APPEND_PATHS}" CACHE INTERNAL "")
+    set("NUGET_LAST_DEPENDENCY_CMAKE_TOOLCHAIN_FILE_${PACKAGE_ID}" "${CMAKE_TOOLCHAIN_FILE}" CACHE INTERNAL "")
 endfunction()
 
 ## Internal. Needs to be macro for properly setting CMAKE_MODULE_PATH or CMAKE_PREFIX_PATH.
@@ -208,6 +213,9 @@ macro(_nuget_core_import_cmake_exports_set_cmake_paths PACKAGE_ID)
         else()
             list(INSERT CMAKE_MODULE_PATH 0 "${NUGET_LAST_DEPENDENCY_CMAKE_MODULE_PATHS_${PACKAGE_ID}}")
         endif()
+    endif()
+    if(NOT "${NUGET_LAST_DEPENDENCY_CMAKE_TOOLCHAIN_FILE_${PACKAGE_ID}}" STREQUAL "")
+        set(CMAKE_TOOLCHAIN_FILE "${NUGET_LAST_DEPENDENCY_CMAKE_TOOLCHAIN_FILE_${PACKAGE_ID}}")
     endif()
     # NOTE: Make sure we did not introduce new normal variables here. Then we are safe macro-wise.
 endmacro()
