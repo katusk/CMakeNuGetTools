@@ -67,7 +67,7 @@ function(nuget_pack)
     endif()
     # Inputs
     set(options "")
-    set(oneValueArgs NUSPEC_FILEPATH OUTPUT_DIRECTORY)
+    set(oneValueArgs NUSPEC_FILEPATH OUTPUT_DIRECTORY VERSION_OVERRIDE)
     set(multiValueArgs "")
     cmake_parse_arguments(_arg
         "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGV}
@@ -79,5 +79,5 @@ function(nuget_pack)
     _nuget_helper_error_if_empty("${_arg_NUSPEC_FILEPATH}" "You must provide a filepath to a .nuspec file as a NUSPEC_FILEPATH argument.")
     _nuget_helper_error_if_empty("${_arg_OUTPUT_DIRECTORY}" "You must provide an output directory where the .nupkg is created as an OUTPUT_DIRECTORY argument.")
     # Actual functionality
-    _nuget_pack("${_arg_NUSPEC_FILEPATH}" "${_arg_OUTPUT_DIRECTORY}")
+    _nuget_pack("${_arg_NUSPEC_FILEPATH}" "${_arg_OUTPUT_DIRECTORY}" "${_arg_VERSION_OVERRIDE}")
 endfunction()

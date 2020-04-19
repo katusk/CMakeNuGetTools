@@ -1,14 +1,18 @@
 ## Internal.
-function(_nuget_pack NUSPEC_FILEPATH OUTPUT_DIRECTORY)
+function(_nuget_pack NUSPEC_FILEPATH OUTPUT_DIRECTORY VERSION_OVERRIDE)
     # Inputs
     _nuget_helper_error_if_empty("${NUGET_COMMAND}"
         "No NuGet executable was provided; this means NuGetTools should have been disabled, and "
         "we should not ever reach a call to _nuget_pack()."
     )
+    if(NOT "${VERSION_OVERRIDE}" STREQUAL "")
+        set(VERSION_OVERRIDE "-Version ${VERSION_OVERRIDE}")
+    endif()
     # Execute pack
     execute_process(
         COMMAND "${NUGET_COMMAND}" pack "${NUSPEC_FILEPATH}"
             -OutputDirectory "${OUTPUT_DIRECTORY}"
+            ${VERSION_OVERRIDE}
             -NonInteractive
         ERROR_VARIABLE
             NUGET_PACK_ERROR_VAR
