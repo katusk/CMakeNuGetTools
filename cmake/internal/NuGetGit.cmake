@@ -29,6 +29,8 @@ function(_nuget_git_parse_git_describe
     set(REGEX_NUMBER "0|[1-9][0-9]*")
     set(REGEX_SHA "[0-9a-f]+")
     set(REGEX_GIT_DESCRIBE "^${GIT_TAG_PREFIX}(.*)-(${REGEX_NUMBER})-(${REGEX_SHA})$")
+    string(REGEX MATCH "${REGEX_GIT_DESCRIBE}" MATCH_GIT_DESCRIBE "${GIT_DESCRIBE_OUTPUT}")
+    _nuget_helper_error_if_empty("${MATCH_GIT_DESCRIBE}" "Cannot match \"${GIT_DESCRIBE_OUTPUT}\" with \"${REGEX_GIT_DESCRIBE}\": ")
     string(REGEX REPLACE "${REGEX_GIT_DESCRIBE}" "\\1" TAG_WITHOUT_PREFIX "${GIT_DESCRIBE_OUTPUT}")
     _nuget_helper_error_if_empty("${TAG_WITHOUT_PREFIX}" "Cannot parse tag part of Git describe's output: ")
     # Due to "--long" in the above below is also emitted even if most recent commit has the tag

@@ -39,10 +39,10 @@ endfunction()
 ## Public interface.
 function(nuget_git_get_mapped_semantic_version)
     set(options "")
-    set(oneValueArgs TAG_PREFIX BRANCH_NAME_REGEXES PRERELEASE_PREFIX_LABELS PRERELEASE_POSTFIX_FLAGS
+    set(oneValueArgs TAG_PREFIX
         BRANCH FULL CORE MAJOR MINOR PATCH PRERELEASE
     )
-    set(multiValueArgs "")
+    set(multiValueArgs BRANCH_NAME_REGEXES PRERELEASE_PREFIX_LABELS PRERELEASE_POSTFIX_FLAGS)
     cmake_parse_arguments(_arg "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGV})
     _nuget_helper_error_if_unparsed_args("${_arg_UNPARSED_ARGUMENTS}" "${_arg_KEYWORDS_MISSING_VALUES}")
     _nuget_git_get_semantic_version_applying_rules(

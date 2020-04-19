@@ -121,3 +121,8 @@ add_test(NAME export_simple_toolchain.build
     COMMAND "${CMAKE_COMMAND}" --build . --config Release --target ALL_BUILD -- /p:PlatformToolset=v141 /p:Configuration=Release /p:Platform=x64
     WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}/build/cmake/x64-windows/Release/export_simple_toolchain"
 )
+
+# Test: NuGetTools.helper.test.cmake
+add_test(NAME NuGetSemVer.test.cmake
+    COMMAND "${CMAKE_COMMAND}" -P "${CMAKE_SOURCE_DIR}/tests/NuGetSemVer.test.cmake"
+)
