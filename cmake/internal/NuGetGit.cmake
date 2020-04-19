@@ -21,13 +21,14 @@ function(_nuget_git_parse_git_describe
         ERROR_VARIABLE GIT_DESCRIBE_ERROR_VAR
         RESULT_VARIABLE GIT_DESCRIBE_RESULT_VAR
     )
+    string(STRIP "${GIT_DESCRIBE_OUTPUT}" GIT_DESCRIBE_OUTPUT)
     _nuget_helper_error_if_not_empty("${GIT_DESCRIBE_ERROR_VAR}" "Running Git describe encountered some errors: ")
     if(NOT ${GIT_DESCRIBE_RESULT_VAR} EQUAL 0)
         message(FATAL_ERROR "Git describe returned with: \"${GIT_DESCRIBE_RESULT_VAR}\"")
     endif()
     # Parse output of Git describe
     set(REGEX_NUMBER "0|[1-9][0-9]*")
-    set(REGEX_SHA "[0-9a-f]+")
+    set(REGEX_SHA "[0-9a-g]+")
     set(REGEX_GIT_DESCRIBE "^${GIT_TAG_PREFIX}(.*)-(${REGEX_NUMBER})-(${REGEX_SHA})$")
     string(REGEX MATCH "${REGEX_GIT_DESCRIBE}" MATCH_GIT_DESCRIBE "${GIT_DESCRIBE_OUTPUT}")
     _nuget_helper_error_if_empty("${MATCH_GIT_DESCRIBE}" "Cannot match \"${GIT_DESCRIBE_OUTPUT}\" with \"${REGEX_GIT_DESCRIBE}\": ")
@@ -66,7 +67,8 @@ function(nuget_git_get_current_branch_name BRANCH_NAME_OUT)
     if(NOT ${GIT_BRANCH_RESULT_VAR} EQUAL 0)
         message(FATAL_ERROR "Git rev-parse --abbrev-ref HEAD returned with: \"${GIT_BRANCH_RESULT_VAR}\"")
     endif()
-    set(${BRANCH_NAME_OUT} "${GIT_BRANCH_RESULT_VAR}" PARENT_SCOPE)
+    string(STRIP "${GIT_BRANCH_OUTPUT}" GIT_BRANCH_OUTPUT)
+    set(${BRANCH_NAME_OUT} "${GIT_BRANCH_OUTPUT}" PARENT_SCOPE)
 endfunction()
 
 ## Public interface.
@@ -87,7 +89,8 @@ function(nuget_git_get_current_commit_sha1 HEAD_COMMIT_SHA1_OUT)
     if(NOT ${GIT_HEAD_COMMIT_RESULT_VAR} EQUAL 0)
         message(FATAL_ERROR "Git rev-parse --verify HEAD returned with: \"${GIT_HEAD_COMMIT_RESULT_VAR}\"")
     endif()
-    set(${HEAD_COMMIT_SHA1_OUT} "${GIT_HEAD_COMMIT_RESULT_VAR}" PARENT_SCOPE)
+    string(STRIP "${GIT_HEAD_COMMIT_OUTPUT}" GIT_HEAD_COMMIT_OUTPUT)
+    set(${HEAD_COMMIT_SHA1_OUT} "${GIT_HEAD_COMMIT_OUTPUT}" PARENT_SCOPE)
 endfunction()
 
 ## Public interface.
@@ -108,5 +111,6 @@ function(nuget_git_get_remote_url REMOTE_URL_OUT)
     if(NOT ${GIT_REMOTE_URL_RESULT_VAR} EQUAL 0)
         message(FATAL_ERROR "Git ls-remote --get-url returned with: \"${GIT_REMOTE_URL_RESULT_VAR}\"")
     endif()
-    set(${REMOTE_URL_OUT} "${GIT_REMOTE_URL_RESULT_VAR}" PARENT_SCOPE)
+    string(STRIP "${GIT_REMOTE_URL_OUTPUT}" GIT_REMOTE_URL_OUTPUT)
+    set(${REMOTE_URL_OUT} "${GIT_REMOTE_URL_OUTPUT}" PARENT_SCOPE)
 endfunction()

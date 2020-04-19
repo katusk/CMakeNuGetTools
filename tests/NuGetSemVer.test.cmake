@@ -26,17 +26,17 @@ nuget_git_get_semantic_version(
     PRERELEASE PRERELEASE_VERSION
 )
 message("-- nuget_git_get_semantic_version:
-${FULL_VERSION}
-${CORE_VERSION}
-${MAJOR_VERSION}
-${MINOR_VERSION}
-${PATCH_VERSION}
-${PRERELEASE_VERSION}")
+FULL: ${FULL_VERSION}
+CORE: ${CORE_VERSION}
+MAJOR: ${MAJOR_VERSION}
+MINOR: ${MINOR_VERSION}
+PATCH: ${PATCH_VERSION}
+PRERELEASE: ${PRERELEASE_VERSION}")
 
 nuget_git_get_mapped_semantic_version(
     TAG_PREFIX "v" 
     BRANCH_NAME_REGEXES "^feature.*$" "^release.*" "^master$" ".*"
-    PRERELEASE_PREFIX_LABELS "alpha" "rc" "" "pre"
+    PRERELEASE_PREFIX_LABELS "alpha" "rc" " " "pre"
     PRERELEASE_POSTFIX_FLAGS 1 1 0 1
     BRANCH CURRENT_BRANCH
     FULL FULL_VERSION
@@ -47,10 +47,11 @@ nuget_git_get_mapped_semantic_version(
     PRERELEASE PRERELEASE_VERSION
 )
 message("-- nuget_git_get_mapped_semantic_version:
-${CURRENT_BRANCH}
-${FULL_VERSION}
-${CORE_VERSION}
-${MAJOR_VERSION}
-${MINOR_VERSION}
-${PATCH_VERSION}
-${PRERELEASE_VERSION}")
+BRANCH: ${CURRENT_BRANCH}
+FULL: ${FULL_VERSION}
+CORE: ${CORE_VERSION}
+MAJOR: ${MAJOR_VERSION}
+MINOR: ${MINOR_VERSION}
+PATCH: ${PATCH_VERSION}
+PRERELEASE: ${PRERELEASE_VERSION}")
+message("---------------------------")
