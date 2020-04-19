@@ -57,7 +57,7 @@ function(_nuget_git_get_semantic_version_applying_rules
     _nuget_git_parse_git_describe("${GIT_TAG_PREFIX}" TAG_WITHOUT_PREFIX COMMITS_SINCE_MOST_RECENT_TAG MOST_RECENT_COMMIT_ABBREV)
     _nuget_git_parse_semantic_version("${TAG_WITHOUT_PREFIX}" MAJOR MINOR PATCH PRERELEASE)
     math(EXPR PATCH "${PATCH} + ${COMMITS_SINCE_MOST_RECENT_TAG}")
-    _nuget_git_get_current_branch_name(BRANCH_NAME)
+    nuget_git_get_current_branch_name(BRANCH_NAME)
     # Apply mapping rules
     set(ITER 0)
     foreach(BRANCH_NAME_REGEX IN LISTS BRANCH_NAME_REGEXES)
@@ -111,9 +111,3 @@ function(_nuget_git_get_semantic_version_with_prerelease_override
     set(${PATCH_OUT} "${PATCH}" PARENT_SCOPE)
     set(${PRERELEASE_OUT} "${PRERELEASE}" PARENT_SCOPE)
 endfunction()
-
-# TODO:
-# 1. Public: get semver as is with commits ahead added (nuget_git_get_semantic_version)
-# 2. Public: separate funcs: get repository metadata (nuget_git_get_repository_type: "git")
-# 3. Public: nuget_git_get_mapped_semantic_version based on _nuget_git_get_semantic_version_applying_rules
-# -- Create branches for testing...

@@ -46,8 +46,8 @@ function(_nuget_git_parse_git_describe
     set(${MOST_RECENT_COMMIT_ABBREV_OUT} "${MOST_RECENT_COMMIT_ABBREV}" PARENT_SCOPE)
 endfunction()
 
-## Internal.
-function(_nuget_git_get_current_branch_name BRANCH_NAME_OUT)
+## Public interface.
+function(nuget_git_get_current_branch_name BRANCH_NAME_OUT)
     find_package(Git)
     if(NOT Git_FOUND)
         message(FATAL_ERROR "Git was not found: cannot get name of current branch.")
@@ -67,8 +67,8 @@ function(_nuget_git_get_current_branch_name BRANCH_NAME_OUT)
     set(${BRANCH_NAME_OUT} "${GIT_BRANCH_RESULT_VAR}" PARENT_SCOPE)
 endfunction()
 
-## Internal.
-function(_nuget_git_get_current_commit_sha1 HEAD_COMMIT_SHA1_OUT)
+## Public interface.
+function(nuget_git_get_current_commit_sha1 HEAD_COMMIT_SHA1_OUT)
     find_package(Git)
     if(NOT Git_FOUND)
         message(FATAL_ERROR "Git was not found: cannot get SHA-1 of HEAD.")
@@ -88,8 +88,8 @@ function(_nuget_git_get_current_commit_sha1 HEAD_COMMIT_SHA1_OUT)
     set(${HEAD_COMMIT_SHA1_OUT} "${GIT_HEAD_COMMIT_RESULT_VAR}" PARENT_SCOPE)
 endfunction()
 
-## Internal.
-function(_nuget_git_get_remote_url REMOTE_URL_OUT)
+## Public interface.
+function(nuget_git_get_remote_url REMOTE_URL_OUT)
     find_package(Git)
     if(NOT Git_FOUND)
         message(FATAL_ERROR "Git was not found: cannot get URL of remote.")

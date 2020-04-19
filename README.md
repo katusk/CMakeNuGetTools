@@ -1,6 +1,6 @@
 # CMakeNuGetTools (WIP)
 
-CMake functions for adding NuGet package dependencies with CMake exports or .targets file, generating and merging `.nuspec` files, calling nuget pack, etc. See `tests/` for CMake projects using the functions (function names are prefixed with `nuget_`).
+CMake functions for adding NuGet package dependencies with CMake exports or `.targets` file, generating and merging `.nuspec` files, calling nuget pack, etc. See `tests/` for CMake projects using the functions (function names are prefixed with `nuget_`).
 
 ## Examples
 
@@ -77,4 +77,4 @@ nuget_generate_nuspec_files(
 * Finish up semantic versioning-related functionality
 * Code several small extensions to existing functionality
 * Create scripts extracting individual packages from Vcpkg as separate NuGet packages
-* Create a meta-build example with a native library project, a managed wrapper project, and a managed app project.
+* Create a meta-build example with a native library project, a managed wrapper project, and a managed app project
