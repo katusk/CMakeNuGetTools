@@ -74,6 +74,15 @@ function(_nuget_core_install
         "No NuGet executable was provided; this means NuGetTools should have been disabled, and "
         "we should not ever reach a call to _nuget_core_install()."
     )
+    if(NUGET_NO_CACHE)
+        set(NUGET_INSTALL_NO_CACHE_OPTION "-NoCache")
+    endif()
+    if(NUGET_DIRECT_DOWNLOAD)
+        set(NUGET_INSTALL_DIRECT_DOWNLOAD_OPTION "-DirectDownload")
+    endif()
+    if(NOT "${NUGET_PACKAGE_SAVE_MODE}" STREQUAL "")
+        set(NUGET_PACKAGE_SAVE_MODE_OPTION -PackageSaveMode "${NUGET_PACKAGE_SAVE_MODE}")
+    endif()
     # Execute install
     #
     # NOTE. Output is not parsed for additionally installed dependencies. It does not worth
@@ -85,6 +94,9 @@ function(_nuget_core_install
             -Version ${PACKAGE_VERSION}
             -OutputDirectory "${NUGET_PACKAGES_DIR}"
             -NonInteractive
+            ${NUGET_INSTALL_NO_CACHE_OPTION}
+            ${NUGET_INSTALL_DIRECT_DOWNLOAD_OPTION}
+            ${NUGET_PACKAGE_SAVE_MODE_OPTION}
         ERROR_VARIABLE
             NUGET_INSTALL_ERROR_VAR
         RESULT_VARIABLE

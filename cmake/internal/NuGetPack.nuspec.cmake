@@ -235,7 +235,7 @@ function(_nuget_nuspec_generate_output NUSPEC_CONTENT PACKAGE_ID)
         endforeach()
         string(APPEND CONDITIONS ">")
         file(GENERATE OUTPUT "${OUTPUT_FILE}" CONTENT "${NUSPEC_CONTENT}" CONDITION "${CONDITIONS}")
-        message("Written \"${OUTPUT_FILE}\" file(s) for \"${_arg_CMAKE_CONFIGURATIONS}\" configurations.")
+        message("Written \"${OUTPUT_FILE}\" file(s) for \"${_arg_CMAKE_CONFIGURATIONS}\" configuration(s).")
     endif()
 endfunction()
 
