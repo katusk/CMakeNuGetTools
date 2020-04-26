@@ -11,14 +11,14 @@ set(NUGET_NUSPEC_INDENT_SIZE "  " CACHE INTERNAL
 function(nuget_generate_nuspec_files)
     # Sanity checks
     if("${NUGET_COMMAND}" STREQUAL "")
-        message("NUGET_COMMAND is empty: CMakeNuGetTools is disabled, no .nuspec files are written.")
+        message(STATUS "NUGET_COMMAND is empty: CMakeNuGetTools is disabled, no .nuspec files are written.")
         return()
     endif()
     if("${ARGV}" STREQUAL "")
         message(FATAL_ERROR "No arguments provided.")
         return()
     endif()
-    message("Writing .nuspec file(s)...")
+    message(STATUS "Writing .nuspec file(s)...")
     # Begin .nuspec XML file
     set(NUSPEC_CONTENT "<?xml version=\"1.0\" encoding=\"utf-8\"?>")
     string(APPEND NUSPEC_CONTENT "\n<package xmlns=\"http://schemas.microsoft.com/packaging/2011/10/nuspec.xsd\">")
@@ -62,7 +62,7 @@ endfunction()
 function(nuget_pack)
     # Sanity checks
     if("${NUGET_COMMAND}" STREQUAL "")
-        message("NUGET_COMMAND is empty: CMakeNuGetTools is disabled, no packages are packed.")
+        message(STATUS "NUGET_COMMAND is empty: CMakeNuGetTools is disabled, no packages are packed.")
         return()
     endif()
     # Inputs

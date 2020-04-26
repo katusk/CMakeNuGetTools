@@ -20,7 +20,7 @@ endfunction()
 macro(nuget_add_dependencies)
     # Sanity checks
     if("${NUGET_COMMAND}" STREQUAL "")
-        message("NUGET_COMMAND is empty: CMakeNuGetTools is disabled, no packages are restored.")
+        message(STATUS "NUGET_COMMAND is empty: CMakeNuGetTools is disabled, no packages are restored.")
         return()
     endif()
     if(NOT NUGET_IS_INITIALIZED_ONCE_CACHED)
@@ -33,7 +33,7 @@ macro(nuget_add_dependencies)
         message(FATAL_ERROR "No arguments provided.")
         return()
     endif()
-    message("Importing NuGet package dependencies...")
+    message(STATUS "Importing NuGet package dependencies...")
     # Reset last registered packages list. This is about to be filled in with
     # packages registered via only this single nuget_add_dependencies() call.
     set(NUGET_LAST_DEPENDENCIES_REGISTERED "" CACHE INTERNAL "")
