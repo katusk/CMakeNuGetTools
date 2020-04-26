@@ -81,3 +81,29 @@ function(nuget_pack)
     # Actual functionality
     _nuget_pack("${_arg_NUSPEC_FILEPATH}" "${_arg_OUTPUT_DIRECTORY}" "${_arg_VERSION_OVERRIDE}")
 endfunction()
+
+## Public interface.
+function(nuget_pack_install)
+    # Sanity checks
+    if("${NUGET_COMMAND}" STREQUAL "")
+        message(STATUS "NUGET_COMMAND is empty: CMakeNuGetTools is disabled, no packages are packed.")
+        return()
+    endif()
+    # Inputs
+    set(options "")
+    set(oneValueArgs PACKAGE VERSION OUTPUT_DIRECTORY SOURCE)
+    set(multiValueArgs "")
+    cmake_parse_arguments(_arg
+        "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGV}
+    )
+    _nuget_helper_error_if_unparsed_args(
+        "${_arg_UNPARSED_ARGUMENTS}"
+        "${_arg_KEYWORDS_MISSING_VALUES}"
+    )
+    _nuget_helper_error_if_empty("${_arg_PACKAGE}" "PACKAGE_ID must be non-empty.")
+    _nuget_helper_error_if_empty("${_arg_VERSION}" "PACKAGE_VERSION must be non-empty.")
+    _nuget_helper_error_if_empty("${_arg_OUTPUT_DIRECTORY}" "OUTPUT_DIRECTORY must be non-empty.")
+    _nuget_helper_error_if_empty("${_arg_SOURCE}" "SOURCE must be non-empty.")
+    # Actual functionality
+    _nuget_pack_install("${_arg_PACKAGE}" "${_arg_VERSION}" "${_arg_OUTPUT_DIRECTORY}" "${_arg_SOURCE}")
+endfunction()

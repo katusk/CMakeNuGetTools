@@ -27,3 +27,36 @@ function(_nuget_pack NUSPEC_FILEPATH OUTPUT_DIRECTORY VERSION_OVERRIDE)
         message(FATAL_ERROR "NuGet pack returned with: \"${NUGET_PACK_RESULT_VAR}\"")
     endif()
 endfunction()
+
+## Internal.
+function(_nuget_pack_install
+    PACKAGE_ID
+    PACKAGE_VERSION
+    OUTPUT_DIRECTORY
+    SOURCE
+)
+    # Inputs
+    _nuget_helper_error_if_empty("${NUGET_COMMAND}"
+        "No NuGet executable was provided; this means NuGetTools should have been disabled, and "
+        "we should not ever reach a call to _nuget_pack_install()."
+    )
+    # Execute
+    execute_process(
+        COMMAND "${NUGET_COMMAND}" install ${PACKAGE_ID}
+            -Version ${PACKAGE_VERSION}
+            -OutputDirectory "${OUTPUT_DIRECTORY}"
+            -Source "${SOURCE}"
+            -NonInteractive
+        ERROR_VARIABLE
+            NUGET_INSTALL_ERROR_VAR
+        RESULT_VARIABLE
+            NUGET_INSTALL_RESULT_VAR
+    )
+    _nuget_helper_error_if_not_empty(
+        "${NUGET_INSTALL_ERROR_VAR}"
+        "Running NuGet package install encountered some errors: "
+    )
+    if(NOT ${NUGET_INSTALL_RESULT_VAR} EQUAL 0)
+        message(FATAL_ERROR "NuGet package install returned with: \"${NUGET_INSTALL_RESULT_VAR}\"")
+    endif()
+endfunction()
