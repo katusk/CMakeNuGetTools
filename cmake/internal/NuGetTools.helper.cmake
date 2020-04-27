@@ -99,7 +99,7 @@ function(_nuget_helper_error_if_unparsed_args
 endfunction()
 
 ## Internal.
-function(_nuget_helper_get_internal_cache_variables_with_prefix PREFIX OUT_VARIABLES)
+function(_nuget_helper_get_cache_variables_with_prefix_and_type PREFIX TYPE OUT_VARIABLES)
     get_cmake_property(QUERIED_VARIABLES CACHE_VARIABLES)
     set(PREFIX_FILTERED_VARIABLES "")
     foreach(QUERIED_VARIABLE IN LISTS QUERIED_VARIABLES)
@@ -111,9 +111,24 @@ function(_nuget_helper_get_internal_cache_variables_with_prefix PREFIX OUT_VARIA
     set(PREFIX_AND_TYPE_FILTERED_VARIABLES "")
     foreach(PREFIX_FILTERED_VARIABLE IN LISTS PREFIX_FILTERED_VARIABLES)
         get_property(PREFIX_FILTERED_VARIABLE_TYPE CACHE "${PREFIX_FILTERED_VARIABLE}" PROPERTY TYPE)
-        if("${PREFIX_FILTERED_VARIABLE_TYPE}" STREQUAL "INTERNAL")
+        if("${PREFIX_FILTERED_VARIABLE_TYPE}" STREQUAL "${TYPE}")
+            list(APPEND PREFIX_AND_TYPE_FILTERED_VARIABLES "${PREFIX_FILTERED_VARIABLE}")
+        elseif("${TYPE}" MATCHES "[ \r\n\t]*")
             list(APPEND PREFIX_AND_TYPE_FILTERED_VARIABLES "${PREFIX_FILTERED_VARIABLE}")
         endif()
     endforeach()
     set("${OUT_VARIABLES}" "${PREFIX_AND_TYPE_FILTERED_VARIABLES}" PARENT_SCOPE)
+endfunction()
+
+## Internal.
+function(_nuget_helper_get_internal_cache_variables_with_prefix PREFIX OUT_VARIABLES)
+    _nuget_helper_get_cache_variables_with_prefix_and_type("${PREFIX}" INTERNAL "${OUT_VARIABLES}")
+endfunction()
+
+## Internal.
+function(_nuget_helper_unset_cache_variables_with_prefix_and_type PREFIX TYPE)
+    _nuget_helper_get_cache_variables_with_prefix_and_type("${PREFIX}" "${TYPE}" OUT_VARIABLES)
+    foreach(OUT_VARIABLE IN LISTS OUT_VARIABLES)
+        unset("${OUT_VARIABLE}" CACHE)
+    endforeach()
 endfunction()
