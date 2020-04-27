@@ -63,10 +63,17 @@ endfunction()
 ## Internal. Assembles the package directory based off of the given args and the 
 ## NUGET_PACKAGES_DIR cache variable.
 function(_nuget_helper_get_packages_dir PACKAGE_ID PACKAGE_VERSION OUT_PACKAGE_DIR)
-    set(${OUT_PACKAGE_DIR}
-        "${NUGET_PACKAGES_DIR}/${PACKAGE_ID}.${PACKAGE_VERSION}"
-        PARENT_SCOPE
-    )
+    if(NUGET_EXCLUDE_VERSION)
+        set(${OUT_PACKAGE_DIR}
+            "${NUGET_PACKAGES_DIR}/${PACKAGE_ID}"
+            PARENT_SCOPE
+        )
+    else()
+        set(${OUT_PACKAGE_DIR}
+            "${NUGET_PACKAGES_DIR}/${PACKAGE_ID}.${PACKAGE_VERSION}"
+            PARENT_SCOPE
+        )
+    endif()
 endfunction()
 
 ## Internal.
@@ -122,7 +129,8 @@ endfunction()
 
 ## Internal.
 function(_nuget_helper_get_internal_cache_variables_with_prefix PREFIX OUT_VARIABLES)
-    _nuget_helper_get_cache_variables_with_prefix_and_type("${PREFIX}" INTERNAL "${OUT_VARIABLES}")
+    _nuget_helper_get_cache_variables_with_prefix_and_type("${PREFIX}" INTERNAL OUT_VARIABLES_INTERNAL)
+    set("${OUT_VARIABLES}" "${OUT_VARIABLES_INTERNAL}" PARENT_SCOPE)
 endfunction()
 
 ## Internal.

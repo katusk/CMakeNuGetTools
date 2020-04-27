@@ -18,6 +18,10 @@ option(NUGET_DIRECT_DOWNLOAD
 set(NUGET_PACKAGE_SAVE_MODE "" CACHE STRING
     "Add -PackageSaveMode option with passed value if non-empty to NuGet install commands: \"Specifies types of files to save after package installation: nuspec, nupkg, nuspec;nupkg.\""
 )
+option(NUGET_EXCLUDE_VERSION
+    "Add -ExcludeVersion option to NuGet install commands: \"If set, the destination folder will contain only the package name, not the version number.\" This is required if you want to avoid very inconvenient error messages like cannot include CMAKE_TOOLCHAIN_FILE or having invalid find_package() cache entries."
+    TRUE
+)
 
 ## Includes
 include("${CMAKE_CURRENT_LIST_DIR}/internal/NuGetTools.helper.cmake")
