@@ -15,7 +15,7 @@ function(_nuget_git_parse_git_describe
     # https://git-scm.com/docs/git-describe#Documentation/git-describe.txt---first-parent
     execute_process(
         COMMAND "${GIT_EXECUTABLE}" describe --tags --long --match "${GIT_TAG_PREFIX}*"
-        WORKING_DIRECTORY "${PROJECT_SOURCE_DIR}"
+        WORKING_DIRECTORY "${CMAKE_CURRENT_LIST_DIR}"
         OUTPUT_VARIABLE GIT_DESCRIBE_OUTPUT
         ERROR_VARIABLE GIT_DESCRIBE_ERROR_VAR
         RESULT_VARIABLE GIT_DESCRIBE_RESULT_VAR
@@ -49,7 +49,7 @@ function(nuget_git_get_current_branch_name BRANCH_NAME_OUT)
     endif()
     execute_process(
         COMMAND "${GIT_EXECUTABLE}" rev-parse --abbrev-ref HEAD
-        WORKING_DIRECTORY "${PROJECT_SOURCE_DIR}"
+        WORKING_DIRECTORY "${CMAKE_CURRENT_LIST_DIR}"
         OUTPUT_VARIABLE GIT_BRANCH_OUTPUT
         ERROR_VARIABLE GIT_BRANCH_ERROR_VAR
         RESULT_VARIABLE GIT_BRANCH_RESULT_VAR
@@ -70,7 +70,7 @@ function(nuget_git_get_current_commit_sha1 HEAD_COMMIT_SHA1_OUT)
     endif()
     execute_process(
         COMMAND "${GIT_EXECUTABLE}" rev-parse --verify HEAD
-        WORKING_DIRECTORY "${PROJECT_SOURCE_DIR}"
+        WORKING_DIRECTORY "${CMAKE_CURRENT_LIST_DIR}"
         OUTPUT_VARIABLE GIT_HEAD_COMMIT_OUTPUT
         ERROR_VARIABLE GIT_HEAD_COMMIT_ERROR_VAR
         RESULT_VARIABLE GIT_HEAD_COMMIT_RESULT_VAR
@@ -91,7 +91,7 @@ function(nuget_git_get_remote_url REMOTE_URL_OUT)
     endif()
     execute_process(
         COMMAND "${GIT_EXECUTABLE}" ls-remote --get-url
-        WORKING_DIRECTORY "${PROJECT_SOURCE_DIR}"
+        WORKING_DIRECTORY "${CMAKE_CURRENT_LIST_DIR}"
         OUTPUT_VARIABLE GIT_REMOTE_URL_OUTPUT
         ERROR_VARIABLE GIT_REMOTE_URL_ERROR_VAR
         RESULT_VARIABLE GIT_REMOTE_URL_RESULT_VAR
