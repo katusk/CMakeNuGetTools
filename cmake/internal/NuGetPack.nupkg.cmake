@@ -1,5 +1,5 @@
 ## Internal.
-function(_nuget_pack NUSPEC_FILEPATH OUTPUT_DIRECTORY VERSION_OVERRIDE)
+function(_nuget_pack_internal NUSPEC_FILEPATH OUTPUT_DIRECTORY VERSION_OVERRIDE)
     # Inputs
     _nuget_helper_error_if_empty("${NUGET_COMMAND}"
         "No NuGet executable was provided; this means NuGetTools should have been disabled, and "
@@ -29,7 +29,7 @@ function(_nuget_pack NUSPEC_FILEPATH OUTPUT_DIRECTORY VERSION_OVERRIDE)
 endfunction()
 
 ## Internal.
-function(_nuget_pack_install
+function(_nuget_pack_install_internal
     PACKAGE_ID
     PACKAGE_VERSION
     OUTPUT_DIRECTORY
