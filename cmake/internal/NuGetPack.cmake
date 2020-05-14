@@ -79,7 +79,7 @@ function(nuget_pack)
     nuget_internal_helper_error_if_empty("${_arg_NUSPEC_FILEPATH}" "You must provide a filepath to a .nuspec file as a NUSPEC_FILEPATH argument.")
     nuget_internal_helper_error_if_empty("${_arg_OUTPUT_DIRECTORY}" "You must provide an output directory where the .nupkg is created as an OUTPUT_DIRECTORY argument.")
     # Actual functionality
-    nuget_internal_pack_internal("${_arg_NUSPEC_FILEPATH}" "${_arg_OUTPUT_DIRECTORY}" "${_arg_VERSION_OVERRIDE}")
+    nuget_internal_pack("${_arg_NUSPEC_FILEPATH}" "${_arg_OUTPUT_DIRECTORY}" "${_arg_VERSION_OVERRIDE}")
 endfunction()
 
 ## Public interface.
@@ -105,5 +105,5 @@ function(nuget_pack_install)
     nuget_internal_helper_error_if_empty("${_arg_OUTPUT_DIRECTORY}" "OUTPUT_DIRECTORY must be non-empty.")
     nuget_internal_helper_error_if_empty("${_arg_SOURCE}" "SOURCE must be non-empty.")
     # Actual functionality
-    nuget_internal_pack_install_internal("${_arg_PACKAGE}" "${_arg_VERSION}" "${_arg_OUTPUT_DIRECTORY}" "${_arg_SOURCE}")
+    nuget_internal_pack_install("${_arg_PACKAGE}" "${_arg_VERSION}" "${_arg_OUTPUT_DIRECTORY}" "${_arg_SOURCE}")
 endfunction()
