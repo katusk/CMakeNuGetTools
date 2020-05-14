@@ -15,7 +15,7 @@ function(nuget_internal_pack NUSPEC_FILEPATH OUTPUT_DIRECTORY VERSION_OVERRIDE)
             ${VERSION_OVERRIDE}
             -NonInteractive
             -NoDefaultExcludes
-            -NoPackageAnalysis
+            # Consider -NoPackageAnalysis as option (default FALSE)
         ERROR_VARIABLE
             NUGET_PACK_ERROR_VAR
         RESULT_VARIABLE
