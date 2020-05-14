@@ -27,7 +27,7 @@ function(_nuget_git_parse_git_describe
     endif()
     # Parse output of Git describe
     set(REGEX_NUMBER "0|[1-9][0-9]*")
-    set(REGEX_SHA "[0-9a-g]+")
+    set(REGEX_SHA "g[0-9a-f]+") # See https://stackoverflow.com/questions/39612846/what-does-the-hash-from-git-describe-refer-to 
     set(REGEX_GIT_DESCRIBE "^${GIT_TAG_PREFIX}(.*)-(${REGEX_NUMBER})-(${REGEX_SHA})$")
     string(REGEX MATCH "${REGEX_GIT_DESCRIBE}" MATCH_GIT_DESCRIBE "${GIT_DESCRIBE_OUTPUT}")
     _nuget_helper_error_if_empty("${MATCH_GIT_DESCRIBE}" "Cannot match \"${GIT_DESCRIBE_OUTPUT}\" with \"${REGEX_GIT_DESCRIBE}\": ")
