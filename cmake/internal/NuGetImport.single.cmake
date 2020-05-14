@@ -4,15 +4,15 @@ function(nuget_internal_single_register_as_interface)
     set(options INTERFACE)
     set(oneValueArgs PACKAGE VERSION)
     set(multiValueArgs "")
-    cmake_parse_arguments(_arg
+    cmake_parse_arguments(NUARG
         "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGV}
     )
     nuget_internal_helper_error_if_unparsed_args(
-        "${_arg_UNPARSED_ARGUMENTS}"
-        "${_arg_KEYWORDS_MISSING_VALUES}"
+        "${NUARG_UNPARSED_ARGUMENTS}"
+        "${NUARG_KEYWORDS_MISSING_VALUES}"
     )
     # Actual functionality
-    nuget_internal_core_register("${_arg_PACKAGE}" "${_arg_VERSION}" INTERFACE)
+    nuget_internal_core_register("${NUARG_PACKAGE}" "${NUARG_VERSION}" INTERFACE)
 endfunction()
 
 # Internal. See arguments below. This should be called if IMPORT_DOT_TARGETS or IMPORT_DOT_TARGETS_AS
@@ -22,16 +22,16 @@ function(nuget_internal_single_import_dot_targets)
     set(options PUBLIC PRIVATE IMPORT_DOT_TARGETS)
     set(oneValueArgs PACKAGE VERSION IMPORT_DOT_TARGETS_AS)
     set(multiValueArgs INCLUDE_DIRS)
-    cmake_parse_arguments(_arg
+    cmake_parse_arguments(NUARG
         "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGV}
     )
     nuget_internal_helper_error_if_unparsed_args(
-        "${_arg_UNPARSED_ARGUMENTS}"
-        "${_arg_KEYWORDS_MISSING_VALUES}"
+        "${NUARG_UNPARSED_ARGUMENTS}"
+        "${NUARG_KEYWORDS_MISSING_VALUES}"
     )
     # Stricter validation
-    if(_arg_PUBLIC)
-        if(_arg_PRIVATE)
+    if(NUARG_PUBLIC)
+        if(NUARG_PRIVATE)
             message(FATAL_ERROR "PUBLIC and PRIVATE usage requirement options are mutually exclusive.")
         endif()
         set(USAGE_REQUIREMENT PUBLIC)
@@ -39,13 +39,13 @@ function(nuget_internal_single_import_dot_targets)
         set(USAGE_REQUIREMENT PRIVATE) # Default
     endif()
     # Actual functionality
-    nuget_internal_core_register("${_arg_PACKAGE}" "${_arg_VERSION}" "${USAGE_REQUIREMENT}")
-    nuget_internal_core_install("${_arg_PACKAGE}" "${_arg_VERSION}")
+    nuget_internal_core_register("${NUARG_PACKAGE}" "${NUARG_VERSION}" "${USAGE_REQUIREMENT}")
+    nuget_internal_core_install("${NUARG_PACKAGE}" "${NUARG_VERSION}")
     nuget_internal_core_import_dot_targets(
-        "${_arg_PACKAGE}"
-        "${_arg_VERSION}"
-        "${_arg_IMPORT_DOT_TARGETS_AS}"
-        "${_arg_INCLUDE_DIRS}"
+        "${NUARG_PACKAGE}"
+        "${NUARG_VERSION}"
+        "${NUARG_IMPORT_DOT_TARGETS_AS}"
+        "${NUARG_INCLUDE_DIRS}"
     )
 endfunction()
 
@@ -61,16 +61,16 @@ function(nuget_internal_single_import_cmake_exports)
     set(options PUBLIC PRIVATE IMPORT_CMAKE_EXPORTS CMAKE_APPEND_PATHS)
     set(oneValueArgs PACKAGE VERSION CMAKE_TOOLCHAIN_FILE)
     set(multiValueArgs CMAKE_PREFIX_PATHS CMAKE_MODULE_PATHS)
-    cmake_parse_arguments(_arg
+    cmake_parse_arguments(NUARG
         "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGV}
     )
     nuget_internal_helper_error_if_unparsed_args(
-        "${_arg_UNPARSED_ARGUMENTS}"
-        "${_arg_KEYWORDS_MISSING_VALUES}"
+        "${NUARG_UNPARSED_ARGUMENTS}"
+        "${NUARG_KEYWORDS_MISSING_VALUES}"
     )
     # Stricter validation
-    if(_arg_PUBLIC)
-        if(_arg_PRIVATE)
+    if(NUARG_PUBLIC)
+        if(NUARG_PRIVATE)
             message(FATAL_ERROR "PUBLIC and PRIVATE usage requirement options are mutually exclusive.")
         endif()
         set(USAGE_REQUIREMENT PUBLIC)
@@ -78,15 +78,15 @@ function(nuget_internal_single_import_cmake_exports)
         set(USAGE_REQUIREMENT PRIVATE) # Default
     endif()
     # Actual functionality
-    nuget_internal_core_register("${_arg_PACKAGE}" "${_arg_VERSION}" "${USAGE_REQUIREMENT}")
-    nuget_internal_core_install("${_arg_PACKAGE}" "${_arg_VERSION}")
+    nuget_internal_core_register("${NUARG_PACKAGE}" "${NUARG_VERSION}" "${USAGE_REQUIREMENT}")
+    nuget_internal_core_install("${NUARG_PACKAGE}" "${NUARG_VERSION}")
     nuget_internal_core_import_cmake_exports(
-        "${_arg_PACKAGE}"
-        "${_arg_VERSION}"
-        "${_arg_CMAKE_PREFIX_PATHS}"
-        "${_arg_CMAKE_MODULE_PATHS}"
-        "${_arg_CMAKE_APPEND_PATHS}"
-        "${_arg_CMAKE_TOOLCHAIN_FILE}"
+        "${NUARG_PACKAGE}"
+        "${NUARG_VERSION}"
+        "${NUARG_CMAKE_PREFIX_PATHS}"
+        "${NUARG_CMAKE_MODULE_PATHS}"
+        "${NUARG_CMAKE_APPEND_PATHS}"
+        "${NUARG_CMAKE_TOOLCHAIN_FILE}"
     )
 endfunction()
 

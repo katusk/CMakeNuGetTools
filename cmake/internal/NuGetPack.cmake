@@ -45,17 +45,17 @@ function(nuget_merge_nuspec_files)
     set(options "")
     set(oneValueArgs OUTPUT)
     set(multiValueArgs INPUTS)
-    cmake_parse_arguments(_arg
+    cmake_parse_arguments(NUARG
         "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGV}
     )
     nuget_internal_helper_error_if_unparsed_args(
-        "${_arg_UNPARSED_ARGUMENTS}"
-        "${_arg_KEYWORDS_MISSING_VALUES}"
+        "${NUARG_UNPARSED_ARGUMENTS}"
+        "${NUARG_KEYWORDS_MISSING_VALUES}"
     )
-    nuget_internal_helper_error_if_empty("${_arg_OUTPUT}" "You must provide a filepath as an OUTPUT argument.")
-    nuget_internal_helper_error_if_empty("${_arg_INPUTS}" "You must provide at least one filepath to a .nuspec file as an INPUTS argument.")
+    nuget_internal_helper_error_if_empty("${NUARG_OUTPUT}" "You must provide a filepath as an OUTPUT argument.")
+    nuget_internal_helper_error_if_empty("${NUARG_INPUTS}" "You must provide at least one filepath to a .nuspec file as an INPUTS argument.")
     # Actual functionality
-    nuget_internal_merge_n_nuspec_files("${_arg_OUTPUT}" ${_arg_INPUTS})
+    nuget_internal_merge_n_nuspec_files("${NUARG_OUTPUT}" ${NUARG_INPUTS})
 endfunction()
 
 ## Public interface.
@@ -69,17 +69,17 @@ function(nuget_pack)
     set(options "")
     set(oneValueArgs NUSPEC_FILEPATH OUTPUT_DIRECTORY VERSION_OVERRIDE)
     set(multiValueArgs "")
-    cmake_parse_arguments(_arg
+    cmake_parse_arguments(NUARG
         "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGV}
     )
     nuget_internal_helper_error_if_unparsed_args(
-        "${_arg_UNPARSED_ARGUMENTS}"
-        "${_arg_KEYWORDS_MISSING_VALUES}"
+        "${NUARG_UNPARSED_ARGUMENTS}"
+        "${NUARG_KEYWORDS_MISSING_VALUES}"
     )
-    nuget_internal_helper_error_if_empty("${_arg_NUSPEC_FILEPATH}" "You must provide a filepath to a .nuspec file as a NUSPEC_FILEPATH argument.")
-    nuget_internal_helper_error_if_empty("${_arg_OUTPUT_DIRECTORY}" "You must provide an output directory where the .nupkg is created as an OUTPUT_DIRECTORY argument.")
+    nuget_internal_helper_error_if_empty("${NUARG_NUSPEC_FILEPATH}" "You must provide a filepath to a .nuspec file as a NUSPEC_FILEPATH argument.")
+    nuget_internal_helper_error_if_empty("${NUARG_OUTPUT_DIRECTORY}" "You must provide an output directory where the .nupkg is created as an OUTPUT_DIRECTORY argument.")
     # Actual functionality
-    nuget_internal_pack("${_arg_NUSPEC_FILEPATH}" "${_arg_OUTPUT_DIRECTORY}" "${_arg_VERSION_OVERRIDE}")
+    nuget_internal_pack("${NUARG_NUSPEC_FILEPATH}" "${NUARG_OUTPUT_DIRECTORY}" "${NUARG_VERSION_OVERRIDE}")
 endfunction()
 
 ## Public interface.
@@ -93,17 +93,17 @@ function(nuget_pack_install)
     set(options "")
     set(oneValueArgs PACKAGE VERSION OUTPUT_DIRECTORY SOURCE)
     set(multiValueArgs "")
-    cmake_parse_arguments(_arg
+    cmake_parse_arguments(NUARG
         "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGV}
     )
     nuget_internal_helper_error_if_unparsed_args(
-        "${_arg_UNPARSED_ARGUMENTS}"
-        "${_arg_KEYWORDS_MISSING_VALUES}"
+        "${NUARG_UNPARSED_ARGUMENTS}"
+        "${NUARG_KEYWORDS_MISSING_VALUES}"
     )
-    nuget_internal_helper_error_if_empty("${_arg_PACKAGE}" "PACKAGE_ID must be non-empty.")
-    nuget_internal_helper_error_if_empty("${_arg_VERSION}" "PACKAGE_VERSION must be non-empty.")
-    nuget_internal_helper_error_if_empty("${_arg_OUTPUT_DIRECTORY}" "OUTPUT_DIRECTORY must be non-empty.")
-    nuget_internal_helper_error_if_empty("${_arg_SOURCE}" "SOURCE must be non-empty.")
+    nuget_internal_helper_error_if_empty("${NUARG_PACKAGE}" "PACKAGE_ID must be non-empty.")
+    nuget_internal_helper_error_if_empty("${NUARG_VERSION}" "PACKAGE_VERSION must be non-empty.")
+    nuget_internal_helper_error_if_empty("${NUARG_OUTPUT_DIRECTORY}" "OUTPUT_DIRECTORY must be non-empty.")
+    nuget_internal_helper_error_if_empty("${NUARG_SOURCE}" "SOURCE must be non-empty.")
     # Actual functionality
-    nuget_internal_pack_install("${_arg_PACKAGE}" "${_arg_VERSION}" "${_arg_OUTPUT_DIRECTORY}" "${_arg_SOURCE}")
+    nuget_internal_pack_install("${NUARG_PACKAGE}" "${NUARG_VERSION}" "${NUARG_OUTPUT_DIRECTORY}" "${NUARG_SOURCE}")
 endfunction()

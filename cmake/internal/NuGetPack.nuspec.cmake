@@ -6,40 +6,40 @@ function(nuget_internal_nuspec_process_metadata_args NUSPEC_INDENT_SIZE NUSPEC_C
         REPOSITORY_TYPE REPOSITORY_URL REPOSITORY_BRANCH REPOSITORY_COMMIT
     )
     set(multiValueArgs AUTHORS)
-    cmake_parse_arguments(_arg
+    cmake_parse_arguments(NUARG
         "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN}
     )
     nuget_internal_helper_error_if_unparsed_args(
-        "${_arg_UNPARSED_ARGUMENTS}"
-        "${_arg_KEYWORDS_MISSING_VALUES}"
+        "${NUARG_UNPARSED_ARGUMENTS}"
+        "${NUARG_KEYWORDS_MISSING_VALUES}"
     )
     # See https://docs.microsoft.com/en-us/nuget/reference/nuspec#general-form-and-schema for below requirements
-    if(NOT _arg_METADATA)
+    if(NOT NUARG_METADATA)
         message(FATAL_ERROR "METADATA identifier is not found: it is a required element (/package/metadata) of a .nuspec XML file.")
     endif()
-    nuget_internal_helper_error_if_empty("${_arg_PACKAGE}" "PACKAGE must not be empty: it is a required element (/package/metadata/id) of a .nuspec XML file.")
-    nuget_internal_helper_error_if_empty("${_arg_VERSION}" "VERSION must not be empty: it is a required element (/package/metadata/version) of a .nuspec XML file.")
-    nuget_internal_helper_error_if_empty("${_arg_DESCRIPTION}" "DESCRIPTION must not be empty: it is a required element (/package/metadata/description) of a .nuspec XML file.")
-    nuget_internal_helper_error_if_empty("${_arg_AUTHORS}" "AUTHORS must not be empty: it is a required element (/package/metadata/authors) of a .nuspec XML file.")
+    nuget_internal_helper_error_if_empty("${NUARG_PACKAGE}" "PACKAGE must not be empty: it is a required element (/package/metadata/id) of a .nuspec XML file.")
+    nuget_internal_helper_error_if_empty("${NUARG_VERSION}" "VERSION must not be empty: it is a required element (/package/metadata/version) of a .nuspec XML file.")
+    nuget_internal_helper_error_if_empty("${NUARG_DESCRIPTION}" "DESCRIPTION must not be empty: it is a required element (/package/metadata/description) of a .nuspec XML file.")
+    nuget_internal_helper_error_if_empty("${NUARG_AUTHORS}" "AUTHORS must not be empty: it is a required element (/package/metadata/authors) of a .nuspec XML file.")
     # Actual functionality
     # Begin /package/metadata
     string(APPEND NUSPEC_CONTENT "\n${NUSPEC_INDENT_SIZE}<metadata>")
     set(NUSPEC_SUBELEMENT_INDENT_SIZE "${NUSPEC_INDENT_SIZE}${NUGET_NUSPEC_INDENT_SIZE}")
     # Required metadata subelements
-    string(APPEND NUSPEC_CONTENT "\n${NUSPEC_SUBELEMENT_INDENT_SIZE}<id>${_arg_PACKAGE}</id>")
-    string(APPEND NUSPEC_CONTENT "\n${NUSPEC_SUBELEMENT_INDENT_SIZE}<version>${_arg_VERSION}</version>")
-    string(APPEND NUSPEC_CONTENT "\n${NUSPEC_SUBELEMENT_INDENT_SIZE}<description>${_arg_DESCRIPTION}</description>")
-    string(REPLACE ";" "," AUTHORS "${_arg_AUTHORS}")
+    string(APPEND NUSPEC_CONTENT "\n${NUSPEC_SUBELEMENT_INDENT_SIZE}<id>${NUARG_PACKAGE}</id>")
+    string(APPEND NUSPEC_CONTENT "\n${NUSPEC_SUBELEMENT_INDENT_SIZE}<version>${NUARG_VERSION}</version>")
+    string(APPEND NUSPEC_CONTENT "\n${NUSPEC_SUBELEMENT_INDENT_SIZE}<description>${NUARG_DESCRIPTION}</description>")
+    string(REPLACE ";" "," AUTHORS "${NUARG_AUTHORS}")
     string(APPEND NUSPEC_CONTENT "\n${NUSPEC_SUBELEMENT_INDENT_SIZE}<authors>${AUTHORS}</authors>")
     # Optional simple metadata subelements
-    if(NOT "${_arg_PROJECT_URL}" STREQUAL "")
-        string(APPEND NUSPEC_CONTENT "\n${NUSPEC_SUBELEMENT_INDENT_SIZE}<projectUrl>${_arg_PROJECT_URL}</projectUrl>")
+    if(NOT "${NUARG_PROJECT_URL}" STREQUAL "")
+        string(APPEND NUSPEC_CONTENT "\n${NUSPEC_SUBELEMENT_INDENT_SIZE}<projectUrl>${NUARG_PROJECT_URL}</projectUrl>")
     endif()
-    if(NOT "${_arg_ICON}" STREQUAL "")
-        string(APPEND NUSPEC_CONTENT "\n${NUSPEC_SUBELEMENT_INDENT_SIZE}<icon>${_arg_ICON}</icon>")
+    if(NOT "${NUARG_ICON}" STREQUAL "")
+        string(APPEND NUSPEC_CONTENT "\n${NUSPEC_SUBELEMENT_INDENT_SIZE}<icon>${NUARG_ICON}</icon>")
     endif()
-    if(NOT "${_arg_COPYRIGHT}" STREQUAL "")
-        string(APPEND NUSPEC_CONTENT "\n${NUSPEC_SUBELEMENT_INDENT_SIZE}<copyright>${_arg_COPYRIGHT}</copyright>")
+    if(NOT "${NUARG_COPYRIGHT}" STREQUAL "")
+        string(APPEND NUSPEC_CONTENT "\n${NUSPEC_SUBELEMENT_INDENT_SIZE}<copyright>${NUARG_COPYRIGHT}</copyright>")
     endif()
     # Optional complex metadata subelements
     # Begin /package/metadata/repository
@@ -47,17 +47,17 @@ function(nuget_internal_nuspec_process_metadata_args NUSPEC_INDENT_SIZE NUSPEC_C
     set(NUSPEC_REPOSITORY_CONTENT_END " />")
     set(NUSPEC_REPOSITORY_CONTENT "${NUSPEC_REPOSITORY_CONTENT_BEGIN}")
     # Attributes of /package/metadata/repository
-    if(NOT "${_arg_REPOSITORY_TYPE}" STREQUAL "")
-        string(APPEND NUSPEC_REPOSITORY_CONTENT " type=\"${_arg_REPOSITORY_TYPE}\"")
+    if(NOT "${NUARG_REPOSITORY_TYPE}" STREQUAL "")
+        string(APPEND NUSPEC_REPOSITORY_CONTENT " type=\"${NUARG_REPOSITORY_TYPE}\"")
     endif()
-    if(NOT "${_arg_REPOSITORY_URL}" STREQUAL "")
-        string(APPEND NUSPEC_REPOSITORY_CONTENT " url=\"${_arg_REPOSITORY_URL}\"")
+    if(NOT "${NUARG_REPOSITORY_URL}" STREQUAL "")
+        string(APPEND NUSPEC_REPOSITORY_CONTENT " url=\"${NUARG_REPOSITORY_URL}\"")
     endif()
-    if(NOT "${_arg_REPOSITORY_BRANCH}" STREQUAL "")
-        string(APPEND NUSPEC_REPOSITORY_CONTENT " branch=\"${_arg_REPOSITORY_BRANCH}\"")
+    if(NOT "${NUARG_REPOSITORY_BRANCH}" STREQUAL "")
+        string(APPEND NUSPEC_REPOSITORY_CONTENT " branch=\"${NUARG_REPOSITORY_BRANCH}\"")
     endif()
-    if(NOT "${_arg_REPOSITORY_COMMIT}" STREQUAL "")
-        string(APPEND NUSPEC_REPOSITORY_CONTENT " commit=\"${_arg_REPOSITORY_COMMIT}\"")
+    if(NOT "${NUARG_REPOSITORY_COMMIT}" STREQUAL "")
+        string(APPEND NUSPEC_REPOSITORY_CONTENT " commit=\"${NUARG_REPOSITORY_COMMIT}\"")
     endif()
     # End /package/metadata/repository
     string(APPEND NUSPEC_REPOSITORY_CONTENT "${NUSPEC_REPOSITORY_CONTENT_END}")
@@ -71,7 +71,7 @@ function(nuget_internal_nuspec_process_metadata_args NUSPEC_INDENT_SIZE NUSPEC_C
     # End /package/metadata
     string(APPEND NUSPEC_CONTENT "\n${NUSPEC_INDENT_SIZE}</metadata>")
     set(${OUT_NUSPEC_CONTENT} "${NUSPEC_CONTENT}" PARENT_SCOPE)
-    set(${OUT_PACKAGE_ID} "${_arg_PACKAGE}" PARENT_SCOPE)
+    set(${OUT_PACKAGE_ID} "${NUARG_PACKAGE}" PARENT_SCOPE)
 endfunction()
 
 ## Internal. Section: /package/metadata/dependencies in .nuspec XML file.
@@ -173,25 +173,25 @@ function(nuget_internal_nuspec_add_file_conditionally NUSPEC_INDENT_SIZE NUSPEC_
     set(options "")
     set(oneValueArgs FILE_SRC FILE_TARGET)
     set(multiValueArgs FILE_EXCLUDE)
-    cmake_parse_arguments(_arg
+    cmake_parse_arguments(NUARG
         "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN}
     )
     nuget_internal_helper_error_if_unparsed_args(
-        "${_arg_UNPARSED_ARGUMENTS}"
-        "${_arg_KEYWORDS_MISSING_VALUES}"
+        "${NUARG_UNPARSED_ARGUMENTS}"
+        "${NUARG_KEYWORDS_MISSING_VALUES}"
     )
-    nuget_internal_helper_error_if_empty("${_arg_FILE_SRC}"
+    nuget_internal_helper_error_if_empty("${NUARG_FILE_SRC}"
         "FILE_SRC must not be empty: it is a required attribute (src) of "
         "a .nuspec XML file's /package/files/file element."
     )
     # Actual functionality
     string(APPEND NUSPEC_CONTENT "\n${NUSPEC_INDENT_SIZE}<file")
-    string(APPEND NUSPEC_CONTENT " src=\"${_arg_FILE_SRC}\"")
-    if(NOT "${_arg_FILE_TARGET}" STREQUAL "")
-        string(APPEND NUSPEC_CONTENT " target=\"${_arg_FILE_TARGET}\"")
+    string(APPEND NUSPEC_CONTENT " src=\"${NUARG_FILE_SRC}\"")
+    if(NOT "${NUARG_FILE_TARGET}" STREQUAL "")
+        string(APPEND NUSPEC_CONTENT " target=\"${NUARG_FILE_TARGET}\"")
     endif()
-    if(NOT "${_arg_FILE_EXCLUDE}" STREQUAL "")
-        string(APPEND NUSPEC_CONTENT " exclude=\"${_arg_FILE_EXCLUDE}\"")
+    if(NOT "${NUARG_FILE_EXCLUDE}" STREQUAL "")
+        string(APPEND NUSPEC_CONTENT " exclude=\"${NUARG_FILE_EXCLUDE}\"")
     endif()
     string(APPEND NUSPEC_CONTENT " /$<ANGLE-R>")
     set(${OUT_NUSPEC_CONTENT} "${NUSPEC_CONTENT}" PARENT_SCOPE)
@@ -211,31 +211,31 @@ function(nuget_internal_nuspec_generate_output NUSPEC_CONTENT PACKAGE_ID)
     set(options "")
     set(oneValueArgs CMAKE_OUTPUT_DIR)
     set(multiValueArgs CMAKE_CONFIGURATIONS)
-    cmake_parse_arguments(_arg
+    cmake_parse_arguments(NUARG
         "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN}
     )
     nuget_internal_helper_error_if_unparsed_args(
-        "${_arg_UNPARSED_ARGUMENTS}"
-        "${_arg_KEYWORDS_MISSING_VALUES}"
+        "${NUARG_UNPARSED_ARGUMENTS}"
+        "${NUARG_KEYWORDS_MISSING_VALUES}"
     )
-    if("${_arg_CMAKE_OUTPUT_DIR}" STREQUAL "")
+    if("${NUARG_CMAKE_OUTPUT_DIR}" STREQUAL "")
         set(OUTPUT_FILE "${CMAKE_BINARY_DIR}/CMakeNuGetTools/nuspec/${PACKAGE_ID}.$<CONFIG>.nuspec")
     else()
-        set(OUTPUT_FILE "${_arg_CMAKE_OUTPUT_DIR}/${PACKAGE_ID}.$<CONFIG>.nuspec")
+        set(OUTPUT_FILE "${NUARG_CMAKE_OUTPUT_DIR}/${PACKAGE_ID}.$<CONFIG>.nuspec")
     endif()
     # Actual functionality
-    if("${_arg_CMAKE_CONFIGURATIONS}" STREQUAL "")
+    if("${NUARG_CMAKE_CONFIGURATIONS}" STREQUAL "")
         file(GENERATE OUTPUT "${OUTPUT_FILE}" CONTENT "${NUSPEC_CONTENT}")
         message(STATUS "Written \"${OUTPUT_FILE}\" file(s).")
     else()
         set(CONDITIONS "$<OR:")
-        foreach(CONFIGURATION IN LISTS _arg_CMAKE_CONFIGURATIONS)
+        foreach(CONFIGURATION IN LISTS NUARG_CMAKE_CONFIGURATIONS)
             string(APPEND CONDITIONS "${CONDITIONS_SEPARATOR}$<CONFIG:${CONFIGURATION}>")
             set(CONDITIONS_SEPARATOR ",")
         endforeach()
         string(APPEND CONDITIONS ">")
         file(GENERATE OUTPUT "${OUTPUT_FILE}" CONTENT "${NUSPEC_CONTENT}" CONDITION "${CONDITIONS}")
-        message(STATUS "Written \"${OUTPUT_FILE}\" file(s) for \"${_arg_CMAKE_CONFIGURATIONS}\" configuration(s).")
+        message(STATUS "Written \"${OUTPUT_FILE}\" file(s) for \"${NUARG_CMAKE_CONFIGURATIONS}\" configuration(s).")
     endif()
 endfunction()
 
