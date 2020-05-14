@@ -1,9 +1,9 @@
 ## Internal.
-function(_nuget_pack_internal NUSPEC_FILEPATH OUTPUT_DIRECTORY VERSION_OVERRIDE)
+function(nuget_internal_pack_internal NUSPEC_FILEPATH OUTPUT_DIRECTORY VERSION_OVERRIDE)
     # Inputs
-    _nuget_helper_error_if_empty("${NUGET_COMMAND}"
+    nuget_internal_helper_error_if_empty("${NUGET_COMMAND}"
         "No NuGet executable was provided; this means NuGetTools should have been disabled, and "
-        "we should not ever reach a call to _nuget_pack()."
+        "we should not ever reach a call to nuget_internal_pack()."
     )
     if(NOT "${VERSION_OVERRIDE}" STREQUAL "")
         set(VERSION_OVERRIDE "-Version ${VERSION_OVERRIDE}")
@@ -21,7 +21,7 @@ function(_nuget_pack_internal NUSPEC_FILEPATH OUTPUT_DIRECTORY VERSION_OVERRIDE)
         RESULT_VARIABLE
             NUGET_PACK_RESULT_VAR
     )
-    _nuget_helper_error_if_not_empty(
+    nuget_internal_helper_error_if_not_empty(
         "${NUGET_PACK_ERROR_VAR}"
         "Running NuGet pack based on \"${NUSPEC_FILEPATH}\" encountered some errors: "
     )
@@ -31,16 +31,16 @@ function(_nuget_pack_internal NUSPEC_FILEPATH OUTPUT_DIRECTORY VERSION_OVERRIDE)
 endfunction()
 
 ## Internal.
-function(_nuget_pack_install_internal
+function(nuget_internal_pack_install_internal
     PACKAGE_ID
     PACKAGE_VERSION
     OUTPUT_DIRECTORY
     SOURCE
 )
     # Inputs
-    _nuget_helper_error_if_empty("${NUGET_COMMAND}"
+    nuget_internal_helper_error_if_empty("${NUGET_COMMAND}"
         "No NuGet executable was provided; this means NuGetTools should have been disabled, and "
-        "we should not ever reach a call to _nuget_pack_install()."
+        "we should not ever reach a call to nuget_internal_pack_install()."
     )
     # Execute
     execute_process(
@@ -54,7 +54,7 @@ function(_nuget_pack_install_internal
         RESULT_VARIABLE
             NUGET_INSTALL_RESULT_VAR
     )
-    _nuget_helper_error_if_not_empty(
+    nuget_internal_helper_error_if_not_empty(
         "${NUGET_INSTALL_ERROR_VAR}"
         "Running NuGet package install encountered some errors: "
     )

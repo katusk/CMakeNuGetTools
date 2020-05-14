@@ -1,5 +1,5 @@
 ## Internal.
-function(_nuget_git_parse_git_describe
+function(nuget_internal_git_parse_git_describe
     GIT_TAG_PREFIX
     TAG_WITHOUT_PREFIX_OUT
     COMMITS_SINCE_MOST_RECENT_TAG_OUT
@@ -21,7 +21,7 @@ function(_nuget_git_parse_git_describe
         RESULT_VARIABLE GIT_DESCRIBE_RESULT_VAR
         OUTPUT_STRIP_TRAILING_WHITESPACE
     )
-    _nuget_helper_error_if_not_empty("${GIT_DESCRIBE_ERROR_VAR}" "Running Git describe encountered some errors: ")
+    nuget_internal_helper_error_if_not_empty("${GIT_DESCRIBE_ERROR_VAR}" "Running Git describe encountered some errors: ")
     if(NOT ${GIT_DESCRIBE_RESULT_VAR} EQUAL 0)
         message(FATAL_ERROR "Git describe returned with: \"${GIT_DESCRIBE_RESULT_VAR}\"")
     endif()
@@ -30,7 +30,7 @@ function(_nuget_git_parse_git_describe
     set(REGEX_SHA "g[0-9a-f]+") # See https://stackoverflow.com/questions/39612846/what-does-the-hash-from-git-describe-refer-to 
     set(REGEX_GIT_DESCRIBE "^${GIT_TAG_PREFIX}(.*)-(${REGEX_NUMBER})-(${REGEX_SHA})$")
     string(REGEX MATCH "${REGEX_GIT_DESCRIBE}" MATCH_GIT_DESCRIBE "${GIT_DESCRIBE_OUTPUT}")
-    _nuget_helper_error_if_empty("${MATCH_GIT_DESCRIBE}" "Cannot match \"${GIT_DESCRIBE_OUTPUT}\" with \"${REGEX_GIT_DESCRIBE}\": ")
+    nuget_internal_helper_error_if_empty("${MATCH_GIT_DESCRIBE}" "Cannot match \"${GIT_DESCRIBE_OUTPUT}\" with \"${REGEX_GIT_DESCRIBE}\": ")
     string(REGEX REPLACE "${REGEX_GIT_DESCRIBE}" "\\1" TAG_WITHOUT_PREFIX "${GIT_DESCRIBE_OUTPUT}")
     # Due to "--long" in the above below is also emitted even if most recent commit has the tag
     # (COMMITS_SINCE_MOST_RECENT_TAG is going to be 0 if that is the case).
@@ -55,7 +55,7 @@ function(nuget_git_get_current_branch_name BRANCH_NAME_OUT)
         RESULT_VARIABLE GIT_BRANCH_RESULT_VAR
         OUTPUT_STRIP_TRAILING_WHITESPACE
     )
-    _nuget_helper_error_if_not_empty("${GIT_BRANCH_ERROR_VAR}" "Running Git rev-parse --abbrev-ref HEAD encountered some errors: ")
+    nuget_internal_helper_error_if_not_empty("${GIT_BRANCH_ERROR_VAR}" "Running Git rev-parse --abbrev-ref HEAD encountered some errors: ")
     if(NOT ${GIT_BRANCH_RESULT_VAR} EQUAL 0)
         message(FATAL_ERROR "Git rev-parse --abbrev-ref HEAD returned with: \"${GIT_BRANCH_RESULT_VAR}\"")
     endif()
@@ -76,7 +76,7 @@ function(nuget_git_get_current_commit_sha1 HEAD_COMMIT_SHA1_OUT)
         RESULT_VARIABLE GIT_HEAD_COMMIT_RESULT_VAR
         OUTPUT_STRIP_TRAILING_WHITESPACE
     )
-    _nuget_helper_error_if_not_empty("${GIT_HEAD_COMMIT_ERROR_VAR}" "Running Git rev-parse --verify HEAD encountered some errors: ")
+    nuget_internal_helper_error_if_not_empty("${GIT_HEAD_COMMIT_ERROR_VAR}" "Running Git rev-parse --verify HEAD encountered some errors: ")
     if(NOT ${GIT_HEAD_COMMIT_RESULT_VAR} EQUAL 0)
         message(FATAL_ERROR "Git rev-parse --verify HEAD returned with: \"${GIT_HEAD_COMMIT_RESULT_VAR}\"")
     endif()
@@ -97,7 +97,7 @@ function(nuget_git_get_remote_url REMOTE_URL_OUT)
         RESULT_VARIABLE GIT_REMOTE_URL_RESULT_VAR
         OUTPUT_STRIP_TRAILING_WHITESPACE
     )
-    _nuget_helper_error_if_not_empty("${GIT_REMOTE_URL_ERROR_VAR}" "Running Git ls-remote --get-url encountered some errors: ")
+    nuget_internal_helper_error_if_not_empty("${GIT_REMOTE_URL_ERROR_VAR}" "Running Git ls-remote --get-url encountered some errors: ")
     if(NOT ${GIT_REMOTE_URL_RESULT_VAR} EQUAL 0)
         message(FATAL_ERROR "Git ls-remote --get-url returned with: \"${GIT_REMOTE_URL_RESULT_VAR}\"")
     endif()

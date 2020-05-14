@@ -1,5 +1,5 @@
 ## Internal.
-function(_nuget_git_parse_semantic_version
+function(nuget_internal_git_parse_semantic_version
     TAG_WITHOUT_PREFIX
     MAJOR_OUT
     MINOR_OUT
@@ -32,7 +32,7 @@ endfunction()
 ## is empty, then the prerelease part is omitted completely except when the most recent tag from git has a prerelease
 ## part which then be used). If prefix_label is not empty, and the corresponding element of PRERELEASE_POSTFIX_FLAGS is
 ## TRUE, then the prerelease label is postfixed with the abbreviated hash of the current commit.
-function(_nuget_git_get_semantic_version_applying_rules
+function(nuget_internal_git_get_semantic_version_applying_rules
     GIT_TAG_PREFIX
     BRANCH_NAME_REGEXES
     PRERELEASE_PREFIX_LABELS
@@ -54,8 +54,8 @@ function(_nuget_git_get_semantic_version_applying_rules
         message(FATAL_ERROR "Number of provided branch name regexes and prerelease postfix flags differ.")
     endif()
     # Query version tag
-    _nuget_git_parse_git_describe("${GIT_TAG_PREFIX}" TAG_WITHOUT_PREFIX COMMITS_SINCE_MOST_RECENT_TAG MOST_RECENT_COMMIT_ABBREV)
-    _nuget_git_parse_semantic_version("${TAG_WITHOUT_PREFIX}" MAJOR MINOR PATCH PRERELEASE)
+    nuget_internal_git_parse_git_describe("${GIT_TAG_PREFIX}" TAG_WITHOUT_PREFIX COMMITS_SINCE_MOST_RECENT_TAG MOST_RECENT_COMMIT_ABBREV)
+    nuget_internal_git_parse_semantic_version("${TAG_WITHOUT_PREFIX}" MAJOR MINOR PATCH PRERELEASE)
     math(EXPR PATCH "${PATCH} + ${COMMITS_SINCE_MOST_RECENT_TAG}")
     nuget_git_get_current_branch_name(BRANCH_NAME)
     # Apply mapping rules
@@ -91,7 +91,7 @@ function(_nuget_git_get_semantic_version_applying_rules
 endfunction()
 
 # Internal.
-function(_nuget_git_get_semantic_version_with_prerelease_override
+function(nuget_internal_git_get_semantic_version_with_prerelease_override
     GIT_TAG_PREFIX
     PRERELEASE_LABEL
     MAJOR_OUT
@@ -100,8 +100,8 @@ function(_nuget_git_get_semantic_version_with_prerelease_override
     PRERELEASE_OUT
 )
     # Query version tag
-    _nuget_git_parse_git_describe("${GIT_TAG_PREFIX}" TAG_WITHOUT_PREFIX COMMITS_SINCE_MOST_RECENT_TAG MOST_RECENT_COMMIT_ABBREV)
-    _nuget_git_parse_semantic_version("${TAG_WITHOUT_PREFIX}" MAJOR MINOR PATCH PRERELEASE)
+    nuget_internal_git_parse_git_describe("${GIT_TAG_PREFIX}" TAG_WITHOUT_PREFIX COMMITS_SINCE_MOST_RECENT_TAG MOST_RECENT_COMMIT_ABBREV)
+    nuget_internal_git_parse_semantic_version("${TAG_WITHOUT_PREFIX}" MAJOR MINOR PATCH PRERELEASE)
     math(EXPR PATCH "${PATCH} + ${COMMITS_SINCE_MOST_RECENT_TAG}")
     # Overwrite prerelease part
     if(NOT "${PRERELEASE_LABEL}" STREQUAL "")

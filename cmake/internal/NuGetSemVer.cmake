@@ -7,8 +7,8 @@ function(nuget_git_get_semantic_version)
     set(oneValueArgs TAG_PREFIX PRERELEASE_LABEL FULL CORE MAJOR MINOR PATCH PRERELEASE)
     set(multiValueArgs "")
     cmake_parse_arguments(_arg "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGV})
-    _nuget_helper_error_if_unparsed_args("${_arg_UNPARSED_ARGUMENTS}" "${_arg_KEYWORDS_MISSING_VALUES}")
-    _nuget_git_get_semantic_version_with_prerelease_override(
+    nuget_internal_helper_error_if_unparsed_args("${_arg_UNPARSED_ARGUMENTS}" "${_arg_KEYWORDS_MISSING_VALUES}")
+    nuget_internal_git_get_semantic_version_with_prerelease_override(
         "${_arg_TAG_PREFIX}"
         "${_arg_PRERELEASE_LABEL}"
         MAJOR
@@ -48,8 +48,8 @@ function(nuget_git_get_mapped_semantic_version)
     )
     set(multiValueArgs BRANCH_NAME_REGEXES PRERELEASE_PREFIX_LABELS PRERELEASE_POSTFIX_FLAGS)
     cmake_parse_arguments(_arg "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGV})
-    _nuget_helper_error_if_unparsed_args("${_arg_UNPARSED_ARGUMENTS}" "${_arg_KEYWORDS_MISSING_VALUES}")
-    _nuget_git_get_semantic_version_applying_rules(
+    nuget_internal_helper_error_if_unparsed_args("${_arg_UNPARSED_ARGUMENTS}" "${_arg_KEYWORDS_MISSING_VALUES}")
+    nuget_internal_git_get_semantic_version_applying_rules(
         "${_arg_TAG_PREFIX}"
         "${_arg_BRANCH_NAME_REGEXES}"
         "${_arg_PRERELEASE_PREFIX_LABELS}"

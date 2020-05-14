@@ -7,7 +7,7 @@ include("${CMAKE_CURRENT_LIST_DIR}/NuGetImport.single.cmake")
 ## same nuget package registered twice but with different versions if you update the version of
 ## the given package in a nuget_add_dependencies() call.
 function(nuget_initialize)
-    _nuget_helper_get_internal_cache_variables_with_prefix(NUGET_DEPENDENCY_ NUGET_DEPENDENCY_VARIABLES)
+    nuget_internal_helper_get_internal_cache_variables_with_prefix(NUGET_DEPENDENCY_ NUGET_DEPENDENCY_VARIABLES)
     foreach(DEPENDENCY IN LISTS NUGET_DEPENDENCY_VARIABLES)
         unset("${DEPENDENCY}" CACHE)
     endforeach()
@@ -38,7 +38,7 @@ macro(nuget_add_dependencies)
     # packages registered via only this single nuget_add_dependencies() call.
     set(NUGET_LAST_DEPENDENCIES_REGISTERED "" CACHE INTERNAL "")
     # Process each PACKAGE argument pack one-by-one. This is a *function* call.
-    _nuget_foreach_dependencies(${ARGV})
+    nuget_internal_foreach_dependencies(${ARGV})
     # Foreach's loop_var should not introduce a new real variable: we are safe macro-wise.
     foreach(PACKAGE_ID IN LISTS NUGET_LAST_DEPENDENCIES_REGISTERED)
         # Set CMAKE_MODULE_PATH and CMAKE_PREFIX_PATH via a *macro* call. Since
@@ -46,7 +46,7 @@ macro(nuget_add_dependencies)
         # between the call of nuget_add_dependencies() and setting those variables.
         # I.e. CMake's find_package() will respect those set variables within the
         # same scope (or below directory scopes for example).
-        _nuget_core_import_cmake_exports_set_cmake_paths("${PACKAGE_ID}")
+        nuget_internal_core_import_cmake_exports_set_cmake_paths("${PACKAGE_ID}")
     endforeach()
     # NOTE: Make sure we did not introduce new normal variables here. Then we are safe macro-wise.
     # (NUGET_LAST_DEPENDENCIES_REGISTERED is an internal *cache* variable so that does not count.)
@@ -54,7 +54,7 @@ endmacro()
 
 ## Public interface. Returns the list of NuGet package IDs of registered dependencies.
 function(nuget_get_dependencies OUT_DEPENDENCIES)
-    _nuget_helper_get_internal_cache_variables_with_prefix(NUGET_DEPENDENCY_VERSION_ NUGET_PREFIXED_DEPENDENCIES)
+    nuget_internal_helper_get_internal_cache_variables_with_prefix(NUGET_DEPENDENCY_VERSION_ NUGET_PREFIXED_DEPENDENCIES)
     string(REGEX REPLACE "(^|;)NUGET_DEPENDENCY_VERSION_" "\\1" NUGET_DEPENDENCIES "${NUGET_PREFIXED_DEPENDENCIES}")
     set("${OUT_DEPENDENCIES}" "${NUGET_DEPENDENCIES}" PARENT_SCOPE)
 endfunction()

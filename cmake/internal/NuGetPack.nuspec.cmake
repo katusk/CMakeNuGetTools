@@ -1,5 +1,5 @@
 ## Internal. Section: /package/metadata in .nuspec XML file (METADATA as section identifier CMake argument).
-function(_nuget_nuspec_process_metadata_args NUSPEC_INDENT_SIZE NUSPEC_CONTENT OUT_NUSPEC_CONTENT OUT_PACKAGE_ID)
+function(nuget_internal_nuspec_process_metadata_args NUSPEC_INDENT_SIZE NUSPEC_CONTENT OUT_NUSPEC_CONTENT OUT_PACKAGE_ID)
     # Inputs
     set(options METADATA)
     set(oneValueArgs PACKAGE VERSION DESCRIPTION PROJECT_URL ICON COPYRIGHT
@@ -9,7 +9,7 @@ function(_nuget_nuspec_process_metadata_args NUSPEC_INDENT_SIZE NUSPEC_CONTENT O
     cmake_parse_arguments(_arg
         "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN}
     )
-    _nuget_helper_error_if_unparsed_args(
+    nuget_internal_helper_error_if_unparsed_args(
         "${_arg_UNPARSED_ARGUMENTS}"
         "${_arg_KEYWORDS_MISSING_VALUES}"
     )
@@ -17,10 +17,10 @@ function(_nuget_nuspec_process_metadata_args NUSPEC_INDENT_SIZE NUSPEC_CONTENT O
     if(NOT _arg_METADATA)
         message(FATAL_ERROR "METADATA identifier is not found: it is a required element (/package/metadata) of a .nuspec XML file.")
     endif()
-    _nuget_helper_error_if_empty("${_arg_PACKAGE}" "PACKAGE must not be empty: it is a required element (/package/metadata/id) of a .nuspec XML file.")
-    _nuget_helper_error_if_empty("${_arg_VERSION}" "VERSION must not be empty: it is a required element (/package/metadata/version) of a .nuspec XML file.")
-    _nuget_helper_error_if_empty("${_arg_DESCRIPTION}" "DESCRIPTION must not be empty: it is a required element (/package/metadata/description) of a .nuspec XML file.")
-    _nuget_helper_error_if_empty("${_arg_AUTHORS}" "AUTHORS must not be empty: it is a required element (/package/metadata/authors) of a .nuspec XML file.")
+    nuget_internal_helper_error_if_empty("${_arg_PACKAGE}" "PACKAGE must not be empty: it is a required element (/package/metadata/id) of a .nuspec XML file.")
+    nuget_internal_helper_error_if_empty("${_arg_VERSION}" "VERSION must not be empty: it is a required element (/package/metadata/version) of a .nuspec XML file.")
+    nuget_internal_helper_error_if_empty("${_arg_DESCRIPTION}" "DESCRIPTION must not be empty: it is a required element (/package/metadata/description) of a .nuspec XML file.")
+    nuget_internal_helper_error_if_empty("${_arg_AUTHORS}" "AUTHORS must not be empty: it is a required element (/package/metadata/authors) of a .nuspec XML file.")
     # Actual functionality
     # Begin /package/metadata
     string(APPEND NUSPEC_CONTENT "\n${NUSPEC_INDENT_SIZE}<metadata>")
@@ -67,7 +67,7 @@ function(_nuget_nuspec_process_metadata_args NUSPEC_INDENT_SIZE NUSPEC_CONTENT O
     # Optional collection metadata subelements
     # Section: /package/metadata/dependencies -- add package dependencies that are marked as PUBLIC or INTERFACE
     # in previous nuget_add_dependencies() calls.
-    _nuget_nuspec_add_dependencies("${NUSPEC_SUBELEMENT_INDENT_SIZE}" "${NUSPEC_CONTENT}" NUSPEC_CONTENT)
+    nuget_internal_nuspec_add_dependencies("${NUSPEC_SUBELEMENT_INDENT_SIZE}" "${NUSPEC_CONTENT}" NUSPEC_CONTENT)
     # End /package/metadata
     string(APPEND NUSPEC_CONTENT "\n${NUSPEC_INDENT_SIZE}</metadata>")
     set(${OUT_NUSPEC_CONTENT} "${NUSPEC_CONTENT}" PARENT_SCOPE)
@@ -77,7 +77,7 @@ endfunction()
 ## Internal. Section: /package/metadata/dependencies in .nuspec XML file.
 ## Automatically generated based on previous nuget_add_dependencies() calls.
 ## Only dependencies marked as PUBLIC or INTERFACE are added (ie. PRIVATE dependencies are omitted).
-function(_nuget_nuspec_add_dependencies NUSPEC_INDENT_SIZE NUSPEC_CONTENT OUT_NUSPEC_CONTENT)
+function(nuget_internal_nuspec_add_dependencies NUSPEC_INDENT_SIZE NUSPEC_CONTENT OUT_NUSPEC_CONTENT)
     # Begin /package/metadata/dependencies
     set(NUSPEC_DEPENDENCIES_CONTENT_BEGIN "\n${NUSPEC_INDENT_SIZE}<dependencies>")
     set(NUSPEC_DEPENDENCIES_CONTENT_END "\n${NUSPEC_INDENT_SIZE}</dependencies>")
@@ -102,14 +102,14 @@ function(_nuget_nuspec_add_dependencies NUSPEC_INDENT_SIZE NUSPEC_CONTENT OUT_NU
 endfunction()
 
 ## Internal. Section: /package/files in .nuspec XML file (FILES as section identifier CMake argument).
-function(_nuget_nuspec_process_files_args NUSPEC_INDENT_SIZE NUSPEC_CONTENT OUT_NUSPEC_CONTENT)
+function(nuget_internal_nuspec_process_files_args NUSPEC_INDENT_SIZE NUSPEC_CONTENT OUT_NUSPEC_CONTENT)
     # Input
     set(EMPTY_FILES_NODE_ERROR_MESSAGE
         "FILES must not be empty: although the files node is not a required element (/package/files) of a .nuspec XML file, "
         "the implementation of the nuget_generate_nuspec_files() CMake command requires you to generate a non-empty files node."
     )
     string(REPLACE ";" "" EMPTY_FILES_NODE_ERROR_MESSAGE "${EMPTY_FILES_NODE_ERROR_MESSAGE}")
-    _nuget_helper_error_if_empty("${ARGN}" ${EMPTY_FILES_NODE_ERROR_MESSAGE})
+    nuget_internal_helper_error_if_empty("${ARGN}" ${EMPTY_FILES_NODE_ERROR_MESSAGE})
     list(GET ARGN 0 MAYBE_FILES_IDENTIFIER)
     if(NOT "${MAYBE_FILES_IDENTIFIER}" STREQUAL "FILES")
         message(FATAL_ERROR ${EMPTY_FILES_NODE_ERROR_MESSAGE})
@@ -119,19 +119,19 @@ function(_nuget_nuspec_process_files_args NUSPEC_INDENT_SIZE NUSPEC_CONTENT OUT_
     set(NUSPEC_FILES_CONTENT_END "\n${NUSPEC_INDENT_SIZE}</files>")
     set(NUSPEC_FILES_CONTENT "${NUSPEC_FILES_CONTENT_BEGIN}")
     set(ARGS_HEAD "")
-    _nuget_helper_list_sublist("${ARGN}" 1 -1 ARGS_TAIL)
+    nuget_internal_helper_list_sublist("${ARGN}" 1 -1 ARGS_TAIL)
     set(NUSPEC_SUBELEMENT_INDENT_SIZE "${NUSPEC_INDENT_SIZE}${NUGET_NUSPEC_INDENT_SIZE}")
     while(NOT "${ARGS_TAIL}" STREQUAL "")
-        _nuget_helper_cut_arg_list(CMAKE_CONDITIONAL_SECTION "${ARGS_TAIL}" ARGS_HEAD ARGS_TAIL)
+        nuget_internal_helper_cut_arg_list(CMAKE_CONDITIONAL_SECTION "${ARGS_TAIL}" ARGS_HEAD ARGS_TAIL)
         list(LENGTH ARGS_HEAD ARGS_HEAD_LENGTH)
         if(ARGS_HEAD_LENGTH GREATER_EQUAL 2)
             list(GET ARGS_HEAD 0 MAYBE_CMAKE_INCLUDE_CONDITION_IDENTIFIER)
             if("${MAYBE_CMAKE_INCLUDE_CONDITION_IDENTIFIER}" STREQUAL "CMAKE_CONDITIONAL_SECTION")
                 list(GET ARGS_HEAD 1 CMAKE_CONDITIONAL_SECTION)
-                _nuget_helper_list_sublist("${ARGS_HEAD}" 2 -1 ARGS_HEAD)
+                nuget_internal_helper_list_sublist("${ARGS_HEAD}" 2 -1 ARGS_HEAD)
             endif()
         endif()
-        _nuget_nuspec_add_files_conditionally("${NUSPEC_SUBELEMENT_INDENT_SIZE}" "${NUSPEC_FILES_CONTENT}" NUSPEC_FILES_CONTENT
+        nuget_internal_nuspec_add_files_conditionally("${NUSPEC_SUBELEMENT_INDENT_SIZE}" "${NUSPEC_FILES_CONTENT}" NUSPEC_FILES_CONTENT
             "${CMAKE_CONDITIONAL_SECTION}" ${ARGS_HEAD}
         )
     endwhile()
@@ -145,7 +145,7 @@ function(_nuget_nuspec_process_files_args NUSPEC_INDENT_SIZE NUSPEC_CONTENT OUT_
 endfunction()
 
 ## Internal.
-function(_nuget_nuspec_add_files_conditionally NUSPEC_INDENT_SIZE NUSPEC_CONTENT OUT_NUSPEC_CONTENT CMAKE_CONDITIONAL_SECTION)
+function(nuget_internal_nuspec_add_files_conditionally NUSPEC_INDENT_SIZE NUSPEC_CONTENT OUT_NUSPEC_CONTENT CMAKE_CONDITIONAL_SECTION)
     # Input: check for a CMAKE_CONDITIONAL_SECTION parameter pack
     if(NOT "${CMAKE_CONDITIONAL_SECTION}" STREQUAL "")
         string(APPEND NUSPEC_CONTENT "$<${CMAKE_CONDITIONAL_SECTION}:")
@@ -154,8 +154,8 @@ function(_nuget_nuspec_add_files_conditionally NUSPEC_INDENT_SIZE NUSPEC_CONTENT
     set(ARGS_HEAD "")
     set(ARGS_TAIL ${ARGN})
     while(NOT "${ARGS_TAIL}" STREQUAL "")
-        _nuget_helper_cut_arg_list(FILE_SRC "${ARGS_TAIL}" ARGS_HEAD ARGS_TAIL)
-        _nuget_nuspec_add_file_conditionally("${NUSPEC_INDENT_SIZE}" "${NUSPEC_CONTENT}" NUSPEC_CONTENT
+        nuget_internal_helper_cut_arg_list(FILE_SRC "${ARGS_TAIL}" ARGS_HEAD ARGS_TAIL)
+        nuget_internal_nuspec_add_file_conditionally("${NUSPEC_INDENT_SIZE}" "${NUSPEC_CONTENT}" NUSPEC_CONTENT
             "${CMAKE_CONDITIONAL_SECTION}" ${ARGS_HEAD}
         )
     endwhile()
@@ -167,7 +167,7 @@ function(_nuget_nuspec_add_files_conditionally NUSPEC_INDENT_SIZE NUSPEC_CONTENT
 endfunction()
 
 ## Internal.
-function(_nuget_nuspec_add_file_conditionally NUSPEC_INDENT_SIZE NUSPEC_CONTENT OUT_NUSPEC_CONTENT CMAKE_CONDITIONAL_SECTION)
+function(nuget_internal_nuspec_add_file_conditionally NUSPEC_INDENT_SIZE NUSPEC_CONTENT OUT_NUSPEC_CONTENT CMAKE_CONDITIONAL_SECTION)
     # Inputs
     # See https://docs.microsoft.com/en-us/nuget/reference/nuspec#file-element-attributes
     set(options "")
@@ -176,11 +176,11 @@ function(_nuget_nuspec_add_file_conditionally NUSPEC_INDENT_SIZE NUSPEC_CONTENT 
     cmake_parse_arguments(_arg
         "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN}
     )
-    _nuget_helper_error_if_unparsed_args(
+    nuget_internal_helper_error_if_unparsed_args(
         "${_arg_UNPARSED_ARGUMENTS}"
         "${_arg_KEYWORDS_MISSING_VALUES}"
     )
-    _nuget_helper_error_if_empty("${_arg_FILE_SRC}"
+    nuget_internal_helper_error_if_empty("${_arg_FILE_SRC}"
         "FILE_SRC must not be empty: it is a required attribute (src) of "
         "a .nuspec XML file's /package/files/file element."
     )
@@ -204,17 +204,17 @@ endfunction()
 ## Not raising an error if a given configuration is unavailable makes it possible to reuse the same nuget_generate_nuspec_files()
 ## calls across different build systems without adjustments or writing additional code for generating the values of the
 ## CMAKE_CONFIGURATIONS argument.
-function(_nuget_nuspec_generate_output NUSPEC_CONTENT PACKAGE_ID)
+function(nuget_internal_nuspec_generate_output NUSPEC_CONTENT PACKAGE_ID)
     # Inputs
-    _nuget_helper_error_if_empty("${NUSPEC_CONTENT}" "NUSPEC_CONTENT to be written is empty: cannot generate .nuspec file's content.")
-    _nuget_helper_error_if_empty("${PACKAGE_ID}" "PACKAGE_ID to be written is empty: cannot generate .nuspec filename.")
+    nuget_internal_helper_error_if_empty("${NUSPEC_CONTENT}" "NUSPEC_CONTENT to be written is empty: cannot generate .nuspec file's content.")
+    nuget_internal_helper_error_if_empty("${PACKAGE_ID}" "PACKAGE_ID to be written is empty: cannot generate .nuspec filename.")
     set(options "")
     set(oneValueArgs CMAKE_OUTPUT_DIR)
     set(multiValueArgs CMAKE_CONFIGURATIONS)
     cmake_parse_arguments(_arg
         "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN}
     )
-    _nuget_helper_error_if_unparsed_args(
+    nuget_internal_helper_error_if_unparsed_args(
         "${_arg_UNPARSED_ARGUMENTS}"
         "${_arg_KEYWORDS_MISSING_VALUES}"
     )
@@ -240,7 +240,7 @@ function(_nuget_nuspec_generate_output NUSPEC_CONTENT PACKAGE_ID)
 endfunction()
 
 ## Internal.
-function(_nuget_merge_second_nuspec_file_into_first FILEPATH_ACC FILEPATH_IN)
+function(nuget_internal_merge_second_nuspec_file_into_first FILEPATH_ACC FILEPATH_IN)
     set(FILES_NODE_BEGIN_STR "<files>")
     set(FILES_NODE_END_STR "</files>")
     string(LENGTH "${FILES_NODE_BEGIN_STR}" FILES_NODE_BEGIN_LEN)
@@ -289,9 +289,9 @@ function(_nuget_merge_second_nuspec_file_into_first FILEPATH_ACC FILEPATH_IN)
 endfunction()
 
 ## Internal.
-function(_nuget_merge_n_nuspec_files FILEPATH_ACC)
-    _nuget_helper_error_if_empty("${FILEPATH_ACC}" "No filepath to a .nuspec file provided as a basis for merge operation.")
-    _nuget_helper_error_if_empty("${ARGN}" "No .nuspec filepaths provided for merge operation.")
+function(nuget_internal_merge_n_nuspec_files FILEPATH_ACC)
+    nuget_internal_helper_error_if_empty("${FILEPATH_ACC}" "No filepath to a .nuspec file provided as a basis for merge operation.")
+    nuget_internal_helper_error_if_empty("${ARGN}" "No .nuspec filepaths provided for merge operation.")
     # Read first input file (FILEPATH_BASE)
     list(GET ARGN 0 FILEPATH_BASE)
     file(STRINGS "${FILEPATH_BASE}" LINES_BASE NEWLINE_CONSUME ENCODING UTF-8)
@@ -310,8 +310,8 @@ function(_nuget_merge_n_nuspec_files FILEPATH_ACC)
     string(APPEND NEW_LINES_BASE "${LINES_BASE_AFTER_FILES_NODE_BEGIN}")
     file(WRITE "${FILEPATH_ACC}" "${NEW_LINES_BASE}")
     # Merge rest of the input files into FILEPATH_ACC
-    _nuget_helper_list_sublist("${ARGN}" 1 -1 FILEPATHS_IN_TAIL)
+    nuget_internal_helper_list_sublist("${ARGN}" 1 -1 FILEPATHS_IN_TAIL)
     foreach(FILEPATH_IN IN LISTS FILEPATHS_IN_TAIL)
-        _nuget_merge_second_nuspec_file_into_first("${FILEPATH_ACC}" "${FILEPATH_IN}")
+        nuget_internal_merge_second_nuspec_file_into_first("${FILEPATH_ACC}" "${FILEPATH_IN}")
     endforeach()
 endfunction()

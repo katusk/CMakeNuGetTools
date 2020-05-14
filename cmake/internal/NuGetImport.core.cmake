@@ -1,15 +1,15 @@
-# Internal. Registers the given package, nothing more. The _nuget_core_install()
+# Internal. Registers the given package, nothing more. The nuget_internal_core_install()
 # function should be called for actually installing the package. USAGE_REQUIREMENT
 # is expected to be either PUBLIC, INTERFACE, or PRIVATE.
-function(_nuget_core_register
+function(nuget_internal_core_register
     PACKAGE_ID
     PACKAGE_VERSION
     USAGE_REQUIREMENT
 )
     # Inputs
-    _nuget_helper_error_if_empty("${PACKAGE_ID}" "Package ID must be provided.")
-    _nuget_helper_error_if_empty("${PACKAGE_VERSION}" "Package version must be provided.")
-    _nuget_helper_error_if_empty("${USAGE_REQUIREMENT}" "Usage requirement for package must be provided.")
+    nuget_internal_helper_error_if_empty("${PACKAGE_ID}" "Package ID must be provided.")
+    nuget_internal_helper_error_if_empty("${PACKAGE_VERSION}" "Package version must be provided.")
+    nuget_internal_helper_error_if_empty("${USAGE_REQUIREMENT}" "Usage requirement for package must be provided.")
     if(DEFINED "NUGET_DEPENDENCY_VERSION_${PACKAGE_ID}")
         # Safety check. Do not allow more than one package to be used within the same CMake build
         # system with the same package ID but with different version numbers. The same version
@@ -19,8 +19,8 @@ function(_nuget_core_register
         # already installed.
         #
         # NOTE. This check fails to catch additional dependencies installed by NuGet in
-        # execute_process() in _nuget_core_install(). This problem can be avoided if
-        # _nuget_core_install() is invoked for all the packages that are your transitive
+        # execute_process() in nuget_internal_core_install(). This problem can be avoided if
+        # nuget_internal_core_install() is invoked for all the packages that are your transitive
         # dependencies.
         if(NOT "${NUGET_DEPENDENCY_VERSION_${PACKAGE_ID}}" STREQUAL "${PACKAGE_VERSION}")
             message(FATAL_ERROR
@@ -65,14 +65,14 @@ endfunction()
 
 ## Internal. Runs NuGet install with PACKAGE_ID and PACKAGE_VERSION.
 ## The OutputDirectory is set by the CACHE variable NUGET_PACKAGES_DIR.
-function(_nuget_core_install
+function(nuget_internal_core_install
     PACKAGE_ID
     PACKAGE_VERSION
 )
     # Inputs
-    _nuget_helper_error_if_empty("${NUGET_COMMAND}"
+    nuget_internal_helper_error_if_empty("${NUGET_COMMAND}"
         "No NuGet executable was provided; this means NuGetTools should have been disabled, and "
-        "we should not ever reach a call to _nuget_core_install()."
+        "we should not ever reach a call to nuget_internal_core_install()."
     )
     if(NUGET_NO_CACHE)
         set(NUGET_INSTALL_NO_CACHE_OPTION "-NoCache")
@@ -89,7 +89,7 @@ function(_nuget_core_install
     # Execute install
     #
     # NOTE. Output is not parsed for additionally installed dependencies. It does not worth
-    # the coding effort. Just make sure _nuget_core_install() is explicitly called for all
+    # the coding effort. Just make sure nuget_internal_core_install() is explicitly called for all
     # your PUBLIC and PRIVATE transitive dependencies. I.e. the user should explicitly list
     # all dependencies that should be installed.
     execute_process(
@@ -106,7 +106,7 @@ function(_nuget_core_install
         RESULT_VARIABLE
             NUGET_INSTALL_RESULT_VAR
     )
-    _nuget_helper_error_if_not_empty(
+    nuget_internal_helper_error_if_not_empty(
         "${NUGET_INSTALL_ERROR_VAR}"
         "Running NuGet package install encountered some errors: "
     )
@@ -117,7 +117,7 @@ function(_nuget_core_install
     set("NUGET_DEPENDENCY_INSTALLED_${PACKAGE_ID}" TRUE CACHE INTERNAL
         "True if the package \"${PACKAGE_ID}\" is successfully installed."
     )
-    _nuget_helper_get_packages_dir(${PACKAGE_ID} ${PACKAGE_VERSION} PACKAGE_DIR)
+    nuget_internal_helper_get_packages_dir(${PACKAGE_ID} ${PACKAGE_VERSION} PACKAGE_DIR)
     set("NUGET_DEPENDENCY_DIR_${PACKAGE_ID}" "${PACKAGE_DIR}" CACHE INTERNAL
         "Absolute path to the directory of the installed package \"${PACKAGE_ID}\"."
     )
@@ -127,7 +127,7 @@ endfunction()
 ## named IMPORT_AS (if non-empty, otherwise: PACKAGE_ID) from the PACKAGE_ID package with
 ## PACKAGE_VERSION version using the "build/native/${PACKAGE_ID}.targets" within the package.
 ## INCLUDE_DIRS is required for better Visual Studio editing experience.
-function(_nuget_core_import_dot_targets
+function(nuget_internal_core_import_dot_targets
     PACKAGE_ID
     PACKAGE_VERSION
     IMPORT_AS
@@ -145,7 +145,7 @@ function(_nuget_core_import_dot_targets
     if("${IMPORT_AS}" STREQUAL "")
         set(IMPORT_AS "${PACKAGE_ID}")
     endif()
-    _nuget_helper_list_transform_prepend(
+    nuget_internal_helper_list_transform_prepend(
         "${INCLUDE_DIRS}" "${NUGET_DEPENDENCY_DIR_${PACKAGE_ID}}/" INCLUDE_DIRS
     )
     if(TARGET ${IMPORT_AS})
@@ -177,7 +177,7 @@ endfunction()
 ## Internal. Preparations for prepending the CMAKE_PREFIX_PATHS and CMAKE_MODULE_PATHS relative-to-package-directory
 ## paths to the CMAKE_PREFIX_PATH and CMAKE_MODULE_PATHS if CMAKE_APPEND_PATHS is FALSE. If CMAKE_APPEND_PATHS is TRUE,
 ## the operation becomes an append instead of a prepend later on.
-function(_nuget_core_import_cmake_exports
+function(nuget_internal_core_import_cmake_exports
     PACKAGE_ID
     PACKAGE_VERSION
     CMAKE_PREFIX_PATHS
@@ -189,18 +189,18 @@ function(_nuget_core_import_cmake_exports
     if("${CMAKE_PREFIX_PATHS}" STREQUAL "" AND "${CMAKE_MODULE_PATHS}" STREQUAL "" AND "${CMAKE_TOOLCHAIN_FILE}" STREQUAL "")
         message(FATAL_ERROR "At least one of CMAKE_PREFIX_PATHS, CMAKE_MODULE_PATHS, or CMAKE_TOOLCHAIN_FILE should be non-empty.")
     endif()
-    _nuget_helper_list_transform_prepend(
+    nuget_internal_helper_list_transform_prepend(
         "${CMAKE_PREFIX_PATHS}" "${NUGET_DEPENDENCY_DIR_${PACKAGE_ID}}/" CMAKE_PREFIX_PATHS
     )
-    _nuget_helper_list_transform_prepend(
+    nuget_internal_helper_list_transform_prepend(
         "${CMAKE_MODULE_PATHS}" "${NUGET_DEPENDENCY_DIR_${PACKAGE_ID}}/" CMAKE_MODULE_PATHS
     )
-    _nuget_helper_list_transform_prepend(
+    nuget_internal_helper_list_transform_prepend(
         "${CMAKE_TOOLCHAIN_FILE}" "${NUGET_DEPENDENCY_DIR_${PACKAGE_ID}}/" CMAKE_TOOLCHAIN_FILE
     )
 
     # Save settings: we do not actually set CMAKE_PREFIX_PATH or CMAKE_MODULE_PATH here,
-    # see the call point of _nuget_core_import_cmake_exports_set_cmake_paths() for that.
+    # see the call point of nuget_internal_core_import_cmake_exports_set_cmake_paths() for that.
     # Since we are in a new (function) scope here, setting those variables here would not
     # have any effect.
     set("NUGET_LAST_DEPENDENCY_CMAKE_PREFIX_PATHS_${PACKAGE_ID}" "${CMAKE_PREFIX_PATHS}" CACHE INTERNAL "")
@@ -213,7 +213,7 @@ endfunction()
 ## ASSUME: called from directory scope (or from another macro that is in dir. scope etc.).
 ## E.g. we want to achieve that CMake's find_package() respects our CMAKE_PREFIX_PATH
 ## modification here.
-macro(_nuget_core_import_cmake_exports_set_cmake_paths PACKAGE_ID)
+macro(nuget_internal_core_import_cmake_exports_set_cmake_paths PACKAGE_ID)
     # Modify prefix or module path
     # See https://cmake.org/cmake/help/latest/command/find_package.html#search-procedure
     if(NOT "${NUGET_LAST_DEPENDENCY_CMAKE_PREFIX_PATHS_${PACKAGE_ID}}" STREQUAL "")
