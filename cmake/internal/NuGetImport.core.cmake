@@ -231,6 +231,18 @@ macro(nuget_internal_core_import_cmake_exports_set_cmake_paths PACKAGE_ID)
         endif()
     endif()
     if(NOT "${NUGET_LAST_DEPENDENCY_CMAKE_TOOLCHAIN_FILE_${PACKAGE_ID}}" STREQUAL "")
+        if(NOT "${NUGET_LAST_DEPENDENCY_CMAKE_TOOLCHAIN_FILE}" STREQUAL "")
+            message(FATAL_ERROR "CMAKE_TOOLCHAIN_FILE is already set by another package.")
+        endif()
+        if(NOT "${CMAKE_TOOLCHAIN_FILE}" STREQUAL "" AND
+           NOT "${CMAKE_TOOLCHAIN_FILE}" STREQUAL "${NUGET_LAST_DEPENDENCY_CMAKE_TOOLCHAIN_FILE_${PACKAGE_ID}}"
+        )
+            message(FATAL_ERROR "CMAKE_TOOLCHAIN_FILE is already set by the user.")
+        endif()
+        if(DEFINED PROJECT_NAME)
+            message(FATAL_ERROR "Value of CMAKE_TOOLCHAIN_FILE is ignored after the very first project() command call.")
+        endif()
+        set(NUGET_LAST_DEPENDENCY_CMAKE_TOOLCHAIN_FILE "${NUGET_LAST_DEPENDENCY_CMAKE_TOOLCHAIN_FILE_${PACKAGE_ID}}" CACHE INTERNAL "")
         set(CMAKE_TOOLCHAIN_FILE "${NUGET_LAST_DEPENDENCY_CMAKE_TOOLCHAIN_FILE_${PACKAGE_ID}}")
     endif()
     # NOTE: Make sure we did not introduce new normal variables here. Then we are safe macro-wise.

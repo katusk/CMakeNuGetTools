@@ -11,6 +11,7 @@ function(nuget_initialize)
     foreach(DEPENDENCY IN LISTS NUGET_DEPENDENCY_VARIABLES)
         unset("${DEPENDENCY}" CACHE)
     endforeach()
+    unset(NUGET_LAST_DEPENDENCY_CMAKE_TOOLCHAIN_FILE CACHE)
     set(NUGET_IS_INITIALIZED_ONCE_CACHED TRUE CACHE INTERNAL "")
 endfunction()
 
