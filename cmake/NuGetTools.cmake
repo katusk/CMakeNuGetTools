@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.8.2 FATAL_ERROR)
 
 ## User-settable cache variables
 set(NUGET_COMMAND "" CACHE STRING
-    "NuGet executable used for package installs. Empty means NuGetTools is disabled."
+    "NuGet executable used for package installs. Empty means NuGetTools is disabled. Deliberately not a FILEPATH cache variable: you can set it simply to \"nuget\" if the executable is within your PATH environment."
 )
 set(NUGET_PACKAGES_DIR "${CMAKE_SOURCE_DIR}/packages" CACHE PATH
     "Path to the directory used by NuGet to store installed packages."
