@@ -23,20 +23,30 @@ function(nuget_generate_nuspec_files)
     set(NUSPEC_CONTENT "<?xml version=\"1.0\" encoding=\"utf-8\"?>")
     string(APPEND NUSPEC_CONTENT "\n<package xmlns=\"http://schemas.microsoft.com/packaging/2011/10/nuspec.xsd\">")
     # Process arguments
-    set(ARGS_HEAD "")
-    set(ARGS_TAIL ${ARGV})
-    # Section: CMake-specific (without special section identifier CMake argument)
-    nuget_internal_helper_cut_arg_list(METADATA "${ARGS_TAIL}" ARGS_HEAD ARGS_TAIL)
-    set(NUSPEC_CMAKE_ARGS ${ARGS_HEAD})
-    # Section: /package/metadata in .nuspec XML file (METADATA as section identifier CMake argument)
-    nuget_internal_helper_cut_arg_list(FILES "${ARGS_TAIL}" ARGS_HEAD ARGS_TAIL)
-    nuget_internal_nuspec_process_metadata_args("${NUGET_NUSPEC_INDENT_SIZE}" "${NUSPEC_CONTENT}" NUSPEC_CONTENT PACKAGE_ID ${ARGS_HEAD})
-    # Section: /package/files in .nuspec XML file (FILES as section identifier CMake argument)
-    nuget_internal_nuspec_process_files_args("${NUGET_NUSPEC_INDENT_SIZE}" "${NUSPEC_CONTENT}" NUSPEC_CONTENT ${ARGS_TAIL})
+    set(options "")
+    set(oneValueArgs CMAKE_OUTPUT_DIR)
+    set(multiValueArgs CMAKE_CONFIGURATIONS METADATA FILES)
+    cmake_parse_arguments(NUARG
+        "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGV}
+    )
+    nuget_internal_helper_error_if_unparsed_args(
+        "${NUARG_UNPARSED_ARGUMENTS}"
+        "${NUARG_KEYWORDS_MISSING_VALUES}"
+    )
+    # METADATA arg: /package/metadata in .nuspec XML file (METADATA as section identifier CMake argument)
+    nuget_internal_helper_error_if_empty("${NUARG_METADATA}" "METADATA identifier is not found: it is a required element (/package/metadata) of a .nuspec XML file.")
+    nuget_internal_nuspec_process_metadata_args("${NUGET_NUSPEC_INDENT_SIZE}" "${NUSPEC_CONTENT}" NUSPEC_CONTENT PACKAGE_ID ${NUARG_METADATA})
+    # FILES arg: /package/files in .nuspec XML file (FILES as section identifier CMake argument)
+    nuget_internal_helper_error_if_empty("${NUARG_FILES}"
+        "FILES must not be empty: although the files node is not a required element (/package/files) of a .nuspec XML file, "
+        "the implementation of the nuget_generate_nuspec_files() CMake command requires you to generate a non-empty files node."
+    )
+    nuget_internal_nuspec_process_files_args("${NUGET_NUSPEC_INDENT_SIZE}" "${NUSPEC_CONTENT}" NUSPEC_CONTENT ${NUARG_FILES})
     # End .nuspec XML file
     string(APPEND NUSPEC_CONTENT "\n</package>")
     # Write output file(s)
-    nuget_internal_nuspec_generate_output("${NUSPEC_CONTENT}" "${PACKAGE_ID}" ${NUSPEC_CMAKE_ARGS})
+    # Top-level CMAKE_* args: CMake-specific (without special section identifier CMake argument)
+    nuget_internal_nuspec_generate_output("${NUSPEC_CONTENT}" "${PACKAGE_ID}" "${NUARG_CMAKE_OUTPUT_DIR}" "${NUARG_CMAKE_CONFIGURATIONS}")
 endfunction()
 
 ## Public interface.

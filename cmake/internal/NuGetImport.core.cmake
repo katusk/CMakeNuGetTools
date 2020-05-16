@@ -165,6 +165,7 @@ function(nuget_internal_core_import_dot_targets
 
     # Create build target
     add_library(${IMPORT_AS} INTERFACE IMPORTED GLOBAL)
+    # See https://gitlab.kitware.com/cmake/cmake/issues/16340 -- since CMake version 2.8.12 (?)
     set_property(TARGET ${IMPORT_AS} PROPERTY INTERFACE_LINK_LIBRARIES "${DOT_TARGETS_FILE}")
     if(NOT "${INCLUDE_DIRS}" STREQUAL "")
         # Experience shows that the Visual Studio editor does not recognize anything included

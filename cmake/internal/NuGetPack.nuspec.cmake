@@ -1,7 +1,7 @@
 ## Internal. Section: /package/metadata in .nuspec XML file (METADATA as section identifier CMake argument).
 function(nuget_internal_nuspec_process_metadata_args NUSPEC_INDENT_SIZE NUSPEC_CONTENT OUT_NUSPEC_CONTENT OUT_PACKAGE_ID)
     # Inputs
-    set(options METADATA)
+    set(options "")
     set(oneValueArgs PACKAGE VERSION DESCRIPTION PROJECT_URL ICON COPYRIGHT
         REPOSITORY_TYPE REPOSITORY_URL REPOSITORY_BRANCH REPOSITORY_COMMIT
     )
@@ -14,9 +14,6 @@ function(nuget_internal_nuspec_process_metadata_args NUSPEC_INDENT_SIZE NUSPEC_C
         "${NUARG_KEYWORDS_MISSING_VALUES}"
     )
     # See https://docs.microsoft.com/en-us/nuget/reference/nuspec#general-form-and-schema for below requirements
-    if(NOT NUARG_METADATA)
-        message(FATAL_ERROR "METADATA identifier is not found: it is a required element (/package/metadata) of a .nuspec XML file.")
-    endif()
     nuget_internal_helper_error_if_empty("${NUARG_PACKAGE}" "PACKAGE must not be empty: it is a required element (/package/metadata/id) of a .nuspec XML file.")
     nuget_internal_helper_error_if_empty("${NUARG_VERSION}" "VERSION must not be empty: it is a required element (/package/metadata/version) of a .nuspec XML file.")
     nuget_internal_helper_error_if_empty("${NUARG_DESCRIPTION}" "DESCRIPTION must not be empty: it is a required element (/package/metadata/description) of a .nuspec XML file.")
@@ -103,23 +100,12 @@ endfunction()
 
 ## Internal. Section: /package/files in .nuspec XML file (FILES as section identifier CMake argument).
 function(nuget_internal_nuspec_process_files_args NUSPEC_INDENT_SIZE NUSPEC_CONTENT OUT_NUSPEC_CONTENT)
-    # Input
-    set(EMPTY_FILES_NODE_ERROR_MESSAGE
-        "FILES must not be empty: although the files node is not a required element (/package/files) of a .nuspec XML file, "
-        "the implementation of the nuget_generate_nuspec_files() CMake command requires you to generate a non-empty files node."
-    )
-    string(REPLACE ";" "" EMPTY_FILES_NODE_ERROR_MESSAGE "${EMPTY_FILES_NODE_ERROR_MESSAGE}")
-    nuget_internal_helper_error_if_empty("${ARGN}" ${EMPTY_FILES_NODE_ERROR_MESSAGE})
-    list(GET ARGN 0 MAYBE_FILES_IDENTIFIER)
-    if(NOT "${MAYBE_FILES_IDENTIFIER}" STREQUAL "FILES")
-        message(FATAL_ERROR ${EMPTY_FILES_NODE_ERROR_MESSAGE})
-    endif()
     # Begin /package/files
     set(NUSPEC_FILES_CONTENT_BEGIN "\n${NUSPEC_INDENT_SIZE}<files>")
     set(NUSPEC_FILES_CONTENT_END "\n${NUSPEC_INDENT_SIZE}</files>")
     set(NUSPEC_FILES_CONTENT "${NUSPEC_FILES_CONTENT_BEGIN}")
     set(ARGS_HEAD "")
-    nuget_internal_helper_list_sublist("${ARGN}" 1 -1 ARGS_TAIL)
+    set(ARGS_TAIL ${ARGN})
     set(NUSPEC_SUBELEMENT_INDENT_SIZE "${NUSPEC_INDENT_SIZE}${NUGET_NUSPEC_INDENT_SIZE}")
     while(NOT "${ARGS_TAIL}" STREQUAL "")
         nuget_internal_helper_cut_arg_list(CMAKE_CONDITIONAL_SECTION "${ARGS_TAIL}" ARGS_HEAD ARGS_TAIL)
@@ -138,7 +124,7 @@ function(nuget_internal_nuspec_process_files_args NUSPEC_INDENT_SIZE NUSPEC_CONT
     # End /package/files
     string(APPEND NUSPEC_FILES_CONTENT "${NUSPEC_FILES_CONTENT_END}")
     if("${NUSPEC_FILES_CONTENT}" STREQUAL "${NUSPEC_FILES_CONTENT_BEGIN}${NUSPEC_FILES_CONTENT_END}")
-        message(FATAL_ERROR ${EMPTY_FILES_NODE_ERROR_MESSAGE})
+        message(FATAL_ERROR "Assembled expression for generating /package/files node(s) for .nuspec XML file(s) is empty.")
     endif()
     string(APPEND NUSPEC_CONTENT "${NUSPEC_FILES_CONTENT}")
     set(${OUT_NUSPEC_CONTENT} "${NUSPEC_CONTENT}" PARENT_SCOPE)
@@ -150,6 +136,7 @@ function(nuget_internal_nuspec_add_files_conditionally NUSPEC_INDENT_SIZE NUSPEC
     if(NOT "${CMAKE_CONDITIONAL_SECTION}" STREQUAL "")
         string(APPEND NUSPEC_CONTENT "$<${CMAKE_CONDITIONAL_SECTION}:")
     endif()
+    nuget_internal_helper_error_if_empty("${ARGN}" "Input expression for generating elements under /package/files node(s) for .nuspec XML file(s) is empty: no FILE_SRC and FILE_TARGET arguments were provided.")
     # Loop over parameter pack
     set(ARGS_HEAD "")
     set(ARGS_TAIL ${ARGN})
@@ -204,38 +191,28 @@ endfunction()
 ## Not raising an error if a given configuration is unavailable makes it possible to reuse the same nuget_generate_nuspec_files()
 ## calls across different build systems without adjustments or writing additional code for generating the values of the
 ## CMAKE_CONFIGURATIONS argument.
-function(nuget_internal_nuspec_generate_output NUSPEC_CONTENT PACKAGE_ID)
+function(nuget_internal_nuspec_generate_output NUSPEC_CONTENT PACKAGE_ID CMAKE_OUTPUT_DIR CMAKE_CONFIGURATIONS)
     # Inputs
     nuget_internal_helper_error_if_empty("${NUSPEC_CONTENT}" "NUSPEC_CONTENT to be written is empty: cannot generate .nuspec file's content.")
     nuget_internal_helper_error_if_empty("${PACKAGE_ID}" "PACKAGE_ID to be written is empty: cannot generate .nuspec filename.")
-    set(options "")
-    set(oneValueArgs CMAKE_OUTPUT_DIR)
-    set(multiValueArgs CMAKE_CONFIGURATIONS)
-    cmake_parse_arguments(NUARG
-        "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN}
-    )
-    nuget_internal_helper_error_if_unparsed_args(
-        "${NUARG_UNPARSED_ARGUMENTS}"
-        "${NUARG_KEYWORDS_MISSING_VALUES}"
-    )
-    if("${NUARG_CMAKE_OUTPUT_DIR}" STREQUAL "")
+    if("${CMAKE_OUTPUT_DIR}" STREQUAL "")
         set(OUTPUT_FILE "${CMAKE_BINARY_DIR}/CMakeNuGetTools/nuspec/${PACKAGE_ID}.$<CONFIG>.nuspec")
     else()
-        set(OUTPUT_FILE "${NUARG_CMAKE_OUTPUT_DIR}/${PACKAGE_ID}.$<CONFIG>.nuspec")
+        set(OUTPUT_FILE "${CMAKE_OUTPUT_DIR}/${PACKAGE_ID}.$<CONFIG>.nuspec")
     endif()
     # Actual functionality
-    if("${NUARG_CMAKE_CONFIGURATIONS}" STREQUAL "")
+    if("${CMAKE_CONFIGURATIONS}" STREQUAL "")
         file(GENERATE OUTPUT "${OUTPUT_FILE}" CONTENT "${NUSPEC_CONTENT}")
         message(STATUS "Written \"${OUTPUT_FILE}\" file(s).")
     else()
         set(CONDITIONS "$<OR:")
-        foreach(CONFIGURATION IN LISTS NUARG_CMAKE_CONFIGURATIONS)
+        foreach(CONFIGURATION IN LISTS CMAKE_CONFIGURATIONS)
             string(APPEND CONDITIONS "${CONDITIONS_SEPARATOR}$<CONFIG:${CONFIGURATION}>")
             set(CONDITIONS_SEPARATOR ",")
         endforeach()
         string(APPEND CONDITIONS ">")
         file(GENERATE OUTPUT "${OUTPUT_FILE}" CONTENT "${NUSPEC_CONTENT}" CONDITION "${CONDITIONS}")
-        message(STATUS "Written \"${OUTPUT_FILE}\" file(s) for \"${NUARG_CMAKE_CONFIGURATIONS}\" configuration(s).")
+        message(STATUS "Written \"${OUTPUT_FILE}\" file(s) for \"${CMAKE_CONFIGURATIONS}\" configuration(s).")
     endif()
 endfunction()
 
