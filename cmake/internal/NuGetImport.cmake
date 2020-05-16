@@ -8,10 +8,10 @@ include("${CMAKE_CURRENT_LIST_DIR}/NuGetImport.single.cmake")
 ## the given package in a nuget_add_dependencies() call.
 function(nuget_initialize)
     nuget_internal_helper_get_internal_cache_variables_with_prefix(NUGET_DEPENDENCY_ NUGET_DEPENDENCY_VARIABLES)
-    foreach(DEPENDENCY IN LISTS NUGET_DEPENDENCY_VARIABLES)
-        unset("${DEPENDENCY}" CACHE)
+    nuget_internal_helper_get_internal_cache_variables_with_prefix(NUGET_LAST_DEPENDENCY_ NUGET_LAST_DEPENDENCY_VARIABLES)
+    foreach(DEPENDENCY_VAR IN LISTS NUGET_DEPENDENCY_VARIABLES NUGET_LAST_DEPENDENCY_VARIABLES)
+        unset("${DEPENDENCY_VAR}" CACHE)
     endforeach()
-    unset(NUGET_LAST_DEPENDENCY_CMAKE_TOOLCHAIN_FILE CACHE)
     set(NUGET_IS_INITIALIZED_ONCE_CACHED TRUE CACHE INTERNAL "")
 endfunction()
 
