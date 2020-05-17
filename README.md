@@ -1,6 +1,6 @@
 # CMakeNuGetTools (WIP)
 
-CMakeNuGetTools has CMake functions for adding NuGet package dependencies with CMake exports or a native `.targets` file, generating and merging `.nuspec` files, calling nuget pack, and more. See Examples section below, and the `tests` directory for CMake projects using the functions: relevant function names are prefixed with `nuget_`.
+CMakeNuGetTools has CMake functions for adding NuGet package dependencies with CMake exports or native `.targets` files, generating and merging `.nuspec` files, calling nuget pack, and more. See Examples section below, and the `tests` directory for CMake projects using the functions: relevant function names are prefixed with `nuget_`.
 
 ## Examples
 
