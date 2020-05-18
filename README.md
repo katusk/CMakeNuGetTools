@@ -76,7 +76,7 @@ nuget_generate_nuspec_files(
 )
 ```
 
-## Scope & Aims
+## Scope
 
 CMakeNuGetTools aims to be the cross-platform NuGet package management solution for CMake-based C/C++ projects. At its core, it is a CMake wrapper around the [NuGet command-line interface](https://docs.microsoft.com/en-us/nuget/install-nuget-client-tools#nugetexe-cli) (NuGet CLI), that "provides all NuGet capabilities on Windows, provides most features on Mac and Linux when running under Mono".
 
@@ -84,7 +84,16 @@ Relying solely on the NuGet CLI means that CMakeNuGetTools is not depending on a
 
 For extracting semantic version information for the creation of automatically versioned NuGet packages, CMakeNuGetTools currently relies on the git CLI. Features around querying version tags are optional: the git CLI is only needed if you need automatic versioning features.
 
-## Further Plans
+### Context
+
+CMakeNuGetTools was born with the following considerations in mind from the perspective of a cross-platform CMake-based C/C++ project:
+
+* CMakeNuGetTools should only rely on the cross-platform and stand-alone NuGet CLI for NuGet-related capabilities.
+* One should be able to automatically create a versioned NuGet package per platform (Windows, Linux, or macOS) from this project containing both Debug and Release native binaries that can be consumed by other CMake projects, `.vcxproj`-based C/C++ projects on Windows, and `.csproj`-based managed C# projects on all supported platforms by .NET Core. (You need PInvoke bindings for C/C# interoperability of course: we are solely talking about the NuGet infrastructure itself here.)
+* One should be able to easily put additional NuGet-related customized or generated files, like `.targets` files under the `build/native`, `build`, or `buildTransitive` directories inside the NuGet package to be created. Without this, one cannot achieve some of the goals in the previous point.
+* One should be able to use multiple other NuGet packages from this project also differentiating between PUBLIC (installed and propagated as NuGet package dependency), PRIVATE (installed only), and INTERFACE (propagated as NuGet package dependency only) dependencies. For example, NuGet packages to be consumed containing only static libraries that are only used internally, or NuGet packages containing libraries only used for testing can be marked as PRIVATE; and NuGet packages containing shared libraries can be marked as PUBLIC.
+
+## Queued Tasks
 * Create scripts extracting individual packages from Vcpkg as *separate* NuGet packages
 * Finish up semantic versioning-related functionality
 * Code several small extensions to existing functionality
