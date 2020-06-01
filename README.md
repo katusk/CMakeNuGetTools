@@ -82,11 +82,13 @@ nuget_generate_nuspec_files(
 
 2. Copy the contents of the `cmake` subdirectory of the CMakeNuGetTools root directory into a subdirectory in your project's root directory. We use `scripts/CMakeNuGetTools` as a destination directory example here.
 
-3. Include the `NuGetTools.cmake` script either in the root `CMakeLists.txt` of your CMake-based project, or in your CMake script file from which you want to use the CMake functions, e.g.:
+3. Include the `NuGetTools.cmake` script in the root `CMakeLists.txt` of your CMake-based project, e.g.:
 
    ```cmake
    include("${CMAKE_CURRENT_LIST_DIR}/scripts/CMakeNuGetTools/NuGetTools.cmake")
    ```
+
+   If you have a CMake script file from which you want to use the `NuGetTools.cmake`, you can also use an `include()` adjusting the given path.
 
 4. Set the `NUGET_COMMAND` CMake cache variable to reference the previously installed NuGet CLI.
    * If simply executing `nuget.exe` at your command line or terminal works, you can set the value of the cache variable to `nuget.exe`, e.g. when executing the CMake CLI: `cmake -DNUGET_COMMAND=nuget.exe ...`.
@@ -97,7 +99,7 @@ CMakeNuGetTools can be thought of as an intrinsic part of the build scripting of
 
 ### A Quick Tour
 
-The `NuGetTools.cmake` script currently includes all other required CMakeNuGetTools CMake scripts, so that you can call any of the provided `nuget_*()` functions after including `NuGetTools.cmake` in *your* CMake scripts. (Every other script file outside the `cmake` subdirectory in the CMakeNuGetTools repository is currently only used for stand-alone testing.)
+The `NuGetTools.cmake` script currently includes all other required CMakeNuGetTools CMake scripts, so that you can call any of the provided `nuget_*()` functions after including `NuGetTools.cmake` in your CMake scripts. (Every other script file outside the `cmake` subdirectory in the CMakeNuGetTools repository is currently only used for stand-alone testing.)
 
 The `nuget_initialize`, `nuget_add_dependencies`, `nuget_generate_nuspec_files` functions, and some helper functions are primarily intended to be used from a `CMakeLists.txt` file. The `nuget_generate_nuspec_files` function is especially to be used from `CMakeLists.txt` files only, as it calls CMake's built-in `file(GENERATE)` in the end: output files are only written after processing all of a project's `CMakeLists.txt` files. See test project subdirectories under the `tests` subdirectory in this repository for example uses of these functions.
 
