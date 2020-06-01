@@ -76,6 +76,32 @@ nuget_generate_nuspec_files(
 )
 ```
 
+## Setup
+
+1. Install the [`nuget.exe` CLI](https://docs.microsoft.com/en-us/nuget/install-nuget-client-tools#nugetexe-cli) for your platform: installation instructions can be found [here for Windows](https://docs.microsoft.com/en-us/nuget/install-nuget-client-tools#windows), and [here for macOS/Linux](https://docs.microsoft.com/en-us/nuget/install-nuget-client-tools#macoslinux). Make sure you can properly use the NuGet CLI from your command line or terminal: NuGet feeds are [configured](https://docs.microsoft.com/en-us/nuget/reference/nuget-config-file) properly, your NuGet credentials are valid, etc.
+
+2. Copy the contents of the `cmake` subdirectory of the CMakeNuGetTools root directory into a subdirectory in your project's root directory. We use `scripts/CMakeNuGetTools` as a destination directory example here.
+
+3. Include the `NuGetTools.cmake` script either in the root `CMakeLists.txt` of your CMake-based project, or in your CMake script file from which you want to use the CMake functions, e.g.:
+
+   ```cmake
+   include("${CMAKE_CURRENT_LIST_DIR}/scripts/CMakeNuGetTools/NuGetTools.cmake")
+   ```
+
+4. Set the `NUGET_COMMAND` CMake cache variable to reference the previously installed NuGet CLI.
+   * If simply executing `nuget` at your command line or terminal works (e.g. because the `nuget.exe` is in your `PATH` or you `alias`'ed it), you can set the value of the cache variable to `nuget`, e.g. when executing the CMake CLI: `cmake -DNUGET_COMMAND=nuget ...`.
+   * Alternatively, you can try using `find_program(NUGET_COMMAND ...)` in your CMake scripts.
+
+CMakeNuGetTools can be thought of as an intrinsic part of the build scripting of your CMake-based projects, and as such it is preferably present in your repositories as a copy. But it is not required to put it in a subdirectory under the root directory of your project: no specific location is required for the CMakeNuGetTools CMake scripts found under the `cmake` subdirectory in this repository in order to work properly. Only relative locations within the `cmake` subdirectory need to be retained if you copy over the scripts.
+
+### A Quick Tour
+
+The `NuGetTools.cmake` script currently includes all other required CMakeNuGetTools CMake scripts, so that you can call any of the provided `nuget_*()` functions after including `NuGetTools.cmake` in *your* CMake scripts. (Every other script file outside the `cmake` subdirectory in the CMakeNuGetTools repository is currently only used for stand-alone testing.)
+
+The `nuget_initialize`, `nuget_add_dependencies`, `nuget_generate_nuspec_files` functions, and some helper functions are primarily intended to be used from a `CMakeLists.txt` file. The `nuget_generate_nuspec_files` function is especially to be used from `CMakeLists.txt` files only, as it calls CMake's built-in `file(GENERATE)` in the end: output files are only written after processing all of a project's `CMakeLists.txt` files. See test project subdirectories under the `tests` subdirectory in this repository for example uses of these functions.
+
+Calling `nuget_merge_nuspec_files` and `nuget_pack` is primarily intended to be done outside of `CMakeLists.txt` files: they can be called from CMake script files (on top of your project descriptor `CMakeLists.txt` files) driving the build system generation, triggering the actual build and install of the project, etc. See `CMakeLists.pack.cmake` (which is used from `CMakeLists.txt`) as a simple example in the root directory of this repository.
+
 ## Scope
 
 CMakeNuGetTools aims to be the cross-platform NuGet package management solution for CMake-based C/C++ projects. At its core, it is a CMake wrapper around the [NuGet command-line interface](https://docs.microsoft.com/en-us/nuget/install-nuget-client-tools#nugetexe-cli) (NuGet CLI), that "provides all NuGet capabilities on Windows, provides most features on Mac and Linux when running under Mono".
