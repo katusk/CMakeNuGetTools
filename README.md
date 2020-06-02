@@ -91,7 +91,7 @@ nuget_generate_nuspec_files(
    If you have a CMake script file from which you want to use the `NuGetTools.cmake`, you can also use an `include()` adjusting the given path.
 
 4. Set the `NUGET_COMMAND` CMake cache variable to reference the previously installed NuGet CLI.
-   * If simply executing `nuget.exe` at your command line or terminal works, you can set the value of the cache variable to `nuget.exe`, e.g. when executing the CMake CLI: `cmake -DNUGET_COMMAND=nuget.exe ...`.
+   * If `nuget.exe` is within your PATH environment, you can set the value of the cache variable to `nuget.exe`, e.g. when executing the CMake CLI: `cmake -DNUGET_COMMAND=nuget.exe ...`.
    * Of course, you can also provide an absolute path to `nuget.exe` when setting the `NUGET_COMMAND` cache variable.
    * Alternatively, you can use CMake's `find_program(NUGET_COMMAND ...)` in your CMake scripts.
 
