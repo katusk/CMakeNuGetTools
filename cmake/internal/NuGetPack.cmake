@@ -117,3 +117,27 @@ function(nuget_pack_install)
     # Actual functionality
     nuget_internal_pack_install("${NUARG_PACKAGE}" "${NUARG_VERSION}" "${NUARG_OUTPUT_DIRECTORY}" "${NUARG_SOURCE}")
 endfunction()
+
+## Public interface.
+function(nuget_pack_push)
+    # Sanity checks
+    if("${NUGET_COMMAND}" STREQUAL "")
+        message(STATUS "NUGET_COMMAND is empty: CMakeNuGetTools is disabled, no packages are packed.")
+        return()
+    endif()
+    # Inputs
+    set(options "")
+    set(oneValueArgs PACKAGE_PATH API_KEY SOURCE)
+    set(multiValueArgs "")
+    cmake_parse_arguments(NUARG
+        "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGV}
+    )
+    nuget_internal_helper_error_if_unparsed_args(
+        "${NUARG_UNPARSED_ARGUMENTS}"
+        "${NUARG_KEYWORDS_MISSING_VALUES}"
+    )
+    nuget_internal_helper_error_if_empty("${NUARG_PACKAGE_PATH}" "PACKAGE_PATH must be non-empty.")
+    nuget_internal_helper_error_if_empty("${NUARG_SOURCE}" "SOURCE must be non-empty.")
+    # Actual functionality
+    nuget_internal_pack_push("${NUARG_PACKAGE_PATH}" "${NUARG_API_KEY}" "${NUARG_SOURCE}")
+endfunction()
