@@ -7,12 +7,24 @@ include("${CMAKE_CURRENT_LIST_DIR}/NuGetImport.single.cmake")
 ## same nuget package registered twice but with different versions if you update the version of
 ## the given package in a nuget_add_dependencies() call.
 function(nuget_initialize)
+    unset("NUGET_GLOBAL_PACKAGES_DIR" CACHE)
+    # Check whether the effective packages directory has been changed
+    nuget_internal_helper_get_packages_dir(EFFECTIVE_PACKAGES_DIR)
+    if(NUGET_PREV_EFFECTIVE_PACKAGES_DIR AND NOT "${NUGET_PREV_EFFECTIVE_PACKAGES_DIR}" STREQUAL "${EFFECTIVE_PACKAGES_DIR}")
+        message(STATUS "Effective packages directory has been changed to \"${EFFECTIVE_PACKAGES_DIR}\" from \"${NUGET_PREV_EFFECTIVE_PACKAGES_DIR}\".")
+        set(NUGET_EFFECTIVE_PACKAGES_DIR_CHANGED "TRUE" CACHE INTERNAL "")
+    else()
+        set(NUGET_EFFECTIVE_PACKAGES_DIR_CHANGED "FALSE" CACHE INTERNAL "")
+    endif()
+    # Unset cache variables we need to use as global variables within a single CMake run only
     nuget_internal_helper_get_internal_cache_variables_with_prefix(NUGET_DEPENDENCY_ NUGET_DEPENDENCY_VARIABLES)
     nuget_internal_helper_get_internal_cache_variables_with_prefix(NUGET_LAST_DEPENDENCY_ NUGET_LAST_DEPENDENCY_VARIABLES)
     foreach(DEPENDENCY_VAR IN LISTS NUGET_DEPENDENCY_VARIABLES NUGET_LAST_DEPENDENCY_VARIABLES)
         unset("${DEPENDENCY_VAR}" CACHE)
     endforeach()
-    unset("NUGET_GLOBAL_PACKAGES_DIR" CACHE)
+    # Save current effective packages directory for recognizing whether it has been changed
+    set(NUGET_PREV_EFFECTIVE_PACKAGES_DIR "${EFFECTIVE_PACKAGES_DIR}" CACHE INTERNAL "")
+    # Helps in giving an error if you never-ever called nuget_initialize() before other public nuget_*() calls
     set(NUGET_IS_INITIALIZED_ONCE_CACHED TRUE CACHE INTERNAL "")
 endfunction()
 

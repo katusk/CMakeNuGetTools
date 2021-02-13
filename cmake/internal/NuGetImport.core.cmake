@@ -122,6 +122,14 @@ function(nuget_internal_core_install
     set("NUGET_DEPENDENCY_DIR_${PACKAGE_ID}" "${PACKAGE_DIR}" CACHE INTERNAL
         "Absolute path to the directory of the installed package \"${PACKAGE_ID}\"."
     )
+    # Check whether the effective package directory for this particular package has been changed
+    if(NUGET_PREV_DEPENDENCY_DIR_${PACKAGE_ID} AND NOT "${NUGET_PREV_DEPENDENCY_DIR_${PACKAGE_ID}}" STREQUAL "${PACKAGE_DIR}")
+        message(STATUS "Effective package directory of package \"${PACKAGE_ID}.${PACKAGE_VERSION}\" has been changed to \"${PACKAGE_DIR}\" from \"${NUGET_PREV_DEPENDENCY_DIR_${PACKAGE_ID}}\".")
+        if(NUGET_AUTO_UNSET_CACHE_VARS_WHEN_PACKAGE_DIR_CHANGED)
+            nuget_internal_helper_unset_cache_vars_containing("${NUGET_PREV_DEPENDENCY_DIR_${PACKAGE_ID}}" "NUGET_")
+        endif()
+    endif()
+    set("NUGET_PREV_DEPENDENCY_DIR_${PACKAGE_ID}" "${PACKAGE_DIR}" CACHE INTERNAL "")
 endfunction()
 
 ## Internal. Only Visual Studio generators are compatible. Creates a CMake build target

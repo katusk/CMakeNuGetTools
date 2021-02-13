@@ -177,3 +177,18 @@ function(nuget_internal_helper_unset_cache_variables_with_prefix_and_type PREFIX
         unset("${OUT_VARIABLE}" CACHE)
     endforeach()
 endfunction()
+
+## Internal.
+function(nuget_internal_helper_unset_cache_vars_containing SUBSTRING SKIP_PREFIX)
+    message(STATUS "Unsetting cache variables containing \"${SUBSTRING}\". Variable names prefixed with \"${SKIP_PREFIX}\" are skipped.")
+    get_cmake_property(QUERIED_VARIABLES CACHE_VARIABLES)
+    foreach(QUERIED_VARIABLE IN LISTS QUERIED_VARIABLES)
+        if(SKIP_PREFIX AND "${QUERIED_VARIABLE}" MATCHES "^${SKIP_PREFIX}.*")
+            continue()
+        endif()
+        string(FIND "${${QUERIED_VARIABLE}}" "${SUBSTRING}" SUBSTRING_INDEX)
+        if(NOT ${SUBSTRING_INDEX} EQUAL -1)
+            unset("${QUERIED_VARIABLE}" CACHE)
+        endif()
+    endforeach()
+endfunction()
