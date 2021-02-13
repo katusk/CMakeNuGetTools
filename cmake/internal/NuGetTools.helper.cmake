@@ -60,17 +60,54 @@ function(nuget_internal_helper_cut_arg_list DIVIDER LIST OUT_HEAD OUT_TAIL)
     set(${OUT_TAIL} "${TAIL}" PARENT_SCOPE)
 endfunction()
 
-## Internal. Assembles the package directory based off of the given args and the 
-## NUGET_PACKAGES_DIR cache variable.
-function(nuget_internal_helper_get_packages_dir PACKAGE_ID PACKAGE_VERSION OUT_PACKAGE_DIR)
+## Internal. Assembles the packages directory based off of cache variable settings
+## including NUGET_PACKAGES_DIR.
+function(nuget_internal_helper_get_packages_dir OUT_PACKAGES_DIR)
+    if(NUGET_GLOBAL_PACKAGES_AS_INSTALL_OUTPUT_DIR)
+        if(NUGET_GLOBAL_PACKAGES_DIR)
+            set(${OUT_PACKAGES_DIR} "${NUGET_GLOBAL_PACKAGES_DIR}" PARENT_SCOPE)
+            return()
+        endif()
+        execute_process(
+            COMMAND "${NUGET_COMMAND}" locals global-packages -list
+            OUTPUT_VARIABLE NUGET_OUTPUT_VAR
+            ERROR_VARIABLE NUGET_ERROR_VAR
+            RESULT_VARIABLE NUGET_RESULT_VAR
+        )
+        nuget_internal_helper_error_if_not_empty("${NUGET_ERROR_VAR}"
+            "Running NuGet list global-packages directory encountered some errors: "
+        )
+        if(NOT ${NUGET_RESULT_VAR} EQUAL 0)
+            message(FATAL_ERROR "NuGet list global-packages directory returned with: \"${NUGET_RESULT_VAR}\"")
+        endif()
+        string(REGEX REPLACE "^global-packages: ([^\r\n]*)[\r\n]" "\\1" NUGET_GLOBAL_PACKAGES_DIR "${NUGET_OUTPUT_VAR}")
+        file(TO_CMAKE_PATH "${NUGET_GLOBAL_PACKAGES_DIR}" NUGET_GLOBAL_PACKAGES_DIR)
+        string(REGEX REPLACE "/$" "" NUGET_GLOBAL_PACKAGES_DIR "${NUGET_GLOBAL_PACKAGES_DIR}")
+        nuget_internal_helper_error_if_empty("${NUGET_GLOBAL_PACKAGES_DIR}"
+            "Parsing the output of NuGet list global-packages yielded an empty directory."
+        )
+        if(NOT "${NUGET_GLOBAL_PACKAGES_DIR_SUFFIX}" STREQUAL "")
+            set(NUGET_GLOBAL_PACKAGES_DIR "${NUGET_GLOBAL_PACKAGES_DIR}/${NUGET_GLOBAL_PACKAGES_DIR_SUFFIX}")
+        endif()
+        message(STATUS "NuGet install output directory is set to \"${NUGET_GLOBAL_PACKAGES_DIR}\" instead of NUGET_PACKAGES_DIR=\"${NUGET_PACKAGES_DIR}\".")
+        set(NUGET_GLOBAL_PACKAGES_DIR "${NUGET_GLOBAL_PACKAGES_DIR}" CACHE INTERNAL "")
+        set(${OUT_PACKAGES_DIR} "${NUGET_GLOBAL_PACKAGES_DIR}" PARENT_SCOPE)
+    else()
+        set(${OUT_PACKAGES_DIR} "${NUGET_PACKAGES_DIR}" PARENT_SCOPE)
+    endif()
+endfunction()
+
+## Internal. Assembles the package directory based off of the given args and cache variables.
+function(nuget_internal_helper_get_package_dir PACKAGE_ID PACKAGE_VERSION OUT_PACKAGE_DIR)
+    nuget_internal_helper_get_packages_dir(PACKAGES_DIR)
     if(NUGET_EXCLUDE_VERSION)
         set(${OUT_PACKAGE_DIR}
-            "${NUGET_PACKAGES_DIR}/${PACKAGE_ID}"
+            "${PACKAGES_DIR}/${PACKAGE_ID}"
             PARENT_SCOPE
         )
     else()
         set(${OUT_PACKAGE_DIR}
-            "${NUGET_PACKAGES_DIR}/${PACKAGE_ID}.${PACKAGE_VERSION}"
+            "${PACKAGES_DIR}/${PACKAGE_ID}.${PACKAGE_VERSION}"
             PARENT_SCOPE
         )
     endif()

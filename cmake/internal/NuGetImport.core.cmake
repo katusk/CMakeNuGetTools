@@ -64,7 +64,7 @@ function(nuget_internal_core_register
 endfunction()
 
 ## Internal. Runs NuGet install with PACKAGE_ID and PACKAGE_VERSION.
-## The OutputDirectory is set by the CACHE variable NUGET_PACKAGES_DIR.
+## The OutputDirectory is set by the CACHE variable NUGET_PACKAGES_DIR by default.
 function(nuget_internal_core_install
     PACKAGE_ID
     PACKAGE_VERSION
@@ -92,10 +92,11 @@ function(nuget_internal_core_install
     # the coding effort. Just make sure nuget_internal_core_install() is explicitly called for all
     # your PUBLIC and PRIVATE transitive dependencies. I.e. the user should explicitly list
     # all dependencies that should be installed.
+    nuget_internal_helper_get_packages_dir(PACKAGES_DIR)
     execute_process(
         COMMAND "${NUGET_COMMAND}" install ${PACKAGE_ID}
             -Version ${PACKAGE_VERSION}
-            -OutputDirectory "${NUGET_PACKAGES_DIR}"
+            -OutputDirectory "${PACKAGES_DIR}"
             -NonInteractive
             ${NUGET_INSTALL_NO_CACHE_OPTION}
             ${NUGET_INSTALL_DIRECT_DOWNLOAD_OPTION}
@@ -117,7 +118,7 @@ function(nuget_internal_core_install
     set("NUGET_DEPENDENCY_INSTALLED_${PACKAGE_ID}" TRUE CACHE INTERNAL
         "True if the package \"${PACKAGE_ID}\" is successfully installed."
     )
-    nuget_internal_helper_get_packages_dir(${PACKAGE_ID} ${PACKAGE_VERSION} PACKAGE_DIR)
+    nuget_internal_helper_get_package_dir(${PACKAGE_ID} ${PACKAGE_VERSION} PACKAGE_DIR)
     set("NUGET_DEPENDENCY_DIR_${PACKAGE_ID}" "${PACKAGE_DIR}" CACHE INTERNAL
         "Absolute path to the directory of the installed package \"${PACKAGE_ID}\"."
     )
