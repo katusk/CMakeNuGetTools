@@ -13,6 +13,9 @@ function(nuget_internal_git_parse_git_describe
     # Describe most recent tag; e.g. "v0.1-36-g9cba053". Error if not found.
     # NOTE: consider using "--first-parent"; see:
     # https://git-scm.com/docs/git-describe#Documentation/git-describe.txt---first-parent
+    if("${GIT_TAG_PREFIX}" STREQUAL " ")
+        unset(GIT_TAG_PREFIX)
+    endif()
     execute_process(
         COMMAND "${GIT_EXECUTABLE}" describe --tags --long --match "${GIT_TAG_PREFIX}*"
         WORKING_DIRECTORY "${CMAKE_CURRENT_LIST_DIR}"

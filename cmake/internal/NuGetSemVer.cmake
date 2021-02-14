@@ -46,7 +46,7 @@ function(nuget_git_get_mapped_semantic_version)
     set(oneValueArgs TAG_PREFIX
         BRANCH FULL CORE MAJOR MINOR PATCH PRERELEASE
     )
-    set(multiValueArgs BRANCH_NAME_REGEXES PRERELEASE_PREFIX_LABELS PRERELEASE_POSTFIX_FLAGS)
+    set(multiValueArgs BRANCH_NAME_REGEXES PRERELEASE_PREFIX_LABELS PRERELEASE_POSTFIX_FLAGS NO_PRELEASE_WHEN_ON_TAG_FLAGS COMMIT_COUNT_IN_PRELEASE_FLAGS)
     cmake_parse_arguments(NUARG "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGV})
     nuget_internal_helper_error_if_unparsed_args("${NUARG_UNPARSED_ARGUMENTS}" "${NUARG_KEYWORDS_MISSING_VALUES}")
     nuget_internal_git_get_semantic_version_applying_rules(
@@ -54,6 +54,8 @@ function(nuget_git_get_mapped_semantic_version)
         "${NUARG_BRANCH_NAME_REGEXES}"
         "${NUARG_PRERELEASE_PREFIX_LABELS}"
         "${NUARG_PRERELEASE_POSTFIX_FLAGS}"
+        "${NUARG_NO_PRELEASE_WHEN_ON_TAG_FLAGS}"
+        "${NUARG_COMMIT_COUNT_IN_PRELEASE_FLAGS}"
         BRANCH
         MAJOR
         MINOR

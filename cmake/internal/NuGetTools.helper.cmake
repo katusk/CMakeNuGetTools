@@ -192,3 +192,18 @@ function(nuget_internal_helper_unset_cache_vars_containing SUBSTRING SKIP_PREFIX
         endif()
     endforeach()
 endfunction()
+
+## Internal.
+function(nuget_internal_helper_pad_number NUMBER TEMPLATE PADDED_NUMBER_OUT)
+    string(REGEX REPLACE "." "9" MAX_NUM "${TEMPLATE}")
+    if(NUMBER GREATER_EQUAL MAX_NUM)
+        set("${PADDED_NUMBER_OUT}" "${MAX_NUM}" PARENT_SCOPE)
+        return()
+    endif()
+    set(PADDED_NUMBER "${TEMPLATE}${NUMBER}")
+    string(LENGTH "${TEMPLATE}" TEMPLATE_LEN)
+    string(LENGTH "${PADDED_NUMBER}" PADDED_NUMBER_LEN)
+    math(EXPR SURPLUS_LEN "${PADDED_NUMBER_LEN} - ${TEMPLATE_LEN}")
+    string(SUBSTRING "${PADDED_NUMBER}" ${SURPLUS_LEN} -1 PADDED_NUMBER)
+    set("${PADDED_NUMBER_OUT}" "${PADDED_NUMBER}" PARENT_SCOPE)
+endfunction()
