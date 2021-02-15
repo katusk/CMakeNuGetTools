@@ -51,17 +51,18 @@ function(nuget_git_get_current_branch_name BRANCH_NAME_OUT)
         message(FATAL_ERROR "Git was not found: cannot get name of current branch.")
     endif()
     execute_process(
-        COMMAND "${GIT_EXECUTABLE}" rev-parse --abbrev-ref HEAD
+        COMMAND "${GIT_EXECUTABLE}" show -s --pretty=%d HEAD
         WORKING_DIRECTORY "${CMAKE_CURRENT_LIST_DIR}"
         OUTPUT_VARIABLE GIT_BRANCH_OUTPUT
         ERROR_VARIABLE GIT_BRANCH_ERROR_VAR
         RESULT_VARIABLE GIT_BRANCH_RESULT_VAR
         OUTPUT_STRIP_TRAILING_WHITESPACE
     )
-    nuget_internal_helper_error_if_not_empty("${GIT_BRANCH_ERROR_VAR}" "Running Git rev-parse --abbrev-ref HEAD encountered some errors: ")
+    nuget_internal_helper_error_if_not_empty("${GIT_BRANCH_ERROR_VAR}" "Running \"git show -s --pretty=%d HEAD\" encountered some errors: ")
     if(NOT ${GIT_BRANCH_RESULT_VAR} EQUAL 0)
-        message(FATAL_ERROR "Git rev-parse --abbrev-ref HEAD returned with: \"${GIT_BRANCH_RESULT_VAR}\"")
+        message(FATAL_ERROR "\"git show -s --pretty=%d HEAD\" returned with: \"${GIT_BRANCH_RESULT_VAR}\"")
     endif()
+    string(REGEX REPLACE "\\(.*, (.+)\\)" "\\1" GIT_BRANCH_OUTPUT "${GIT_BRANCH_OUTPUT}")
     set(${BRANCH_NAME_OUT} "${GIT_BRANCH_OUTPUT}" PARENT_SCOPE)
 endfunction()
 
