@@ -39,6 +39,7 @@ function(nuget_internal_git_get_semantic_version_applying_rules
     PRERELEASE_POSTFIX_FLAGS
     NO_PRELEASE_WHEN_ON_TAG_FLAGS
     COMMIT_COUNT_IN_PRELEASE_FLAGS
+    COMMIT_COUNT_ONLY_ADDS_ONE_FLAGS
     BRANCH_OUT
     MAJOR_OUT
     MINOR_OUT
@@ -51,6 +52,7 @@ function(nuget_internal_git_get_semantic_version_applying_rules
     list(LENGTH PRERELEASE_POSTFIX_FLAGS PRERELEASE_POSTFIX_FLAGS_LENGTH)
     list(LENGTH NO_PRELEASE_WHEN_ON_TAG_FLAGS NO_PRELEASE_WHEN_ON_TAG_FLAGS_LENGTH)
     list(LENGTH COMMIT_COUNT_IN_PRELEASE_FLAGS COMMIT_COUNT_IN_PRELEASE_FLAGS_LENGTH)
+    list(LENGTH COMMIT_COUNT_ONLY_ADDS_ONE_FLAGS COMMIT_COUNT_ONLY_ADDS_ONE_FLAGS_LENGTH)
     if(NOT BRANCH_NAME_REGEXES_LENGTH EQUAL PRERELEASE_PREFIX_LABELS_LENGTH)
         message(FATAL_ERROR "Number of provided branch name regexes and prerelease prefix labels differ.")
     endif()
@@ -62,6 +64,9 @@ function(nuget_internal_git_get_semantic_version_applying_rules
     endif()
     if(NOT BRANCH_NAME_REGEXES_LENGTH EQUAL COMMIT_COUNT_IN_PRELEASE_FLAGS_LENGTH)
         message(FATAL_ERROR "Number of provided branch name regexes and commit count in prelease flags differ.")
+    endif()
+    if(NOT BRANCH_NAME_REGEXES_LENGTH EQUAL COMMIT_COUNT_ONLY_ADDS_ONE_FLAGS_LENGTH)
+        message(FATAL_ERROR "Number of provided branch name regexes and commit count only adds one flags differ.")
     endif()
     # Query version tag
     nuget_internal_git_parse_git_describe("${GIT_TAG_PREFIX}" TAG_WITHOUT_PREFIX COMMITS_SINCE_MOST_RECENT_TAG MOST_RECENT_COMMIT_ABBREV)
@@ -90,6 +95,10 @@ function(nuget_internal_git_get_semantic_version_applying_rules
                     nuget_internal_helper_pad_number("${COMMITS_SINCE_MOST_RECENT_TAG}" "000" COMMITS_SINCE_MOST_RECENT_TAG_PADDED)
                     set(PRERELEASE "${PRERELEASE}${COMMITS_SINCE_MOST_RECENT_TAG_PADDED}")
                     set(PATCH "${ORIGINAL_PATCH}")
+                endif()
+                list(GET COMMIT_COUNT_ONLY_ADDS_ONE_FLAGS ${ITER} COMMIT_COUNT_ONLY_ADDS_ONE_FLAG)
+                if(COMMIT_COUNT_ONLY_ADDS_ONE_FLAG AND COMMITS_SINCE_MOST_RECENT_TAG GREATER 0)
+                    math(EXPR PATCH "${ORIGINAL_PATCH} + 1")
                 endif()
                 # MOST_RECENT_COMMIT_ABBREV is used as postfix without adding the "+" glue character: "If you upload a SemVer
                 # v2.0.0-specific package to nuget.org, the package is invisible to older clients and available to only the
