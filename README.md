@@ -124,7 +124,7 @@ CMakeNuGetTools was born with the following considerations in mind from the pers
 * One should be able to use multiple other NuGet packages from this project also differentiating between PUBLIC (installed and propagated as NuGet package dependency), PRIVATE (installed only), and INTERFACE (propagated as NuGet package dependency only) dependencies. For example, NuGet packages to be consumed containing only static libraries that are only used internally, or NuGet packages containing libraries only used for testing can be marked as PRIVATE; and NuGet packages containing shared libraries can be marked as PUBLIC.
 
 ## Queued Tasks
-* Create scripts extracting individual packages from Vcpkg as *separate* NuGet packages
+* Create scripts extracting individual packages from Vcpkg as *separate* NuGet packages. EDIT: Try building on top of vcpkg's manifest mode with binary caching in NuGet mode. Note, that they have proper versioning support now. Generating a vcpkg.json from CMake script with only the vcpkg baseline provided should be a sufficient start. We need vcpkg-related parameters in nuget_add_dependencies calls.
 * Finish up semantic versioning-related functionality
 * Code several small extensions to existing functionality
 * Create a meta-build example with a native library project, a managed wrapper project, and a managed app project
