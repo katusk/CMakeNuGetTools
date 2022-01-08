@@ -31,6 +31,26 @@ function(nuget_internal_pack NUSPEC_FILEPATH OUTPUT_DIRECTORY VERSION_OVERRIDE)
 endfunction()
 
 ## Internal.
+function(nuget_internal_pack_autopkg AUTOPKG_FILEPATH)
+    # Execute pack
+    execute_process(
+        COMMAND powershell -command "Write-NuGetPackage ${AUTOPKG_FILEPATH}"
+        ERROR_VARIABLE
+            NUGET_PACK_ERROR_VAR
+        RESULT_VARIABLE
+            NUGET_PACK_RESULT_VAR
+    )
+    nuget_internal_helper_error_if_not_empty(
+        "${NUGET_PACK_ERROR_VAR}"
+        "Running powershell -command \"Write-NuGetPackage ${AUTOPKG_FILEPATH}\" encountered some errors: "
+    )
+
+    if(NOT ${NUGET_PACK_RESULT_VAR} EQUAL 0)
+        message(FATAL_ERROR "powershell -command \"Write-NuGetPackage ${AUTOPKG_FILEPATH}\" returned with: \"${NUGET_PACK_RESULT_VAR}\"")
+    endif()
+endfunction()
+
+## Internal.
 function(nuget_internal_pack_install
     PACKAGE_ID
     PACKAGE_VERSION
