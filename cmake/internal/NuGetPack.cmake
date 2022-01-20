@@ -164,13 +164,13 @@ function(nuget_generate_autopkg_files)
     message(STATUS "Writing .autopkg file(s)...")
     # Begin .autopkg file
     # Start with the configuration that is needed to create packages for VS2015 (v140), see https://github.com/coapp/coapp.powershell/issues/112.
-    # See http://coapp.org/reference/autopackage-ref.html for the default for 'choises'.
+    # See http://coapp.org/developers/autopackage.html and http://coapp.org/reference/autopackage-ref.html for the default for 'choises'.
     set(AUTOPKG_CONTENT "configurations {")
     # This node contains custom pivot information.
     string(APPEND AUTOPKG_CONTENT "\n${NUGET_AUTOPKG_INDENT_SIZE}Toolset {")
     #  This is CoApp pre-defined key.
     string(APPEND AUTOPKG_CONTENT "\n${NUGET_AUTOPKG_INDENT_SIZE}${NUGET_AUTOPKG_INDENT_SIZE}key: \"PlatformToolset\";")
-    string(APPEND AUTOPKG_CONTENT "\n${NUGET_AUTOPKG_INDENT_SIZE}${NUGET_AUTOPKG_INDENT_SIZE}choices: { v140, v120, v110, v100, v90, v80, v71, v70, v60, gcc };")
+    string(APPEND AUTOPKG_CONTENT "\n${NUGET_AUTOPKG_INDENT_SIZE}${NUGET_AUTOPKG_INDENT_SIZE}choices: { v142, v141, v140, v120, v110, v100, v90, v80, v71, v70, v60, gcc };")
     string(APPEND AUTOPKG_CONTENT "\n${NUGET_AUTOPKG_INDENT_SIZE}};")
     string(APPEND AUTOPKG_CONTENT "\n}")
     string(APPEND AUTOPKG_CONTENT "\nnuget {")

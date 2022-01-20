@@ -13,7 +13,7 @@ function(nuget_internal_autopkg_process_nuspec_args AUTOPKG_INDENT_SIZE AUTOPKG_
         "${NUARG_UNPARSED_ARGUMENTS}"
         "${NUARG_KEYWORDS_MISSING_VALUES}"
     )
-    # See http://coapp.org/reference/autopackage-ref.html for below requirements
+    # See http://coapp.org/developers/autopackage.html and http://coapp.org/reference/autopackage-ref.html for below requirements
     nuget_internal_helper_error_if_empty("${NUARG_PACKAGE}" "PACKAGE must not be empty: it is a required element (/nuget/nuspec/id) of an .autopkg file.")
     nuget_internal_helper_error_if_empty("${NUARG_VERSION}" "VERSION must not be empty: it is a required element (/nuget/nuspec/version) of an .autopkg file.")
     nuget_internal_helper_error_if_empty("${NUARG_TITLE}" "TITLE must not be empty: it is a required element (/nuget/nuspec/title) of an .autopkg file.")
@@ -193,7 +193,7 @@ endfunction()
 ## Internal.
 function(nuget_internal_autopkg_add_file_conditionally AUTOPKG_INDENT_SIZE AUTOPKG_CONTENT RELATIVE_OUTPUT_DIR OUT_AUTOPKG_CONTENT CMAKE_CONDITIONAL_SECTION)
     # Inputs
-    # See http://coapp.org/reference/autopackage-ref.html
+    # See http://coapp.org/developers/autopackage.html and http://coapp.org/reference/autopackage-ref.html
     set(options "")
     set(oneValueArgs FILE_BIN_SRC FILE_SYMBOLS_SRC)
     set(multiValueArgs FILE_EXCLUDE)
@@ -204,17 +204,19 @@ function(nuget_internal_autopkg_add_file_conditionally AUTOPKG_INDENT_SIZE AUTOP
         "${NUARG_UNPARSED_ARGUMENTS}"
         "${NUARG_KEYWORDS_MISSING_VALUES}"
     )
-    nuget_internal_helper_error_if_empty("${NUARG_FILE_BIN_SRC}"
-        "FILE_BIN_SRC must not be empty: it is a required attribute (bin) of "
-        "an .autopkg file's /nuget/files element."
+    nuget_internal_helper_error_if_empty("${NUARG_FILE_BIN_SRC}${NUARG_FILE_SYMBOLS_SRC}"
+        "FILE_BIN_SRC and FILE_SYMBOLS_SRC must not both be empty: one of them is a required "
+        "attribute (bin or symbols) of an .autopkg file's /nuget/files element."
     )
 
     # Actual functionality
+    if(NOT "${NUARG_FILE_BIN_SRC}" STREQUAL "")
+        string(APPEND AUTOPKG_CONTENT "\n${AUTOPKG_INDENT_SIZE}bin: \"${RELATIVE_OUTPUT_DIR}/${NUARG_FILE_BIN_SRC}\";")
+    endif()
+
     if(NOT "${NUARG_FILE_SYMBOLS_SRC}" STREQUAL "")
         string(APPEND AUTOPKG_CONTENT "\n${AUTOPKG_INDENT_SIZE}symbols: \"${RELATIVE_OUTPUT_DIR}/${NUARG_FILE_SYMBOLS_SRC}\";")
     endif()
-
-    string(APPEND AUTOPKG_CONTENT "\n${AUTOPKG_INDENT_SIZE}bin: \"${RELATIVE_OUTPUT_DIR}/${NUARG_FILE_BIN_SRC}\";")
 
     if(NOT "${NUARG_FILE_EXCLUDE}" STREQUAL "")
         string(APPEND AUTOPKG_CONTENT " exclude=\"${NUARG_FILE_EXCLUDE}\"")
