@@ -106,6 +106,45 @@ add_test(NAME write_nuspec_simple.mergeandpack
     WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}/build/cmake/x64-windows/MultiConfig/write_nuspec_simple"
 )
 
+# Test: write_autopkg_simple
+# TODO: we rely on sequential execution here...
+add_custom_target(write_autopkg_simple.mkdir ALL
+    COMMAND "${CMAKE_COMMAND}" -E make_directory "${CMAKE_SOURCE_DIR}/build/cmake/x64-windows/MultiConfig/write_autopkg_simple"
+)
+add_test(NAME write_autopkg_simple.g
+    COMMAND "${CMAKE_COMMAND}" -T v142,host=x64 -G "Visual Studio 15 2017 Win64" -DNUGET_COMMAND=nuget
+        "-DNUGET_PACKAGES_DIR=${CMAKE_SOURCE_DIR}/packages" "-DCMAKE_CONFIGURATION_TYPES=Release;Debug"
+        "-DCMAKE_INSTALL_PREFIX=${CMAKE_SOURCE_DIR}/install/cmake/x64-windows/MultiConfig/write_autopkg_simple"
+        "${CMAKE_SOURCE_DIR}/tests/write_autopkg_simple"
+    WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}/build/cmake/x64-windows/MultiConfig/write_autopkg_simple"
+)
+add_test(NAME write_autopkg_simple.release.build
+    COMMAND "${CMAKE_COMMAND}" --build . --config Release --target ALL_BUILD -- /p:PlatformToolset=v141 /p:Configuration=Release /p:Platform=x64
+    WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}/build/cmake/x64-windows/MultiConfig/write_autopkg_simple"
+)
+add_test(NAME write_autopkg_simple.debug.build
+    COMMAND "${CMAKE_COMMAND}" --build . --config Debug --target ALL_BUILD -- /p:PlatformToolset=v141 /p:Configuration=Debug /p:Platform=x64
+    WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}/build/cmake/x64-windows/MultiConfig/write_autopkg_simple"
+)
+add_custom_target(write_autopkg_simple.install.mkdir ALL
+    COMMAND "${CMAKE_COMMAND}" -E make_directory "${CMAKE_SOURCE_DIR}/install/cmake/x64-windows/MultiConfig/write_autopkg_simple"
+)
+add_test(NAME write_autopkg_simple.release.install
+    COMMAND "${CMAKE_COMMAND}" --build . --config Release --target INSTALL -- /p:PlatformToolset=v141 /p:Configuration=Release /p:Platform=x64
+    WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}/build/cmake/x64-windows/MultiConfig/write_autopkg_simple"
+)
+add_test(NAME write_autopkg_simple.debug.install
+    COMMAND "${CMAKE_COMMAND}" --build . --config Debug --target INSTALL -- /p:PlatformToolset=v141 /p:Configuration=Debug /p:Platform=x64
+    WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}/build/cmake/x64-windows/MultiConfig/write_autopkg_simple"
+)
+add_test(NAME write_autopkg_simple.mergeandpack
+    COMMAND "${CMAKE_COMMAND}"
+        "-DMERGE_OUTPUT=CMakeNuGetTools/write_autopkg_simple.autopkg"
+        "-DMERGE_INPUTS=CMakeNuGetTools/write_autopkg_simple.Release.autopkg;CMakeNuGetTools/write_autopkg_simple.Debug.autopkg"
+        -P "${CMAKE_SOURCE_DIR}/CMakeLists.pack.autopkg.cmake"
+    WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}/build/cmake/x64-windows/MultiConfig/write_autopkg_simple"
+)
+
 # Test: export_simple_toolchain
 # TODO: we rely on sequential execution here...
 add_custom_target(export_simple_toolchain.mkdir ALL
