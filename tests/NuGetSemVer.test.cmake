@@ -38,6 +38,9 @@ nuget_git_get_mapped_semantic_version(
     BRANCH_NAME_REGEXES "^feature.*$" "^release.*" "^master$" ".*"
     PRERELEASE_PREFIX_LABELS "alpha" "rc" " " "pre"
     PRERELEASE_POSTFIX_FLAGS 1 1 0 1
+    NO_PRELEASE_WHEN_ON_TAG_FLAGS 1 1 0 1
+    COMMIT_COUNT_IN_PRELEASE_FLAGS 1 1 0 1
+    COMMIT_COUNT_ONLY_ADDS_ONE_FLAGS 1 1 0 1
     BRANCH CURRENT_BRANCH
     FULL FULL_VERSION
     CORE CORE_VERSION
