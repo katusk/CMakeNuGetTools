@@ -205,9 +205,10 @@ function(nuget_generate_autopkg_files)
         "${AUTOPKG_CONTENT}"
         ${NUARG_CMAKE_ARCHITECTURE}
         ${NUARG_CMAKE_PLATFORMTOOLSET}
+        "${NUARG_CMAKE_OUTPUT_DIR}"
         "${RELATIVE_OUTPUT_DIR}"
         AUTOPKG_CONTENT
-        ${NUARG_FILES}
+        "${NUARG_FILES}"
     )
     # End .autopkg file
     string(APPEND AUTOPKG_CONTENT "\n}")

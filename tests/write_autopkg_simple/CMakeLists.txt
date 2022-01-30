@@ -4,7 +4,7 @@ include(GNUInstallDirs)
 
 ## CMake setup
 cmake_minimum_required(VERSION 3.8.2 FATAL_ERROR)
-project(write_autopkg_simple LANGUAGES CXX VERSION 1.2.3)
+project(write_autopkg_simple LANGUAGES C CXX VERSION 1.2.3)
 set(CMAKE_C_COMPILER "")
 
 ## NuGet setup: call it only once before any other nuget_* calls.
@@ -47,7 +47,9 @@ add_dependencies(GeneratedFiles GeneratedFilesInternal)
 # From "Examining UTF-8 code units" of https://begriffs.com/posts/2019-05-23-unicode-icu.html#icu-example-programs
 # Test: echo "résumé façade" | ./nomarks
 # From https://github.com/google/flatbuffers/blob/42c08cbca601688af921eaa9384844a632e2cde8/samples/sample_binary.cpp
-add_library(WriteAutopkgSimple SHARED nomarks.c sample_binary.cpp)
+add_library(WriteAutopkgSimple SHARED nomarks.c sample_binary.cpp calculate.c calculate.h)
+# This is needed to build the library and export methods.
+target_compile_definitions(WriteAutopkgSimple PRIVATE CALCULATE_BUILD)
 # TODO: These does not seem to link against the "icu*d65.dll" icu libraries in Debug mode (a "d" is appended just before the version number).
 target_link_libraries(WriteAutopkgSimple PRIVATE ICU::data ICU::uc ICU::io GeneratedFiles)
 target_include_directories(WriteAutopkgSimple PRIVATE "${FLATBUFFERS_INTERFACE_INCLUDE_DIRECTORIES}") # Only need flatbuffers/flatbuffers.h
@@ -136,8 +138,12 @@ nuget_generate_autopkg_files(
         ## Currently only DEPENDENCIES which is automatically generated based on nuget_add_dependencies() calls.
     ## FILES node: required by our CMake implementation
     FILES
-        FILE_BIN_SRC "$<TARGET_FILE_NAME:WriteAutopkgSimple>"
-        # Only in Debug mode: .pdb file
-        CMAKE_CONDITIONAL_SECTION $<CONFIG:Debug>
-            FILE_SYMBOLS_SRC "$<TARGET_PDB_FILE_NAME:WriteAutopkgSimple>"
+        INCLUDES
+            FILE_INCLUDE_SRC "**/*.h"
+        OUTPUTS
+            FILE_BIN_SRC "$<TARGET_FILE_NAME:WriteAutopkgSimple>"
+            FILE_LIB_SRC "$<TARGET_LINKER_FILE_NAME:WriteAutopkgSimple>"
+            # Only in Debug mode: .pdb file
+            CMAKE_CONDITIONAL_SECTION $<CONFIG:Debug>
+                FILE_SYMBOLS_SRC "$<TARGET_PDB_FILE_NAME:WriteAutopkgSimple>"
 )
