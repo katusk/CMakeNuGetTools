@@ -122,14 +122,9 @@ function(nuget_internal_autopkg_process_files_args
 )
     set(options "")
     set(oneValueArgs "")
-    set(multiValueArgs CMAKE_CONFIGURATIONS INCLUDES OUTPUTS)
-    cmake_parse_arguments(NUARG
-        "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN}
-    )
-    nuget_internal_helper_error_if_unparsed_args(
-        "${NUARG_UNPARSED_ARGUMENTS}"
-        "${NUARG_KEYWORDS_MISSING_VALUES}"
-    )
+    set(multiValueArgs CMAKE_CONFIGURATIONS INCLUDES NESTEDINCLUDES OUTPUTS)
+    cmake_parse_arguments(NUARG "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
+    nuget_internal_helper_error_if_unparsed_args("${NUARG_UNPARSED_ARGUMENTS}" "${NUARG_KEYWORDS_MISSING_VALUES}")
     # Begin /nuget/files
     set(AUTOPKG_FILES_CONTENT_BEGIN "\n${AUTOPKG_INDENT_SIZE}files {")
     set(AUTOPKG_FILES_CONTENT_END "\n${AUTOPKG_INDENT_SIZE}};")
@@ -142,6 +137,16 @@ function(nuget_internal_autopkg_process_files_args
             "${CMAKE_OUTPUT_DIR}"
             AUTOPKG_FILES_CONTENT
             ${NUARG_INCLUDES}
+        )
+    endif()
+
+    if (NOT "${NUARG_NESTEDINCLUDES}" STREQUAL "")
+        nuget_internal_autopkg_process_files_nestedincludes_args(
+            "${AUTOPKG_INDENT_SIZE}"
+            "${AUTOPKG_FILES_CONTENT}"
+            "${CMAKE_OUTPUT_DIR}"
+            AUTOPKG_FILES_CONTENT
+            ${NUARG_NESTEDINCLUDES}
         )
     endif()
 
@@ -175,58 +180,72 @@ function(nuget_internal_autopkg_process_files_includes_args
     CMAKE_OUTPUT_DIR
     OUT_AUTOPKG_CONTENT
 )
-    nuget_internal_helper_error_if_empty("${ARGN}" "Input expression for generating include elements under /nuget/files/include node(s) for .autopkg file(s) is empty: no FILE_INCLUDE_SRC arguments were provided.")
+    # Inputs
+    # See http://coapp.org/developers/autopackage.html and http://coapp.org/reference/autopackage-ref.html
+    set(options "")
+    set(oneValueArgs "")
+    set(multiValueArgs FILE_INCLUDE_SRC)
+    cmake_parse_arguments(NUARG "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
+    nuget_internal_helper_error_if_unparsed_args("${NUARG_UNPARSED_ARGUMENTS}" "${NUARG_KEYWORDS_MISSING_VALUES}")
+    nuget_internal_helper_error_if_empty("${NUARG_FILE_INCLUDE_SRC}" "FILE_INCLUDE_SRC must not be empty: it is a required " +
+        "attribute of an .autopkg file's /nuget/files/include element."
+    )
 
     set(AUTOPKG_FILES_CONTENT_BEGIN "\n${AUTOPKG_INDENT_SIZE}${AUTOPKG_INDENT_SIZE}include: {")
     set(AUTOPKG_FILES_CONTENT_END "\n${AUTOPKG_INDENT_SIZE}${AUTOPKG_INDENT_SIZE}};")
     set(AUTOPKG_FILES_CONTENT "${AUTOPKG_FILES_CONTENT_BEGIN}")
-    set(ARGS_HEAD "")
-    set(ARGS_TAIL ${ARGN})
     set(AUTOPKG_SUBELEMENT_INDENT_SIZE "${AUTOPKG_INDENT_SIZE}${NUGET_AUTOPKG_INDENT_SIZE}${NUGET_AUTOPKG_INDENT_SIZE}")
     cmake_path(RELATIVE_PATH CMAKE_SOURCE_DIR BASE_DIRECTORY ${CMAKE_OUTPUT_DIR} OUTPUT_VARIABLE RELATIVE_OUTPUT_DIR)
 
-    while(NOT "${ARGS_TAIL}" STREQUAL "")
+    foreach(FILE_INCLUDE_SRC ${NUARG_FILE_INCLUDE_SRC})
         string(APPEND AUTOPKG_FILES_CONTENT "${SEPARATOR}")
-        nuget_internal_helper_cut_arg_list(FILE_INCLUDE_SRC "${ARGS_TAIL}" ARGS_HEAD ARGS_TAIL)
-        nuget_internal_autopkg_add_include_file("${AUTOPKG_SUBELEMENT_INDENT_SIZE}" "${AUTOPKG_FILES_CONTENT}" "${RELATIVE_OUTPUT_DIR}"
-        AUTOPKG_FILES_CONTENT ${ARGS_HEAD}
-        )
+        string(APPEND AUTOPKG_FILES_CONTENT "\n${AUTOPKG_SUBELEMENT_INDENT_SIZE}${RELATIVE_OUTPUT_DIR}/${FILE_INCLUDE_SRC}")
         set(SEPARATOR ",")
-    endwhile()
+    endforeach()
 
-    # End /nuget/files
     string(APPEND AUTOPKG_FILES_CONTENT "${AUTOPKG_FILES_CONTENT_END}")
-
-    if("${AUTOPKG_FILES_CONTENT}" STREQUAL "${AUTOPKG_FILES_CONTENT_BEGIN}${AUTOPKG_FILES_CONTENT_END}")
-        message(FATAL_ERROR "Assembled expression for generating /nuget/files node(s) for .autopkg file(s) is empty.")
-    endif()
-
     string(APPEND AUTOPKG_CONTENT "${AUTOPKG_FILES_CONTENT}")
     set(${OUT_AUTOPKG_CONTENT} "${AUTOPKG_CONTENT}" PARENT_SCOPE)
 endfunction()
 
 ## Internal.
-function(nuget_internal_autopkg_add_include_file AUTOPKG_INDENT_SIZE AUTOPKG_CONTENT RELATIVE_OUTPUT_DIR OUT_AUTOPKG_CONTENT)
+function(nuget_internal_autopkg_process_files_nestedincludes_args
+    AUTOPKG_INDENT_SIZE
+    AUTOPKG_CONTENT
+    CMAKE_OUTPUT_DIR
+    OUT_AUTOPKG_CONTENT
+)
     # Inputs
     # See http://coapp.org/developers/autopackage.html and http://coapp.org/reference/autopackage-ref.html
     set(options "")
-    set(oneValueArgs FILE_INCLUDE_SRC)
-    set(multiValueArgs FILE_EXCLUDE)
-    cmake_parse_arguments(NUARG
-        "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN}
-    )
-    nuget_internal_helper_error_if_unparsed_args(
-        "${NUARG_UNPARSED_ARGUMENTS}"
-        "${NUARG_KEYWORDS_MISSING_VALUES}"
-    )
-    nuget_internal_helper_error_if_empty("${NUARG_FILE_INCLUDE_SRC}"
-        "FILE_INCLUDE_SRC must not both be empty: it is a required attribute of an .autopkg file's /nuget/files/include element."
+    set(oneValueArgs FILE_INCLUDE_DEST)
+    set(multiValueArgs FILE_INCLUDE_SRC)
+    cmake_parse_arguments(NUARG "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
+    nuget_internal_helper_error_if_unparsed_args("${NUARG_UNPARSED_ARGUMENTS}" "${NUARG_KEYWORDS_MISSING_VALUES}")
+    nuget_internal_helper_error_if_empty("${NUARG_FILE_INCLUDE_DEST}" "FILE_INCLUDE_DEST and FILE_INCLUDE_SRC must not both be " +
+        "empty: it is a required attribute of an .autopkg file's /nuget/files/nestedInclude element."
     )
 
-    string(APPEND AUTOPKG_CONTENT "\n${AUTOPKG_INDENT_SIZE}${RELATIVE_OUTPUT_DIR}/${NUARG_FILE_INCLUDE_SRC}")
+    set(AUTOPKG_FILES_CONTENT_BEGIN "\n${AUTOPKG_INDENT_SIZE}${AUTOPKG_INDENT_SIZE}nestedInclude: {")
+    set(AUTOPKG_FILES_CONTENT_END "\n${AUTOPKG_INDENT_SIZE}${AUTOPKG_INDENT_SIZE}};")
+    set(AUTOPKG_FILES_CONTENT "${AUTOPKG_FILES_CONTENT_BEGIN}")
+    set(AUTOPKG_SUBELEMENT_INDENT_SIZE "${AUTOPKG_INDENT_SIZE}${NUGET_AUTOPKG_INDENT_SIZE}${NUGET_AUTOPKG_INDENT_SIZE}")
+    cmake_path(RELATIVE_PATH CMAKE_SOURCE_DIR BASE_DIRECTORY ${CMAKE_OUTPUT_DIR} OUTPUT_VARIABLE RELATIVE_OUTPUT_DIR)
+
+    string(APPEND AUTOPKG_FILES_CONTENT "\n${AUTOPKG_SUBELEMENT_INDENT_SIZE}#destination = ${NUARG_FILE_INCLUDE_DEST};")
+
+    foreach(FILE_INCLUDE_SRC ${NUARG_FILE_INCLUDE_SRC})
+        string(APPEND AUTOPKG_FILES_CONTENT "${SEPARATOR}")
+        string(APPEND AUTOPKG_FILES_CONTENT "\n${AUTOPKG_SUBELEMENT_INDENT_SIZE}${RELATIVE_OUTPUT_DIR}/${FILE_INCLUDE_SRC}")
+        set(SEPARATOR ",")
+    endforeach()
+
+    string(APPEND AUTOPKG_FILES_CONTENT "${AUTOPKG_FILES_CONTENT_END}")
+    string(APPEND AUTOPKG_CONTENT "${AUTOPKG_FILES_CONTENT}")
     set(${OUT_AUTOPKG_CONTENT} "${AUTOPKG_CONTENT}" PARENT_SCOPE)
 endfunction()
 
+## Internal.
 function(nuget_internal_autopkg_process_files_outputs_args
     AUTOPKG_INDENT_SIZE
     AUTOPKG_CONTENT
@@ -279,6 +298,7 @@ function(nuget_internal_autopkg_process_files_outputs_args
     set(${OUT_AUTOPKG_CONTENT} "${AUTOPKG_CONTENT}" PARENT_SCOPE)
 endfunction()
 
+## Internal.
 function(nuget_internal_autopkg_add_files_outputs_conditionally AUTOPKG_INDENT_SIZE AUTOPKG_CONTENT RELATIVE_OUTPUT_DIR OUT_AUTOPKG_CONTENT CMAKE_CONDITIONAL_SECTION)
     # Input: check for a CMAKE_CONDITIONAL_SECTION parameter pack
     if(NOT "${CMAKE_CONDITIONAL_SECTION}" STREQUAL "")
