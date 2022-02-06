@@ -12,8 +12,7 @@
         {
             "configurationType": "Debug",
             "name": "x64-windows\\${configurationType}",
-            "generator": "Visual Studio 16 2019",
-            "architecture": "x64",
+            "generator": "Visual Studio 15 2017 Win64",
             "inheritEnvironments": [ "msvc_x64_x64" ],
             "buildRoot": "${env.BuildRoot}\\vs2017\\${env.ProjectName}\\${name}",
             "installRoot": "${env.InstallRoot}\\vs2017\\${env.ProjectName}\\${name}",
@@ -28,8 +27,7 @@
         {
             "configurationType": "Release",
             "name": "x64-windows\\${configurationType}",
-            "generator": "Visual Studio 16 2019",
-            "architecture": "x64",
+            "generator": "Visual Studio 15 2017 Win64",
             "inheritEnvironments": [ "msvc_x64_x64" ],
             "buildRoot": "${env.BuildRoot}\\vs2017\\${env.ProjectName}\\${name}",
             "installRoot": "${env.InstallRoot}\\vs2017\\${env.ProjectName}\\${name}",
