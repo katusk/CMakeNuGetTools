@@ -76,6 +76,56 @@ nuget_generate_nuspec_files(
 )
 ```
 
+For native C/C++ packages, you can generate `.autopkg` files resulting in multiple `.nupkg` files for development, redistributables and symbols. This method automatically adds `.target` files for Visual Studio to automatically update include, lib and dll paths. This method also uses the power of CMake including the use of generator expressions via the `nuget_generate_autopkg_files()` function, see following example. This function also uses the `file(GENERATE ...)` built-in of CMake and some argument parsing at its core.
+
+```cmake
+# Get the build architecture from the linker flags
+string(REGEX MATCH "/machine:.[(A-z)|(a-z)|(0-9)]*" ARCHITECTURE ${CMAKE_EXE_LINKER_FLAGS})
+string(REPLACE "/machine:" "" ARCHITECTURE ${ARCHITECTURE})
+
+nuget_generate_autopkg_files(
+    ## CMake-specific arguments section
+    # Optional: defaults to ${CMAKE_BINARY_DIR}/CMakeNuGetTools/autopkg
+    CMAKE_OUTPUT_DIR ${CMAKE_BINARY_DIR}/CMakeNuGetTools
+    CMAKE_ARCHITECTURE ${ARCHITECTURE}
+    CMAKE_PLATFORMTOOLSET ${CMAKE_VS_PLATFORM_TOOLSET}
+    # Optional: defaults to no restrictions given
+    CMAKE_CONFIGURATIONS Release Debug
+    ## Autopkg-related section below
+    NUSPEC
+        ## Required elements
+        PACKAGE ${PROJECT_NAME}
+        VERSION ${PROJECT_VERSION}
+        TITLE ${PROJECT_NAME}
+        DESCRIPTION "It's *the* package."
+        AUTHORS katusk cmake CMakeNuGetTools
+        OWNERS "katusk"
+        ## Optional elements
+        LICENSE_URL http://github.com/katusk
+        PROJECT_URL https://github.com/katusk
+        # ICON fake.png
+        SUMMARY "It's *the* package."
+        RELEASE_NOTES "No release notes yet."
+        COPYRIGHT katusk
+        TAGS "tag1;tag2"
+    ## FILES node: required by our CMake implementation
+    FILES
+        INCLUDES
+            # Add this only when nestedInclude is needed. Beware to escape the $ character with a backslash.
+            FILE_INCLUDE_DEST "\${d_include}/mylib"
+            # Add multiple include sources on the same line and separate each include definition with a space.
+            # The path here must be relative to the source root. The generator will add the relative path automatically.
+            FILE_INCLUDE_SRC "**/*.h"
+        OUTPUTS
+            # Only add the names of the files, the generator will add the relative paths automatically.
+            FILE_BIN_SRC "$<TARGET_FILE_NAME:WriteAutopkgNested>"
+            FILE_LIB_SRC "$<TARGET_LINKER_FILE_NAME:WriteAutopkgNested>"
+            # Only in Debug mode: .pdb file
+            CMAKE_CONDITIONAL_SECTION $<CONFIG:Debug>
+                FILE_SYMBOLS_SRC "$<TARGET_PDB_FILE_NAME:WriteAutopkgNested>"
+)
+```
+
 ## Setup
 
 1. Install the [`nuget.exe` CLI](https://docs.microsoft.com/en-us/nuget/install-nuget-client-tools#nugetexe-cli) on your platform: installation instructions can be found [here for Windows](https://docs.microsoft.com/en-us/nuget/install-nuget-client-tools#windows), and [here for macOS/Linux](https://docs.microsoft.com/en-us/nuget/install-nuget-client-tools#macoslinux). Make sure you can properly use the NuGet CLI from your command line or terminal: NuGet feeds are [configured](https://docs.microsoft.com/en-us/nuget/reference/nuget-config-file) properly, your NuGet credentials are valid, etc.
