@@ -23,5 +23,6 @@ Update-JsonFile .\tests\export_cmake_and_install\CMakeSettings.json
 Update-JsonFile .\tests\export_simple_cmake\CMakeSettings.json
 Update-JsonFile .\tests\export_simple_dot_targets\CMakeSettings.json
 Update-JsonFile .\tests\export_simple_toolchain\CMakeSettings.json
+Update-JsonFile .\tests\write_autopkg_nested\CMakeSettings.json
 Update-JsonFile .\tests\write_autopkg_simple\CMakeSettings.json
 Update-JsonFile .\tests\write_nuspec_simple\CMakeSettings.json
