@@ -1,0 +1,6 @@
+get_filename_component(WriteAutopkgNested_CMAKE_DIR "${CMAKE_CURRENT_LIST_FILE}" PATH)
+list(APPEND CMAKE_MODULE_PATH ${WriteAutopkgNested_CMAKE_DIR})
+if(NOT TARGET WriteAutopkgNested::WriteAutopkgNested)
+    include("${WriteAutopkgNested_CMAKE_DIR}/WriteAutopkgNestedTargets.cmake")
+endif()
+set(WriteAutopkgNested_LIBRARIES WriteAutopkgNested::WriteAutopkgNested)

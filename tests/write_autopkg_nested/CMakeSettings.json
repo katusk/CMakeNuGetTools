@@ -1,0 +1,45 @@
+{
+    "environments": [
+        {
+            "BuildRoot": "${projectDir}\\..\\..\\build",
+            "InstallRoot": "${projectDir}\\..\\..\\install",
+            "PackagesRoot": "${projectDir}\\..\\..\\packages",
+            "ProjectName": "write_autopkg_nested"
+        }
+    ],
+
+    "configurations": [
+        {
+            "configurationType": "Debug",
+            "name": "x64-windows\\${configurationType}",
+            "generator": "Visual Studio 16 2019",
+            "architecture": "x64",
+            "inheritEnvironments": [ "msvc_x64_x64" ],
+            "buildRoot": "${env.BuildRoot}\\vs2017\\${env.ProjectName}\\${name}",
+            "installRoot": "${env.InstallRoot}\\vs2017\\${env.ProjectName}\\${name}",
+            "cmakeCommandArgs": "--trace-expand",
+            "buildCommandArgs": "/v:normal /m /p:CL_MPCount=8",
+            "ctestCommandArgs": "",
+            "variables": [
+                { "name": "NUGET_COMMAND", "value": "nuget" },
+                { "name": "NUGET_PACKAGES_DIR", "value": "${env.PackagesRoot}" }
+            ]
+        },
+        {
+            "configurationType": "Release",
+            "name": "x64-windows\\${configurationType}",
+            "generator": "Visual Studio 16 2019",
+            "architecture": "x64",
+            "inheritEnvironments": [ "msvc_x64_x64" ],
+            "buildRoot": "${env.BuildRoot}\\vs2017\\${env.ProjectName}\\${name}",
+            "installRoot": "${env.InstallRoot}\\vs2017\\${env.ProjectName}\\${name}",
+            "cmakeCommandArgs": "--trace-expand",
+            "buildCommandArgs": "/v:normal /m /p:CL_MPCount=8",
+            "ctestCommandArgs": "",
+            "variables": [
+                { "name": "NUGET_COMMAND", "value": "nuget" },
+                { "name": "NUGET_PACKAGES_DIR", "value": "${env.PackagesRoot}" }
+            ]
+        }
+    ]
+}
