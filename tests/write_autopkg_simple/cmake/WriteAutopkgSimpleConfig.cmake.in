@@ -1,0 +1,6 @@
+get_filename_component(WriteAutopkgSimple_CMAKE_DIR "${CMAKE_CURRENT_LIST_FILE}" PATH)
+list(APPEND CMAKE_MODULE_PATH ${WriteAutopkgSimple_CMAKE_DIR})
+if(NOT TARGET WriteAutopkgSimple::WriteAutopkgSimple)
+    include("${WriteAutopkgSimple_CMAKE_DIR}/WriteAutopkgSimpleTargets.cmake")
+endif()
+set(WriteAutopkgSimple_LIBRARIES WriteAutopkgSimple::WriteAutopkgSimple)
