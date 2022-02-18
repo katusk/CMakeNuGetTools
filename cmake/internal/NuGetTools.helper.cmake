@@ -32,7 +32,7 @@ function(nuget_internal_helper_list_transform_prepend LIST STRING_ARG OUT_LIST)
     set("${OUT_LIST}" "${TRANSFORMED_LIST}" PARENT_SCOPE)
 endfunction()
 
-## Internal. If LIST is "PACKAGE flatbuffers VERSION 1.11.0 PACKAGE icu VERSION 65.1" and 
+## Internal. If LIST is "PACKAGE flatbuffers VERSION 1.11.0 PACKAGE icu VERSION 65.1" and
 ## DIVIDER is "PACKAGE", then OUT_HEAD will be "PACKAGE flatbuffers VERSION 1.11.0" and
 ## OUT_TAIL will be the rest of the LIST.
 function(nuget_internal_helper_cut_arg_list DIVIDER LIST OUT_HEAD OUT_TAIL)
@@ -188,9 +188,26 @@ function(nuget_internal_helper_unset_cache_vars_containing SUBSTRING SKIP_PREFIX
         endif()
         string(FIND "${${QUERIED_VARIABLE}}" "${SUBSTRING}" SUBSTRING_INDEX)
         if(NOT ${SUBSTRING_INDEX} EQUAL -1)
-            unset("${QUERIED_VARIABLE}" CACHE)
+            message(STATUS "Unsetting: ${QUERIED_VARIABLE}=${${QUERIED_VARIABLE}}")
+            # TODO: Unset is not effective for all cache variables? Why?
+            # unset(${QUERIED_VARIABLE})
+            unset(${QUERIED_VARIABLE} CACHE)
+            # If variable still unset, then better start from scratch.
+            if(DEFINED CACHE{${QUERIED_VARIABLE}})
+                # TODO: Did not manage to reach this, even though cache variables seemingly remain.
+                message(STATUS "Unsetting failed: ${QUERIED_VARIABLE}=${${QUERIED_VARIABLE}}")
+                message(FATAL_ERROR "Please delete and regenerate the CMake cache.")
+            endif()
         endif()
     endforeach()
+endfunction()
+
+## Internal. It does not seem to work as intended yet...
+function(nuget_internal_helper_remove_cmake_cache_and_halt)
+    file(GLOB CMAKECACHE_TXT_FILES LIST_DIRECTORIES FALSE "${CMAKE_BINARY_DIR}/*CMakeCache.txt")
+    message(STATUS "Removing CMakeCache.txt files: ${CMAKECACHE_TXT_FILES}")
+    file(REMOVE ${CMAKECACHE_TXT_FILES}) # TODO: This file remove does not seem to work.
+    message(FATAL_ERROR "Please delete and regenerate the CMake cache.")
 endfunction()
 
 ## Internal.

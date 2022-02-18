@@ -126,7 +126,11 @@ function(nuget_internal_core_install
     if(NUGET_PREV_DEPENDENCY_DIR_${PACKAGE_ID} AND NOT "${NUGET_PREV_DEPENDENCY_DIR_${PACKAGE_ID}}" STREQUAL "${PACKAGE_DIR}")
         message(STATUS "Effective package directory of package \"${PACKAGE_ID}.${PACKAGE_VERSION}\" has been changed to \"${PACKAGE_DIR}\" from \"${NUGET_PREV_DEPENDENCY_DIR_${PACKAGE_ID}}\".")
         if(NUGET_AUTO_UNSET_CACHE_VARS_WHEN_PACKAGE_DIR_CHANGED)
+            # TODO: See definition of nuget_internal_helper_unset_cache_vars_containing and nuget_internal_helper_remove_cmake_cache_and_halt
             nuget_internal_helper_unset_cache_vars_containing("${NUGET_PREV_DEPENDENCY_DIR_${PACKAGE_ID}}" "NUGET_")
+            # nuget_internal_helper_remove_cmake_cache_and_halt()
+        else()
+            message(FATAL_ERROR "Directory paths of package dependencies changed. Please delete and regenerate the CMake cache, and generate your build files again. Otherwise new include or library directories are not picked up.")
         endif()
     endif()
     set("NUGET_PREV_DEPENDENCY_DIR_${PACKAGE_ID}" "${PACKAGE_DIR}" CACHE INTERNAL "")
