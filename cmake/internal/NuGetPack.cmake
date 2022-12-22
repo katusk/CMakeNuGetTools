@@ -204,7 +204,7 @@ function(nuget_generate_autopkg_files)
         "${NUGET_AUTOPKG_INDENT_SIZE}"
         "${AUTOPKG_CONTENT}"
         ${NUARG_CMAKE_ARCHITECTURE}
-        ${NUARG_CMAKE_PLATFORMTOOLSET}
+        "${NUARG_CMAKE_PLATFORMTOOLSET}"
         "${NUARG_CMAKE_OUTPUT_DIR}"
         "${RELATIVE_OUTPUT_DIR}"
         AUTOPKG_CONTENT
