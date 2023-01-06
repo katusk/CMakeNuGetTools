@@ -145,7 +145,7 @@ function(nuget_internal_autopkg_process_files_args
             "${AUTOPKG_INDENT_SIZE}"
             "${AUTOPKG_FILES_CONTENT}"
             ${CMAKE_ARCHITECTURE}
-            ${CMAKE_PLATFORMTOOLSET}
+            "${CMAKE_PLATFORMTOOLSET}"
             "${RELATIVE_OUTPUT_DIR}"
             AUTOPKG_FILES_CONTENT
             ${NUARG_OUTPUTS}

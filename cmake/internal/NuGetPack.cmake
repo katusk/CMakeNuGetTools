@@ -187,7 +187,9 @@ function(nuget_generate_autopkg_files)
     )
     # NUSPEC arg: /nuget/nuspec in .autopkg file (NUSPEC as section identifier CMake argument)
     nuget_internal_helper_error_if_empty("${NUARG_NUSPEC}" "NUSPEC identifier is not found: it is a required element (/nuget/nuspec) of an .autopkg file.")
-    string(APPEND TARGET_OUTPUT_DIR ${CMAKE_BINARY_DIR})
+    if ("${TARGET_OUTPUT_DIR}" STREQUAL "")
+        string(APPEND TARGET_OUTPUT_DIR ${CMAKE_BINARY_DIR})
+    endif()
     string(APPEND TARGET_OUTPUT_DIR "/$<CONFIG>")
     cmake_path(RELATIVE_PATH TARGET_OUTPUT_DIR BASE_DIRECTORY ${NUARG_CMAKE_OUTPUT_DIR} OUTPUT_VARIABLE RELATIVE_OUTPUT_DIR)
     nuget_internal_autopkg_process_nuspec_args("${NUGET_AUTOPKG_INDENT_SIZE}" "${AUTOPKG_CONTENT}" AUTOPKG_CONTENT PACKAGE_ID ${NUARG_NUSPEC})
@@ -204,7 +206,7 @@ function(nuget_generate_autopkg_files)
         "${NUGET_AUTOPKG_INDENT_SIZE}"
         "${AUTOPKG_CONTENT}"
         ${NUARG_CMAKE_ARCHITECTURE}
-        ${NUARG_CMAKE_PLATFORMTOOLSET}
+        "${NUARG_CMAKE_PLATFORMTOOLSET}"
         "${NUARG_CMAKE_OUTPUT_DIR}"
         "${RELATIVE_OUTPUT_DIR}"
         AUTOPKG_CONTENT
