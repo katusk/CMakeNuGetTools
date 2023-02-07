@@ -3,6 +3,7 @@ cmake_minimum_required(VERSION 3.8.2 FATAL_ERROR)
 ## User-settable cache variables
 set(NUGET_COMMAND "" CACHE STRING "NuGet executable used for package installs. Empty means NuGetTools is disabled. Deliberately not a FILEPATH cache variable: you can set it simply to \"nuget.exe\" if the executable is within your PATH environment.")
 set(NUGET_PACKAGES_DIR "${CMAKE_SOURCE_DIR}/packages" CACHE PATH "Path to the directory used by NuGet to store installed packages.")
+set(NUGET_CONFIG_FILE "" CACHE FILEPATH "The NuGet configuration file to apply. If not specified, %AppData%\\NuGet\\NuGet.Config (Windows), or ~/.nuget/NuGet/NuGet.Config or ~/.config/NuGet/NuGet.Config (Mac/Linux) is used.")
 
 ## Advanced cache variables
 option(NUGET_NO_CACHE "Advanced. Add -NoCache option to NuGet install commands: \"Disable using the machine cache as the first package source.\"" FALSE)
