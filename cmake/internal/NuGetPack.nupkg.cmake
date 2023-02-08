@@ -8,6 +8,9 @@ function(nuget_internal_pack NUSPEC_FILEPATH OUTPUT_DIRECTORY VERSION_OVERRIDE)
     if(NOT "${VERSION_OVERRIDE}" STREQUAL "")
         set(VERSION_OVERRIDE "-Version ${VERSION_OVERRIDE}")
     endif()
+    if(NUGET_CONFIG_FILE)
+        set(NUGET_CONFIG_FILE_OPTION -ConfigFile "${NUGET_CONFIG_FILE}")
+    endif()
     # Execute pack
     execute_process(
         COMMAND "${NUGET_COMMAND}" pack "${NUSPEC_FILEPATH}"
@@ -15,6 +18,7 @@ function(nuget_internal_pack NUSPEC_FILEPATH OUTPUT_DIRECTORY VERSION_OVERRIDE)
             ${VERSION_OVERRIDE}
             -NonInteractive
             -NoDefaultExcludes
+            ${NUGET_CONFIG_FILE_OPTION}
             # Consider -NoPackageAnalysis as option (default FALSE)
         ERROR_VARIABLE
             NUGET_PACK_ERROR_VAR
@@ -62,6 +66,10 @@ function(nuget_internal_pack_install
         "No NuGet executable was provided; this means NuGetTools should have been disabled, and "
         "we should not ever reach a call to nuget_internal_pack_install()."
     )
+    if(NUGET_CONFIG_FILE)
+        set(NUGET_CONFIG_FILE_OPTION -ConfigFile "${NUGET_CONFIG_FILE}")
+    endif()
+
     # Execute
     execute_process(
         COMMAND "${NUGET_COMMAND}" install ${PACKAGE_ID}
@@ -69,6 +77,7 @@ function(nuget_internal_pack_install
             -OutputDirectory "${OUTPUT_DIRECTORY}"
             -Source "${SOURCE}"
             -NonInteractive
+            ${NUGET_CONFIG_FILE_OPTION}
         ERROR_VARIABLE
             NUGET_INSTALL_ERROR_VAR
         RESULT_VARIABLE
@@ -97,12 +106,16 @@ function(nuget_internal_pack_push
     if(NOT "${API_KEY}" STREQUAL "")
         set(API_KEY -ApiKey "${API_KEY}")
     endif()
+    if(NUGET_CONFIG_FILE)
+        set(NUGET_CONFIG_FILE_OPTION -ConfigFile "${NUGET_CONFIG_FILE}")
+    endif()
     # Execute
     execute_process(
         COMMAND "${NUGET_COMMAND}" push "${PACKAGE_PATH}"
             ${API_KEY}
             -Source "${SOURCE}"
             -NonInteractive
+            ${NUGET_CONFIG_FILE_OPTION}
         ERROR_VARIABLE
             NUGET_INSTALL_ERROR_VAR
         RESULT_VARIABLE

@@ -86,6 +86,10 @@ function(nuget_internal_core_install
     if(NUGET_EXCLUDE_VERSION)
         set(NUGET_EXCLUDE_VERSION_OPTION "-ExcludeVersion")
     endif()
+    if(NUGET_CONFIG_FILE)
+        set(NUGET_CONFIG_FILE_OPTION -ConfigFile "${NUGET_CONFIG_FILE}")
+    endif()
+
     # Execute install
     #
     # NOTE. Output is not parsed for additionally installed dependencies. It does not worth
@@ -102,6 +106,7 @@ function(nuget_internal_core_install
             ${NUGET_INSTALL_DIRECT_DOWNLOAD_OPTION}
             ${NUGET_PACKAGE_SAVE_MODE_OPTION}
             ${NUGET_EXCLUDE_VERSION_OPTION}
+            ${NUGET_CONFIG_FILE_OPTION}
         ERROR_VARIABLE
             NUGET_INSTALL_ERROR_VAR
         RESULT_VARIABLE
